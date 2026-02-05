@@ -1,0 +1,31 @@
+{
+    "student_id": "20240001",
+    "name": "홍길동",
+    "major": "Computer Science",
+    "grade": 3,
+    "credits": 85,
+    "email": "gildong@example.com",
+    "phone": "010-1234-5678",
+    "address": "Seoul, South Korea",
+    "profile_picture": "path/to/profile.jpg",
+    "completed_courses": [
+        {
+            "course_unique_id": "MED-01-1000",
+            "course_code": "SUBJ1000",
+            "course_name": "Human Anatomy",
+            "credits": 4,
+            "schedule": "Monday 09:00 - 13:00",
+            "location": "Block A, Room 101"
+        }
+    ],
+    "planned_courses": [
+        {
+            "course_unique_id": "MED-01-1001",
+            "course_code": "SUBJ1001",
+            "course_name": "General Surgery",
+            "credits": 4,
+            "schedule": "Wednesday 14:00 - 18:00",
+            "location": "Block B, Room 202"
+        }
+    ]
+}

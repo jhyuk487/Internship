@@ -1,0 +1,32 @@
+{
+    "courses": [
+        {
+            "course_unique_id": "MED-01-1000",
+            "course_name": "Human Anatomy",
+            "credits": 4,
+            "major_id": "FAC_001",
+            "sections": [
+                {
+                    "professor_name": "Dr. Smith",
+                    "schedule": "Monday 09:00 - 13:00",
+                    "location": "Block A, Room 101",
+                    "section_number": 1
+                },
+                {
+                    "professor_name": "Dr. Jones",
+                    "schedule": "Tuesday 14:00 - 18:00",
+                    "location": "Block C, Room 303",
+                    "section_number": 2
+                }
+            ],
+            "prerequisite_code": null
+        }
+    ],
+    "majors": [
+        {
+            "major_id": "MED-03",
+            "major_name": "Medicine",
+            "campus_location": "Kuala Lumpur Campus"
+        }
+    ]
+}
