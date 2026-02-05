@@ -1,5 +1,5 @@
 {
-    "student_id": "20240001",
+    "user_id": "20240001",
     "name": "홍길동",
     "major": "Computer Science",
     "grade": 3,
@@ -13,9 +13,7 @@
             "course_unique_id": "MED-01-1000",
             "course_code": "SUBJ1000",
             "course_name": "Human Anatomy",
-            "credits": 4,
-            "schedule": "Monday 09:00 - 13:00",
-            "location": "Block A, Room 101"
+            "credits": 4
         }
     ],
     "planned_courses": [
