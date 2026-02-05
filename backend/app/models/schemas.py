@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 
 class Token(BaseModel):
     access_token: str
@@ -19,3 +20,27 @@ class ChatResponse(BaseModel):
 class DocumentIngestRequest(BaseModel):
     filename: str
     content: str
+
+# Chat History Schemas
+class ChatMessageSchema(BaseModel):
+    role: str
+    content: str
+
+class SaveChatRequest(BaseModel):
+    title: str
+    messages: List[ChatMessageSchema]
+
+class UpdateChatRequest(BaseModel):
+    title: Optional[str] = None
+    is_pinned: Optional[bool] = None
+    messages: Optional[List[ChatMessageSchema]] = None
+
+class ChatHistoryResponse(BaseModel):
+    id: str
+    title: str
+    messages: List[ChatMessageSchema]
+    is_pinned: bool
+    created_at: datetime
+
+class ChatListResponse(BaseModel):
+    chats: List[ChatHistoryResponse]

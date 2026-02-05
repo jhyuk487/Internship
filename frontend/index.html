@@ -253,22 +253,40 @@
         const historyList = document.getElementById('history-list');
 
         let currentUserId = "guest";
+        let authToken = null;  // JWT token for authenticated requests
         let isProcessing = false;
         let currentMessages = [];
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        let chatHistory = [];  // Will be loaded from API for logged-in users
+        let currentLoadedChatId = null;  // Track currently loaded chat to prevent duplicates
 
-        // Initialize history on load
+        // Initialize
         updateHistoryUI();
 
         function toggleLoginModal() {
             loginModal.classList.toggle('hidden');
         }
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const studentId = document.getElementById('student-id').value;
-            if (studentId) {
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId, password: password })
+                });
+                
+                if (!response.ok) {
+                    alert('Login failed. Please check your credentials.');
+                    return;
+                }
+                
+                const data = await response.json();
+                authToken = data.access_token;
                 currentUserId = studentId;
+                
                 document.getElementById('user-name').innerText = studentId;
                 document.getElementById('user-avatar').innerText = studentId.substring(0, 2).toUpperCase();
                 document.getElementById('user-plan').innerText = "Student User";
@@ -276,17 +294,30 @@
                 document.getElementById('auth-icon').innerText = "logout";
                 document.getElementById('auth-btn').onclick = handleLogout;
                 toggleLoginModal();
+                
+                // Load chat history from DB after login
+                await loadChatHistoryFromDB();
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
             }
         }
 
         function handleLogout() {
             currentUserId = "guest";
+            authToken = null;
+            chatHistory = [];
+            currentLoadedChatId = null;
+            
             document.getElementById('user-name').innerText = "Guest Student";
             document.getElementById('user-avatar').innerText = "GS";
             document.getElementById('user-plan').innerText = "Newcomer";
             document.getElementById('auth-text').innerText = "Login";
             document.getElementById('auth-icon').innerText = "login";
             document.getElementById('auth-btn').onclick = toggleLoginModal;
+            
+            updateHistoryUI();
+            startNewChat();
         }
 
         function togglePasswordVisibility() {
@@ -301,52 +332,78 @@
             }
         }
 
+        async function loadChatHistoryFromDB() {
+            if (!authToken) return;
+            
+            try {
+                const response = await fetch('/chat/history', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    chatHistory = data.chats.map(chat => ({
+                        id: chat.id,
+                        title: chat.title,
+                        messages: chat.messages,
+                        isPinned: chat.is_pinned,
+                        time: new Date(chat.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }));
+                    updateHistoryUI();
+                }
+            } catch (error) {
+                console.error('Failed to load chat history:', error);
+            }
+        }
+
         function updateHistoryUI() {
             const header = historyList.querySelector('p');
             historyList.innerHTML = '';
             if (header) historyList.appendChild(header);
 
-            const sortedHistory = [...chatHistory].map((chat, originalIndex) => ({ ...chat, originalIndex }))
-                .sort((a, b) => {
-                    if (a.isPinned && !b.isPinned) return -1;
-                    if (!a.isPinned && b.isPinned) return 1;
-                    return b.originalIndex - a.originalIndex;
-                });
+            // Show message for guest users
+            if (currentUserId === "guest") {
+                const notice = document.createElement('p');
+                notice.className = "text-xs text-white/40 text-center py-4";
+                notice.innerText = "Login to save chat history";
+                historyList.appendChild(notice);
+                return;
+            }
 
-            sortedHistory.forEach((chat) => {
+            chatHistory.forEach((chat, index) => {
                 const item = document.createElement('div');
                 item.className = "group relative bg-white/10 p-4 rounded-2xl border border-white/5 hover:bg-white/20 cursor-pointer transition-all mb-3";
 
                 const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
 
                 item.innerHTML = `
-                    <div id="display-container-${chat.originalIndex}" class="flex justify-between items-start gap-2" onclick="loadChat(${chat.originalIndex})">
+                    <div id="display-container-${index}" class="flex justify-between items-start gap-2" onclick="loadChat('${chat.id}', ${index})">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium line-clamp-1">${chat.title}</p>
                             <p class="text-xs text-white/40 mt-1">${chat.time}</p>
                         </div>
                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="event.stopPropagation(); togglePinChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
+                            <button onclick="event.stopPropagation(); togglePinChat('${chat.id}', ${index})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
                                 <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
                             </button>
-                            <button onclick="event.stopPropagation(); showRenameUI(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
+                            <button onclick="event.stopPropagation(); showRenameUI(${index})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
                                 <span class="material-symbols-outlined text-sm text-white/60 hover:text-white">edit</span>
                             </button>
-                            <button onclick="event.stopPropagation(); deleteChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
+                            <button onclick="event.stopPropagation(); deleteChat('${chat.id}', ${index})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
                                 <span class="material-symbols-outlined text-sm text-white/60 hover:text-red-400">delete</span>
                             </button>
                         </div>
                     </div>
-                    <div id="rename-container-${chat.originalIndex}" class="hidden items-center gap-2">
-                        <input id="rename-input-${chat.originalIndex}" type="text" 
+                    <div id="rename-container-${index}" class="hidden items-center gap-2">
+                        <input id="rename-input-${index}" type="text" 
                             class="flex-1 bg-white/5 border border-white/20 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-white/40"
-                            onkeyup="if(event.key === 'Enter') saveRename(${chat.originalIndex})"
+                            onkeyup="if(event.key === 'Enter') saveRename('${chat.id}', ${index})"
                             onclick="event.stopPropagation()">
                         <div class="flex gap-1">
-                            <button onclick="event.stopPropagation(); saveRename(${chat.originalIndex})" class="p-1 hover:bg-green-500/20 rounded-md text-green-400">
+                            <button onclick="event.stopPropagation(); saveRename('${chat.id}', ${index})" class="p-1 hover:bg-green-500/20 rounded-md text-green-400">
                                 <span class="material-symbols-outlined text-sm">check</span>
                             </button>
-                            <button onclick="event.stopPropagation(); cancelRename(${chat.originalIndex})" class="p-1 hover:bg-red-500/20 rounded-md text-red-400">
+                            <button onclick="event.stopPropagation(); cancelRename(${index})" class="p-1 hover:bg-red-500/20 rounded-md text-red-400">
                                 <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                         </div>
@@ -356,10 +413,26 @@
             });
         }
 
-        function togglePinChat(index) {
-            chatHistory[index].isPinned = !chatHistory[index].isPinned;
-            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            updateHistoryUI();
+        async function togglePinChat(chatId, index) {
+            if (!authToken) return;
+            
+            const newPinState = !chatHistory[index].isPinned;
+            try {
+                await fetch(`/chat/history/${chatId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ is_pinned: newPinState })
+                });
+                
+                chatHistory[index].isPinned = newPinState;
+                // Re-sort and update UI
+                await loadChatHistoryFromDB();
+            } catch (error) {
+                console.error('Failed to toggle pin:', error);
+            }
         }
 
         function showRenameUI(index) {
@@ -380,40 +453,77 @@
             renameContainer.classList.remove('flex');
         }
 
-        function saveRename(index) {
+        async function saveRename(chatId, index) {
+            if (!authToken) return;
+            
             const input = document.getElementById(`rename-input-${index}`);
             const newTitle = input.value.trim();
             if (newTitle !== "") {
-                chatHistory[index].title = newTitle;
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                updateHistoryUI();
+                try {
+                    await fetch(`/chat/history/${chatId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ title: newTitle })
+                    });
+                    
+                    chatHistory[index].title = newTitle;
+                    updateHistoryUI();
+                } catch (error) {
+                    console.error('Failed to rename:', error);
+                    cancelRename(index);
+                }
             } else {
                 cancelRename(index);
             }
         }
 
-        function deleteChat(index) {
+        async function deleteChat(chatId, index) {
+            if (!authToken) return;
+            
             if (confirm("Are you sure you want to delete this conversation?")) {
-                chatHistory.splice(index, 1);
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                if (chatHistory.length === 0) {
-                    startNewChat();
-                } else {
-                    updateHistoryUI();
+                try {
+                    await fetch(`/chat/history/${chatId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    chatHistory.splice(index, 1);
+                    if (currentLoadedChatId === chatId) {
+                        currentLoadedChatId = null;
+                        startNewChat();
+                    } else {
+                        updateHistoryUI();
+                    }
+                } catch (error) {
+                    console.error('Failed to delete:', error);
                 }
             }
         }
 
-        function startNewChat() {
-            if (currentMessages.length > 0) {
-                const title = currentMessages.find(m => m.role === 'user')?.content || "New Conversation";
-                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                chatHistory.push({ title, time, messages: [...currentMessages], isPinned: false });
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                updateHistoryUI();
+        async function startNewChat() {
+            // Save current chat to DB if logged in and has messages
+            if (authToken && currentMessages.length > 0 && currentLoadedChatId === null) {
+                const title = currentMessages.find(m => m.role === 'user')?.content?.substring(0, 50) || "New Conversation";
+                try {
+                    await fetch('/chat/history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ title, messages: currentMessages })
+                    });
+                    await loadChatHistoryFromDB();
+                } catch (error) {
+                    console.error('Failed to save chat:', error);
+                }
             }
 
             currentMessages = [];
+            currentLoadedChatId = null;
             chatContainer.innerHTML = `
                 <div class="flex justify-start items-start gap-4">
                     <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
@@ -431,9 +541,10 @@
             chatContainer.scrollTop = 0;
         }
 
-        function loadChat(index) {
+        function loadChat(chatId, index) {
             const chat = chatHistory[index];
             if (!chat) return;
+            currentLoadedChatId = chatId;  // Mark as loaded from history
             currentMessages = [...chat.messages];
             chatContainer.innerHTML = '';
             currentMessages.forEach(m => renderMessage(m.role, m.content));
@@ -467,6 +578,22 @@
         async function appendMessage(role, content) {
             currentMessages.push({ role, content });
             renderMessage(role, content);
+            
+            // Auto-update chat in DB if viewing an existing chat
+            if (authToken && currentLoadedChatId) {
+                try {
+                    await fetch(`/chat/history/${currentLoadedChatId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ messages: currentMessages })
+                    });
+                } catch (error) {
+                    console.error('Failed to update chat:', error);
+                }
+            }
         }
 
         function showLoading() {
