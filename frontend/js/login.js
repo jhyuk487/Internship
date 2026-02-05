@@ -19,9 +19,10 @@ async function handleLogin(event) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                student_id: studentId,
-                password: password
+                user_id: studentId,
+                user_password: password
             })
+
         });
 
         const data = await response.json();
@@ -58,7 +59,26 @@ async function handleLogin(event) {
                 window.currentUserId = studentId;
             }
 
+            // Display completed courses in chat if available
+            if (data.user_data && data.user_data.completed_courses) {
+                const courses = data.user_data.completed_courses;
+                if (courses.length > 0) {
+                    let courseMsg = `Welcome, ${data.user_data.name}! Here are your completed courses:\n`;
+                    courses.forEach(c => {
+                        courseMsg += `- ${c.course_name} (${c.course_code}): ${c.score || 'N/A'}\n`;
+                    });
+
+                    // Assuming appendMessage is available in the global scope (from index.html)
+                    if (typeof appendMessage === 'function') {
+                        appendMessage('bot', courseMsg);
+                    } else {
+                        console.log("Completed Courses:", courseMsg);
+                    }
+                }
+            }
+
             navigateAfterLogin();
+
         } else {
             alert("Login Failed: " + (data.detail || "Check credentials"));
         }

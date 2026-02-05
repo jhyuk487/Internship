@@ -1,59 +1,71 @@
-from typing import List, Optional
-from beanie import Document, Link
+from typing import List, Optional, Any
+from beanie import Document
 from pydantic import Field, BaseModel
-from datetime import datetime
 
-class TestRecord(Document):
-    """
-    Verification model for 'teamB' collection request.
-    Stores simple information to verify DB connection.
-    """
-    message: str
-    created_at: datetime = Field(default_factory=datetime.now)
-
-    class Settings:
-        name = "teamB"
-
-class Account(Document):
-    """
-    Model for user authentication (login).
-    Collection: account_info
-    """
-    student_id: str
-    password: str 
-
-    class Settings:
-        name = "account_info"
-
-class Faculty(Document):
-    faculty_id: str
-    name: str
-    campus: Optional[str] = None
-
-    class Settings:
-        name = "faculties"
-
-class Course(Document):
-    course_id: str
+class CourseInfo(BaseModel):
+    course_unique_id: str
     course_code: str
     course_name: str
-    faculty_id: str
-    credit_hours: int
+    credits: int
+    score: Optional[str] = None
+    # schedule and location are missing in the updated user_info.json for completed courses, so making them optional or removing if necessary. 
+    # For now, keeping them or making them optional.
+    schedule: Optional[str] = None
+    location: Optional[str] = None
+
+
+class User(Document):
+    user_id: str
+    name: str
+    major: str
+    grade: int
+    credits: int
+    email: str
+    phone: str
+    address: str
+    profile_picture: Optional[str] = None
+    completed_courses: List[CourseInfo] = []
+    planned_courses: List[CourseInfo] = []
 
     class Settings:
-        name = "courses"
+        name = "user_info"
 
-class Student(Document):
-    student_id: str
-    password: str  # Kept for backward compatibility if needed, but Account should be primary for auth
-    name: str
-    nationality: Optional[str] = None
-    gender: Optional[str] = None
-    major_id: Optional[str] = None
-    major_name: Optional[str] = None
-    intake: Optional[str] = None
-    dob: Optional[str] = None
-    faculty: Optional[str] = None
+class Account(Document):
+    user_id: str = Field(alias="user_id")
+    user_password: str
+
+    class Settings:
+        name = "login_info"
+
+
+
+class SectionInfo(BaseModel):
+    professor_name: str
+    schedule: str
+    location: str
+    section_number: int
+
+class Course(Document):
+    course_unique_id: str
+    course_name: str
+    credits: int
+    major_id: str
+    sections: List[SectionInfo] = []
+    prerequisite_code: Optional[str] = None
+
+    class Settings:
+        name = "uni_courses_info"
+
+class Major(Document):
+    major_id: str
+    major_name: str
+    campus_location: str
+
+    class Settings:
+        name = "uni_majors_info"
+
+class TestRecord(Document):
+    message: str
     
     class Settings:
-        name = "students"
+        name = "teamB"

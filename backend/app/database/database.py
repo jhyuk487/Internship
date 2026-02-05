@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 import os
-from .models import Student, Course, Faculty, TestRecord, Account
+from .models import User, Course, Major, TestRecord, Account
 
 # --- DB Configuration ---
 DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -23,9 +23,9 @@ async def init_db():
     await init_beanie(
         database=db,
         document_models=[
-            Student,
+            User,
             Course,
-            Faculty,
+            Major,
             TestRecord,
             Account
         ]

@@ -8,10 +8,12 @@ from app.core.config import settings
 
 class VectorService:
     def __init__(self):
-        # Initialize Embeddings (Local, Free)
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        # Initialize Embeddings (Disabled to avoid timeout)
+        # self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embeddings = None
         self.vector_store = None
-        self.load_index()
+        # self.load_index()
+
 
     def load_index(self):
         """Loads FAISS index from disk if exists"""
