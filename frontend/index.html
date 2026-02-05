@@ -252,7 +252,7 @@
         const loginModal = document.getElementById('login-modal');
         const historyList = document.getElementById('history-list');
 
-        let currentUserId = "guest";
+        window.currentUserId = "guest";
         let isProcessing = false;
         let currentMessages = [];
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
@@ -264,30 +264,6 @@
             loginModal.classList.toggle('hidden');
         }
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const studentId = document.getElementById('student-id').value;
-            if (studentId) {
-                currentUserId = studentId;
-                document.getElementById('user-name').innerText = studentId;
-                document.getElementById('user-avatar').innerText = studentId.substring(0, 2).toUpperCase();
-                document.getElementById('user-plan').innerText = "Student User";
-                document.getElementById('auth-text').innerText = "Logout";
-                document.getElementById('auth-icon').innerText = "logout";
-                document.getElementById('auth-btn').onclick = handleLogout;
-                toggleLoginModal();
-            }
-        }
-
-        function handleLogout() {
-            currentUserId = "guest";
-            document.getElementById('user-name').innerText = "Guest Student";
-            document.getElementById('user-avatar').innerText = "GS";
-            document.getElementById('user-plan').innerText = "Newcomer";
-            document.getElementById('auth-text').innerText = "Login";
-            document.getElementById('auth-icon').innerText = "login";
-            document.getElementById('auth-btn').onclick = toggleLoginModal;
-        }
 
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
@@ -507,7 +483,7 @@
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message, user_id: currentUserId })
+                    body: JSON.stringify({ message: message, user_id: window.currentUserId })
                 });
                 const data = await response.json();
                 removeLoading();
@@ -526,6 +502,7 @@
             if (e.key === 'Enter') sendMessage();
         });
     </script>
+    <script src="/static/js/login.js"></script>
 </body>
 
 </html>

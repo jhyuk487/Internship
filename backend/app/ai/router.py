@@ -4,8 +4,7 @@ from app.models.schemas import ChatRequest, ChatResponse, DocumentIngestRequest
 from .gemini import get_gemini_service, GeminiService
 from .vector import vector_service
 from app.services.student_service import student_service
-from app.api.auth import get_current_user, oauth2_scheme
-from app.core.security import verify_token
+from app.auth import get_current_user, oauth2_scheme, verify_token
 
 router = APIRouter()
 
@@ -41,7 +40,7 @@ async def chat_endpoint(
             if not user_id or user_id == "guest":
                 return ChatResponse(response="This appears to be a personal question. Please log in to access your information.")
             
-            student_info = student_service.get_student_info(user_id)
+            student_info = await student_service.get_student_info(user_id)
             if student_info:
                 context = f"Student Information: {str(student_info)}"
             else:

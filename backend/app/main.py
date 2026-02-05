@@ -31,11 +31,18 @@ async def root():
 async def health_check():
     return {"status": "ok"}
 
-from app.api import auth
+from app.auth import router as auth_router
 from app.ai import router as ai_router
+from app.database import router as db_router
+from app.database.database import init_db
 
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(ai_router, prefix="/chat", tags=["Chat"])
+app.include_router(db_router, prefix="/db", tags=["Database Verification"])
+
+@app.on_event("startup")
+async def start_db():
+    await init_db()
 
 if __name__ == "__main__":
     import uvicorn

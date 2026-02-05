@@ -1,33 +1,19 @@
-import json
-import os
-from typing import Optional, Dict
-from app.core.config import settings
+from app.database.models import Account, Student
 
 class StudentService:
-    def __init__(self):
-        self.students = []
-        self.load_data()
-
-    def load_data(self):
-        if os.path.exists(settings.STUDENT_DB_PATH):
-            with open(settings.STUDENT_DB_PATH, "r", encoding="utf-8") as f:
-                self.students = json.load(f)
-        else:
-            print("Student DB not found.")
-
-    def authenticate(self, student_id: str, password: str) -> Optional[Dict]:
-        for student in self.students:
-            if student["student_id"] == student_id and student["password"] == password:
-                return student
+    async def authenticate(self, student_id: str, password: str):
+        # Find account by student_id
+        account = await Account.find_one(Account.student_id == student_id)
+        if account and account.password == password:
+            # If successful, we might want to return profile info from Student collection
+            # But for now, returning the account object (converted to dict) is enough for the token
+            return {"student_id": account.student_id}
         return None
 
-    def get_student_info(self, student_id: str) -> Optional[Dict]:
-        for student in self.students:
-            if student["student_id"] == student_id:
-                # Return safe info (exclude password)
-                info = student.copy()
-                del info["password"]
-                return info
+    async def get_student_info(self, student_id: str):
+        student = await Student.find_one(Student.student_id == student_id)
+        if student:
+            return student.dict()
         return None
 
 student_service = StudentService()

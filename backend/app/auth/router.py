@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from app.core.security import create_access_token, verify_token
+from .security import create_access_token, verify_token
 from app.services.student_service import student_service
 from app.models.schemas import Token, TokenData
 
@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=Token)
 async def login(request: LoginRequest):
     """Login endpoint that accepts JSON body"""
-    user = student_service.authenticate(request.student_id, request.password)
+    user = await student_service.authenticate(request.student_id, request.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -29,7 +29,7 @@ async def login(request: LoginRequest):
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = student_service.authenticate(form_data.username, form_data.password)
+    user = await student_service.authenticate(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

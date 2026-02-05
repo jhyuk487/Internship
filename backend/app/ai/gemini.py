@@ -1,13 +1,15 @@
-import google.generativeai as genai
+from google import genai
 from app.core.config import settings
+from functools import lru_cache
 
 class GeminiService:
     def __init__(self):
         if not settings.GOOGLE_API_KEY:
             print("WARNING: GOOGLE_API_KEY is not set.")
         
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel('gemini-3-flash-preview')
+        # New SDK Initialization
+        self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+        self.model_id = 'gemini-2.0-flash' # Updated to latest model
 
     async def generate_response(self, user_query: str, context: str = "") -> str:
         """
@@ -21,18 +23,21 @@ class GeminiService:
         If the question is about personal student data (grades, etc) and no context is provided, ask them to log in or say you need access.
         """
         
-        prompt = f"""{system_instruction}
-
-        Context:
+        prompt = f"""Context:
         {context}
         
         User Query: {user_query}
         """
         
         try:
-            # Using generate_content_async if available, else sync wrapped
-            # valid_models showed 2.0-flash is available.
-            response = self.model.generate_content(prompt)
+            # New SDK usage
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt,
+                config={
+                    'system_instruction': system_instruction
+                }
+            )
             return response.text
         except Exception as e:
             return f"Error communicating with AI: {str(e)}"
@@ -50,13 +55,14 @@ class GeminiService:
         Return ONLY the category name.
         """
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
             return response.text.strip().lower()
         except Exception as e:
             print(f"Intent detection error: {e}")
             return "general" # Default
-
-from functools import lru_cache
 
 @lru_cache()
 def get_gemini_service():
