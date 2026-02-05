@@ -1,0 +1,18 @@
+[
+    {
+        "student_id": "1001",
+        "password": "password123",
+        "name": "Alice Kim",
+        "major": "Computer Science",
+        "gpa": "3.8",
+        "tuition_status": "Paid"
+    },
+    {
+        "student_id": "1002",
+        "password": "password123",
+        "name": "Bob Lee",
+        "major": "Business Administration",
+        "gpa": "3.2",
+        "tuition_status": "Unpaid"
+    }
+]
