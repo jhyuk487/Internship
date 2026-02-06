@@ -316,18 +316,21 @@
 
             sortedHistory.forEach((chat) => {
                 const item = document.createElement('div');
-                item.className = "group relative bg-white/10 p-4 rounded-2xl border border-white/5 hover:bg-white/20 cursor-pointer transition-all mb-3";
+                item.className = `group relative p-4 rounded-2xl border cursor-pointer transition-all mb-3 ${chat.isPinned ? 'bg-white/20 border-white/20' : 'bg-white/10 border-white/5 hover:bg-white/20'}`;
 
                 const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
 
                 item.innerHTML = `
                     <div id="display-container-${chat.originalIndex}" class="flex justify-between items-start gap-2" onclick="loadChat(${chat.originalIndex})">
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium line-clamp-1">${chat.title}</p>
-                            <p class="text-xs text-white/40 mt-1">${chat.time}</p>
+                            <div class="flex items-center gap-2 mb-1">
+                                ${chat.isPinned ? '<span class="material-symbols-outlined text-[16px] text-yellow-500 rotate-45 flex-shrink-0 animate-pulse" style="font-variation-settings: \'FILL\' 1">push_pin</span>' : ''}
+                                <p class="text-sm font-medium line-clamp-1 ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
+                            </div>
+                            <p class="text-xs text-white/40">${chat.time}</p>
                         </div>
                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="event.stopPropagation(); togglePinChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
+                            <button onclick="event.stopPropagation(); togglePinChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="${chat.isPinned ? 'Unpin' : 'Pin'}">
                                 <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
                             </button>
                             <button onclick="event.stopPropagation(); showRenameUI(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
