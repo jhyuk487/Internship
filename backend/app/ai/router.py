@@ -4,7 +4,7 @@ from app.models.schemas import (
     ChatRequest, ChatResponse, DocumentIngestRequest,
     SaveChatRequest, UpdateChatRequest, ChatHistoryResponse, ChatListResponse, ChatMessageSchema
 )
-from .gemini import get_gemini_service, GeminiService
+from .gemini_service import get_gemini_service, GeminiService
 from .vector import vector_service
 from app.services.student_service import student_service
 from app.services.chat_service import chat_history_service

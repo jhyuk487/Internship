@@ -84,6 +84,11 @@ async function handleLogin(event) {
 
             navigateAfterLogin();
 
+            // Load chat history from backend after login
+            if (typeof loadChatHistoryFromBackend === 'function') {
+                loadChatHistoryFromBackend();
+            }
+
         } else {
             alert("Login Failed: " + (data.detail || "Check credentials"));
         }
@@ -122,6 +127,11 @@ function handleLogout() {
     // Clear token
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
+
+    // Clear chat history UI
+    if (typeof checkAndUpdateHistoryUI === 'function') {
+        checkAndUpdateHistoryUI();
+    }
 }
 
 // Initialize session on page load
@@ -165,6 +175,11 @@ async function initSession() {
                 }
 
                 console.log("Session restored for:", user.name);
+
+                // Load chat history from backend
+                if (typeof loadChatHistoryFromBackend === 'function') {
+                    loadChatHistoryFromBackend();
+                }
             }
         } else {
             // Token might be expired

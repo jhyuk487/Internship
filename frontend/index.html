@@ -211,10 +211,11 @@
         window.currentUserId = "guest";
         let isProcessing = false;
         let currentMessages = [];
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        let chatHistory = []; // Will be loaded from backend for logged-in users
 
-        // Initialize history on load
-        updateHistoryUI();
+        // Initialize: Check login state before showing history
+        // History loading is triggered by initSession() in login.js after successful auth
+        checkAndUpdateHistoryUI();
 
         function toggleLoginModal() {
             loginModal.classList.toggle('hidden');
@@ -233,10 +234,40 @@
             }
         }
 
+        function checkAndUpdateHistoryUI() {
+            // Check if user is logged in (not guest)
+            if (window.currentUserId === "guest" || !window.currentUserId) {
+                // Show login prompt instead of history
+                const header = historyList.querySelector('p');
+                historyList.innerHTML = '';
+                if (header) historyList.appendChild(header);
+
+                const loginPrompt = document.createElement('div');
+                loginPrompt.className = 'text-center text-white/60 text-sm py-8';
+                loginPrompt.innerHTML = `
+                    <span class="material-symbols-outlined text-4xl mb-2 block">lock</span>
+                    <p>Login to save and view<br>your chat history</p>
+                `;
+                historyList.appendChild(loginPrompt);
+                return;
+            }
+
+            // User is logged in, display chat history
+            updateHistoryUI();
+        }
+
         function updateHistoryUI() {
             const header = historyList.querySelector('p');
             historyList.innerHTML = '';
             if (header) historyList.appendChild(header);
+
+            if (chatHistory.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'text-center text-white/40 text-sm py-4';
+                emptyMsg.textContent = 'No conversations yet';
+                historyList.appendChild(emptyMsg);
+                return;
+            }
 
             const sortedHistory = [...chatHistory].map((chat, originalIndex) => ({ ...chat, originalIndex }))
                 .sort((a, b) => {
@@ -250,36 +281,20 @@
                 item.className = "group relative bg-white/10 p-4 rounded-2xl border border-white/5 hover:bg-white/20 cursor-pointer transition-all mb-3";
 
                 const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
+                const chatId = chat.id || chat.originalIndex;
 
                 item.innerHTML = `
-                    <div id="display-container-${chat.originalIndex}" class="flex justify-between items-start gap-2" onclick="loadChat(${chat.originalIndex})">
+                    <div id="display-container-${chatId}" class="flex justify-between items-start gap-2" onclick="loadChat('${chatId}')">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium line-clamp-1">${chat.title}</p>
-                            <p class="text-xs text-white/40 mt-1">${chat.time}</p>
+                            <p class="text-xs text-white/40 mt-1">${chat.time || ''}</p>
                         </div>
                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="event.stopPropagation(); togglePinChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
+                            <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
                                 <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
                             </button>
-                            <button onclick="event.stopPropagation(); showRenameUI(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
-                                <span class="material-symbols-outlined text-sm text-white/60 hover:text-white">edit</span>
-                            </button>
-                            <button onclick="event.stopPropagation(); deleteChat(${chat.originalIndex})" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
+                            <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
                                 <span class="material-symbols-outlined text-sm text-white/60 hover:text-red-400">delete</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="rename-container-${chat.originalIndex}" class="hidden items-center gap-2">
-                        <input id="rename-input-${chat.originalIndex}" type="text" 
-                            class="flex-1 bg-white/5 border border-white/20 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-white/40"
-                            onkeyup="if(event.key === 'Enter') saveRename(${chat.originalIndex})"
-                            onclick="event.stopPropagation()">
-                        <div class="flex gap-1">
-                            <button onclick="event.stopPropagation(); saveRename(${chat.originalIndex})" class="p-1 hover:bg-green-500/20 rounded-md text-green-400">
-                                <span class="material-symbols-outlined text-sm">check</span>
-                            </button>
-                            <button onclick="event.stopPropagation(); cancelRename(${chat.originalIndex})" class="p-1 hover:bg-red-500/20 rounded-md text-red-400">
-                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                         </div>
                     </div>
@@ -288,10 +303,81 @@
             });
         }
 
-        function togglePinChat(index) {
-            chatHistory[index].isPinned = !chatHistory[index].isPinned;
-            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            updateHistoryUI();
+        // Load chat history from backend API
+        async function loadChatHistoryFromBackend() {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            try {
+                const response = await fetch('/chat/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    chatHistory = data.chats.map(c => ({
+                        id: c.id,
+                        title: c.title,
+                        messages: c.messages,
+                        isPinned: c.is_pinned,
+                        time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }));
+                    updateHistoryUI();
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+            }
+        }
+
+        // Save current chat to backend
+        async function saveChatToBackend() {
+            if (window.currentUserId === "guest" || !window.currentUserId) return;
+            if (currentMessages.length === 0) return;
+
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const title = currentMessages.find(m => m.role === 'user')?.content.substring(0, 50) || "New Conversation";
+
+            try {
+                const response = await fetch('/chat/history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        messages: currentMessages.map(m => ({ role: m.role, content: m.content }))
+                    })
+                });
+                if (response.ok) {
+                    await loadChatHistoryFromBackend();
+                }
+            } catch (error) {
+                console.error('Error saving chat:', error);
+            }
+        }
+
+        async function togglePinChat(chatId) {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const chat = chatHistory.find(c => c.id === chatId);
+            if (!chat) return;
+
+            try {
+                await fetch(`/chat/history/${chatId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ is_pinned: !chat.isPinned })
+                });
+                await loadChatHistoryFromBackend();
+            } catch (error) {
+                console.error('Error toggling pin:', error);
+            }
         }
 
         function showRenameUI(index) {
@@ -324,25 +410,27 @@
             }
         }
 
-        function deleteChat(index) {
-            if (confirm("Are you sure you want to delete this conversation?")) {
-                chatHistory.splice(index, 1);
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                if (chatHistory.length === 0) {
-                    startNewChat();
-                } else {
-                    updateHistoryUI();
-                }
+        async function deleteChat(chatId) {
+            if (!confirm("Are you sure you want to delete this conversation?")) return;
+
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            try {
+                await fetch(`/chat/history/${chatId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                await loadChatHistoryFromBackend();
+            } catch (error) {
+                console.error('Error deleting chat:', error);
             }
         }
 
-        function startNewChat() {
-            if (currentMessages.length > 0) {
-                const title = currentMessages.find(m => m.role === 'user')?.content || "New Conversation";
-                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                chatHistory.push({ title, time, messages: [...currentMessages], isPinned: false });
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                updateHistoryUI();
+        async function startNewChat() {
+            // Save current chat to backend if there are messages and user is logged in
+            if (currentMessages.length > 0 && window.currentUserId !== "guest" && window.currentUserId) {
+                await saveChatToBackend();
             }
 
             currentMessages = [];
@@ -363,8 +451,8 @@
             chatContainer.scrollTop = 0;
         }
 
-        function loadChat(index) {
-            const chat = chatHistory[index];
+        async function loadChat(chatId) {
+            const chat = chatHistory.find(c => c.id === chatId || c.originalIndex === chatId);
             if (!chat) return;
             currentMessages = [...chat.messages];
             chatContainer.innerHTML = '';

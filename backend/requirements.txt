@@ -10,6 +10,7 @@ faiss-cpu
 sentence-transformers
 beanie
 motor
+google-generativeai
 google-genai
 aiofiles
 python-multipart
