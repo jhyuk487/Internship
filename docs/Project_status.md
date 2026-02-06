@@ -1,48 +1,35 @@
-# 프로젝트 상태 보고서: UCSI 챗봇
+# 프로젝트 상태 보고서: UCSI 챗봇 (업데이트: 2026-02-06)
 
 ## 1. 프로젝트 개요
-- **목표:** Python 3.13 및 Google Gemini API(무료 티어)를 사용하여 UCSI 대학교를 위한 로컬 우선(Local-first) AI 챗봇 개발.
-- **현재 상태:** 프론트엔드 및 백엔드가 작동하는 기능성 프로토타입 단계.
+- **목표:** Python 3.13 기반의 UCSI 대학교 AI 어시스턴트 개발.
+- **특징:** Google Gemini/Gemma 하이브리드 지원, 실시간 데이터 동기화, 사용자 인증.
 
-## 2. 구현된 기능
+## 2. 주요 업데이트 사항 (최신)
 
-### ✅ 백엔드 (FastAPI)
-- **프레임워크:** Uvicorn 위에서 실행되는 FastAPI.
-- **구조:** 모듈식 설계 (`app/api`, `app/core`, `app/services`).
-- **엔드포인트:**
-  - `GET /`: 채팅 UI (`index.html`) 제공.
-  - `GET /health`: 상태 확인(Health check) 엔드포인트.
-  - `POST /auth/token`: JWT 인증 엔드포인트.
-  - `POST /chat/ask`: 메인 채팅 인터페이스.
-- **정적 파일:** `app/static` 경로 서빙 정상 작동.
+### ✅ AI 모델 최적화 및 통합
+- **모델 전환:** 기존 Gemini 2.5 Flash에서 최신 오픈 모델인 **Gemma 3 27B**(`gemma-3-27b-it`)로 주력 모델을 전환 완료.
+- **구조 개선:** `app/ai/gemini.py`로 모든 AI 로직을 통합하고 최신 Google GenAI SDK를 적용하여 성능과 가독성 확보.
+- **RAG 파이프라인:** Google Gemini Embeddings를 활용한 벡터 검색 기능 활성화.
 
-### ✅ AI 통합 (Google Gemini)
-- **서비스:** `GeminiService` 클래스 구현 완료.
-- **모델:** `gemini-flash-latest` 사용 설정됨.
-- **기능:**
-  - **의도 파악(Intent Detection):** 질문을 '일반(general)' 또는 '개인(personal)'으로 자동 분류.
-  - **문맥 인식 응답:** UCSI 대학교 상황에 맞는 시스템 지침 설정 완료.
-  - **RAG 기반:** 문맥 주입(Context Injection)을 지원하므로 검색 증강 생성(RAG) 구현 가능.
+### ✅ 데이터베이스 및 동기화 고도화
+- **대규모 데이터 수용:** 6만 건 이상의 학생, 강의, 전공 정보를 수용할 수 있는 아키텍처 구축.
+- **자동 동기화:** `seed_db.py`를 통해 JSON 파일(`data_sets/`)과 MongoDB 간의 데이터를 안전하게 동기화(Validation 로직 포함).
+- **데이터 구조:** Beanie ODM을 활용하여 `User`, `Account`, `Course`, `Major` 모델 체계화.
 
-### ✅ 프론트엔드 (HTML/JS/CSS)
-- **UI:** 메시지 기록이 있는 깔끔한 채팅 인터페이스.
-- **상호작용:**
-  - 실시간 메시지 송수신.
-  - **인증 UI:** 로그인 모달, JWT 토큰 저장 및 로그아웃 기능.
-  - **출처 표시:** 말풍선 내 인용 출처 표시 기능 지원.
+### ✅ 시스템 안정화 및 코드 통합
+- **브랜치 병합:** 여러 기능 브랜치를 `sechun` 및 `main`으로 통합하며 발생한 수많은 코드 충돌(Conflict)을 모두 해결.
+- **환경 최신화:** Python 3.13 가상환경 기반에서 모든 의존성 문제를 해결하고 포트 충돌 및 레거시 코드 정리 완료.
 
-### ✅ 테스트 및 개발
-- **의존성:** `requirements.txt`를 통해 관리됨 (`langchain`, `faiss-cpu`, `fastapi` 등 포함).
-- **테스트 스크립트:**
-  - `test_gemini.py`: API 연결 확인.
-  - `test_server.py`: 서버 상태 확인.
-  - `test_chat_api.py`: 채팅 엔드포인트 검증.
+## 3. 구현된 기능 현황
 
-## 3. 보류 / 진행 중
-- **백터 데이터베이스(Vector Database):** `faiss-cpu`가 요구사항에 있지만, 문서 수집(ingestion)을 포함한 전체 RAG 파이프라인 통합 검증 필요.
-- **데이터베이스 통합:** `data/student_db.json`이 존재하여 읽기 전용 DB 역할을 수행하지만, 이를 '개인(personal)' 의도와 연결하는 로직의 완전한 검증 필요.
-- **LangChain 오케스트레이션:** 의존성은 설치되어 있으나, `chat.py` (Router)에서의 정확한 사용법 확인 필요.
+### 🔹 백엔드 (FastAPI)
+- **인증:** JWT 기반 로그인/로그아웃, 비밀번호 초기화 기능.
+- **통신:** 비동기(Async) 처리를 통한 빠른 응답속도 확보.
+- **에러 핸들링:** AI 통신 오류 및 DB 부재 시 예외 처리 강화.
 
-## 4. 다음 단계
-- `detect_intent` (Personal)와 `student_db.json` 검색 간의 연결 확인.
-- 일반 대학 문서에 대한 Vector DB 수집(ingestion) 기능 확정.
+### 🔹 프론트엔드
+- 최신 데이터를 반영한 UI 업데이트, 채팅 이력 저장 및 관리 기능 지원.
+
+## 4. 향후 계획
+- Gemma 3 로컬 실행 최적화(서버 자원 관리).
+- 개인화된 학사 상담 로직(Personal Intent) 정교화.
