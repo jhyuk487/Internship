@@ -1,48 +1,107 @@
-# 프로젝트 상태 보고서: UCSI 챗봇
+# 📊 UCSI University AI Chatbot - 프로젝트 통합 현황 보고서 (V2.1)
 
-## 1. 프로젝트 개요
-- **목표:** Python 3.13 및 Google Gemini API(무료 티어)를 사용하여 UCSI 대학교를 위한 로컬 우선(Local-first) AI 챗봇 개발.
-- **현재 상태:** 프론트엔드 및 백엔드가 작동하는 기능성 프로토타입 단계.
+**작성일시**: 2026-02-06
+**작성자**: Antigravity (AI Assistant)
+**상태**: 🟢 정상 작동 (Server Running)
 
-## 2. 구현된 기능
+---
 
-### ✅ 백엔드 (FastAPI)
-- **프레임워크:** Uvicorn 위에서 실행되는 FastAPI.
-- **구조:** 모듈식 설계 (`app/api`, `app/core`, `app/services`).
-- **엔드포인트:**
-  - `GET /`: 채팅 UI (`index.html`) 제공.
-  - `GET /health`: 상태 확인(Health check) 엔드포인트.
-  - `POST /auth/token`: JWT 인증 엔드포인트.
-  - `POST /chat/ask`: 메인 채팅 인터페이스.
-- **정적 파일:** `app/static` 경로 서빙 정상 작동.
+## 1. 프로젝트 요약 (Executive Summary)
+본 프로젝트는 **UCSI 대학교 학생 지원을 위한 로컬 우선(Local-First) AI 챗봇**입니다.
+초기 개발 브랜치(`jun`)와 데이터 중심 브랜치(`ehobin`)를 **성공적으로 병합(Merge)**하여, 안정적인 FastAPI 서버 로직 위에 풍부한 학사 데이터를 확보한 상태입니다. 불필요한 레거시 코드를 제거(Optimization)하여 시스템을 경량화했습니다.
 
-### ✅ AI 통합 (Google Gemini)
-- **서비스:** `GeminiService` 클래스 구현 완료.
-- **모델:** `gemini-flash-latest` 사용 설정됨.
-- **기능:**
-  - **의도 파악(Intent Detection):** 질문을 '일반(general)' 또는 '개인(personal)'으로 자동 분류.
-  - **문맥 인식 응답:** UCSI 대학교 상황에 맞는 시스템 지침 설정 완료.
-  - **RAG 기반:** 문맥 주입(Context Injection)을 지원하므로 검색 증강 생성(RAG) 구현 가능.
+---
 
-### ✅ 프론트엔드 (HTML/JS/CSS)
-- **UI:** 메시지 기록이 있는 깔끔한 채팅 인터페이스.
-- **상호작용:**
-  - 실시간 메시지 송수신.
-  - **인증 UI:** 로그인 모달, JWT 토큰 저장 및 로그아웃 기능.
-  - **출처 표시:** 말풍선 내 인용 출처 표시 기능 지원.
+## 2. 시스템 아키텍처 (System Architecture)
 
-### ✅ 테스트 및 개발
-- **의존성:** `requirements.txt`를 통해 관리됨 (`langchain`, `faiss-cpu`, `fastapi` 등 포함).
-- **테스트 스크립트:**
-  - `test_gemini.py`: API 연결 확인.
-  - `test_server.py`: 서버 상태 확인.
-  - `test_chat_api.py`: 채팅 엔드포인트 검증.
+### 2.1 하이브리드 구조 (Hybrid Structure)
+두 개의 브랜치를 장점만을 취하여 통합했습니다.
+- **Logic Core (`jun` branch)**: `app/api`, `app/db` 등 최신 FastAPI 클린 아키텍처 유지.
+- **Knowledge Base (`ehobin` branch)**: `backend/data/`의 풍부한 대학 정보 JSON 데이터 및 `docs/`의 상세 기술 문서 흡수.
 
-## 3. 보류 / 진행 중
-- **백터 데이터베이스(Vector Database):** `faiss-cpu`가 요구사항에 있지만, 문서 수집(ingestion)을 포함한 전체 RAG 파이프라인 통합 검증 필요.
-- **데이터베이스 통합:** `data/student_db.json`이 존재하여 읽기 전용 DB 역할을 수행하지만, 이를 '개인(personal)' 의도와 연결하는 로직의 완전한 검증 필요.
-- **LangChain 오케스트레이션:** 의존성은 설치되어 있으나, `chat.py` (Router)에서의 정확한 사용법 확인 필요.
+### 2.2 기술 스택
+- **Language**: Python 3.13
+- **Framework**: FastAPI (Async Performance)
+- **Database**: 
+  - **NoSQL**: MongoDB (Localhost:27017) - 학생 계정 관리
+  - **Vector DB**: FAISS (Local) - RAG 검색 엔진
+- **AI Engine**: 
+  - **LLM**: Google Gemini (gemini-3-flash)
+  - **Orchestration**: LangChain
+- **Frontend**: Vanilla HTML/JS + Tailwind CSS (Single File Optimized)
 
-## 4. 다음 단계
-- `detect_intent` (Personal)와 `student_db.json` 검색 간의 연결 확인.
-- 일반 대학 문서에 대한 Vector DB 수집(ingestion) 기능 확정.
+---
+
+## 3. 주요 구현 기능 (Key Features)
+
+### ✅ A. 백엔드 및 AI (Backend & AI)
+1.  **지능형 의도 분류 (Intent Detection)**:
+    - 사용자 입력을 분석하여 `Personal`(개인 정보), `General`(일반 상담)로 자동 분류.
+    - 개인 정보 요청 시 JWT 인증 여부 확인.
+2.  **RAG (검색 증강 생성) 시스템**:
+    - LangChain과 FAISS를 사용하여 로컬 문서(`docs/`) 및 데이터(`data/`) 기반의 정확한 답변 생성.
+3.  **MongoDB 연동**:
+    - `motor` 비동기 드라이버 및 `beanie` ODM을 사용하여 고성능 DB 입출력 구현.
+4.  **API 보안**:
+    - `.env`를 통한 API Key 및 DB 접속 정보 관리 (API Key 교체 및 검증 완료).
+
+### ✅ B. 프론트엔드 (Frontend)
+1.  **AI 채팅 인터페이스**:
+    - Tailwind CSS 기반의 반응형 디자인.
+    - 타이핑 효과(Streaming-like UI) 및 로딩 인디케이터 구현.
+2.  **대화 고정 기능 (Pin Chat)**:
+    - 중요 대화를 상단에 고정하는 핀(`push_pin`) 기능 구현.
+    - 시각적 강조(노란색 아이콘 + 배경 하이라이트) 및 로컬 스토리지 저장.
+3.  **최적화**:
+    - 복잡한 파일 구조(`js/`, `css/`)를 단일 `index.html`로 통합하여 로딩 속도 및 관리 편의성 증대.
+
+---
+
+## 4. 최근 작업 내역 (Work Log)
+
+1.  **API 키 대응**: 
+    - Google Gemini API Key 변경 및 유효성 검증, 서버 재시작을 통한 즉시 반영.
+2.  **코드 병합 (Git Merge)**:
+    - `fatal: refusing to merge unrelated histories` 오류 해결.
+    - `origin/ehobin`의 데이터와 문서를 가져오되, 실행 로직 충돌을 수동으로 해결하여 안정성 확보.
+3.  **코드 최적화 (Optimization)**:
+    - 병합 후 사용하지 않는 레거시 폴더(`auth/`, `services/` 등 구버전) 및 임시 파일 제거.
+    - `README.md` 및 프로젝트 구조 정리.
+4.  **오류 복구**:
+    - 서버 재시작 시 `unused import`로 인한 실행 오류 발견 및 즉시 수정 (`app/ai/__init__.py`).
+    - 포트 충돌 방지를 위한 좀비 프로세스 정리 후 재가동.
+
+---
+
+## 5. 프로젝트 디렉토리 구조
+
+```text
+root/
+├── backend/            # 핵심 서버 코드
+│   ├── app/
+│   │   ├── ai/         # AI 서비스 (Gemini, Vector DB)
+│   │   ├── api/        # API 라우터 (Auth, Chat)
+│   │   ├── core/       # 설정 (Config)
+│   │   ├── db/         # MongoDB 연결 및 모델
+│   │   └── main.py     # 진입점 (App Entry)
+│   ├── data/           # 지식 베이스 JSON 데이터 (Courses, Faculties 등)
+│   └── requirements.txt
+├── docs/               # 프로젝트 기술 문서 (10종)
+├── frontend/           # 웹 UI
+│   └── index.html      # 통합 프론트엔드 파일
+└── README.md
+```
+
+---
+
+## 6. 실행 방법 (How to Run)
+
+**1. 서버 실행 (Backend)**
+```powershell
+cd backend
+.\venv\Scripts\activate
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+**2. 서비스 접속**
+웹 브라우저에서 [http://127.0.0.1:8000](http://127.0.0.1:8000) 접속.
