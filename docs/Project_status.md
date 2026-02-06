@@ -12,7 +12,7 @@
 - **엔드포인트:**
   - `POST /auth/login`: 유저 인증 및 프로필 연동.
   - `POST /auth/find-password`: 학번/이메일 인증을 통한 비밀번호 찾기 (DB 연동).
-  - `GET /user/profile/{user_id}`: 상세 학생 정보 조회.
+  - `GET /auth/profile/{user_id}`: 상세 학생 정보 조회.
   - `POST /chat`: AI 상담 인터페이스.
   - `GET/POST/DELETE /chat/history`: 유저별 대화 기록 관리.
 
