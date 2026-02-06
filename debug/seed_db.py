@@ -9,16 +9,16 @@ from beanie import init_beanie
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.database.models import User, Course, Major, Account
-from app.core.config import settings
+from app.database.database import MONGODB_URL, DATABASE_NAME
 
 # Path to the data_sets folder (one level up from root)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
 
 async def seed_data():
     # 1. Initialize DB Connection
-    print(f"Connecting to MongoDB at {settings.MONGODB_URL}...")
-    client = AsyncIOMotorClient(settings.MONGODB_URL)
-    db = client[settings.DATABASE_NAME]
+    print(f"Connecting to MongoDB at {MONGODB_URL}...")
+    client = AsyncIOMotorClient(MONGODB_URL)
+    db = client[DATABASE_NAME]
     
     await init_beanie(
         database=db,

@@ -13,7 +13,7 @@ async function handleLogin(event) {
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/auth/login', {
+        const response = await fetch('/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -89,6 +89,11 @@ async function handleLogin(event) {
                 loadChatHistoryFromBackend();
             }
 
+            // Update chat input state
+            if (typeof updateChatInputState === 'function') {
+                updateChatInputState(true);
+            }
+
         } else {
             alert("Login Failed: " + (data.detail || "Check credentials"));
         }
@@ -131,6 +136,16 @@ function handleLogout() {
     // Clear chat history UI
     if (typeof checkAndUpdateHistoryUI === 'function') {
         checkAndUpdateHistoryUI();
+    }
+
+    // Clear active chat conversation
+    if (typeof startNewChat === 'function') {
+        startNewChat();
+    }
+
+    // Update chat input state
+    if (typeof updateChatInputState === 'function') {
+        updateChatInputState(false);
     }
 }
 
@@ -180,6 +195,11 @@ async function initSession() {
                 if (typeof loadChatHistoryFromBackend === 'function') {
                     loadChatHistoryFromBackend();
                 }
+
+                // Update chat input state
+                if (typeof updateChatInputState === 'function') {
+                    updateChatInputState(true);
+                }
             }
         } else {
             // Token might be expired
@@ -192,4 +212,51 @@ async function initSession() {
 
 // Run on load
 document.addEventListener('DOMContentLoaded', initSession);
+
+async function handleFindPassword(event) {
+    if (event) event.preventDefault();
+
+    const studentIdInput = document.getElementById('find-student-id');
+    const emailInput = document.getElementById('find-email');
+    const resultDiv = document.getElementById('find-password-result');
+    const passwordSpan = document.getElementById('recovered-password');
+
+    const studentId = studentIdInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!studentId || !email) {
+        alert("Please enter both Student ID and Email.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/auth/find-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: studentId,
+                email: email
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (typeof openPasswordSuccessModal === 'function') {
+                openPasswordSuccessModal(data.password);
+            } else {
+                passwordSpan.innerText = data.password;
+                resultDiv.classList.remove('hidden');
+            }
+        } else {
+            alert("No account found with the provided information.\nIf you cannot find your password, please contact the faculty office.");
+            resultDiv.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Find password error:', error);
+        alert("An error occurred. Please try again later.");
+    }
+}
 
