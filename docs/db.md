@@ -23,13 +23,18 @@
 
 ### [models.py](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/database/models.py)
 *   **역할**: 각 컬렉션의 데이터 구조(스키마) 정의.
-*   **주요 코드**:
+*   **Account 모델**: `login_info` 컬렉션과 매핑되며, 인증 정보를 담고 있습니다.
     ```python
     class Account(Document):
-        user_id: str = Field(alias="user_id") # DB의 user_id 필드를 매핑
+        user_id: str = Field(alias="user_id")
         user_password: str
-        class Settings:
-            name = "login_info" # DB 컬렉션 이름
     ```
-    - `Document`를 상속받아 MongoDB의 문서(Document) 구조를 정의합니다.
-    - `class Settings`의 `name`을 통해 실제 DB의 컬렉션 이름과 연결됩니다.
+*   **User 모델**: `user_info` 컬렉션과 매핑되며, 학생 상세 프로필을 담고 있습니다.
+    ```python
+    class User(Document):
+        user_id: str
+        name: str
+        major: str
+        completed_courses: List[CourseInfo]
+    ```
+*   **특이 사항**: JSON 직렬화 오류 방지를 위해, API 응답 시 MongoDB의 내부 ID(`_id`) 필드는 제외하고 전송합니다.

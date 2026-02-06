@@ -23,7 +23,12 @@
     - 프론트엔드 폴더를 백엔드 서버와 연결하여 사용자가 브라우저로 접속할 수 있게 합니다.
 
 ### [login.js](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/frontend/js/login.js)
-*   **역할**: 사용자 이벤트 처리 및 백엔드 API 호출.
+*   **handleLogin**: 로그인 버튼 클릭 시 실행되며, 성공 시 토큰과 유저 정보를 브라우저에 저장하고 UI를 갱신합니다.
+*   **initSession**: 페이지 로드 시 실행되며, 저장된 토큰이 있으면 자동으로 `/auth/me`를 호출하여 세션을 복구합니다.
+    ```javascript
+    document.addEventListener('DOMContentLoaded', initSession);
+    ```
+*   **UI 갱신**: 서버에서 받은 유저 데이터의 `name`, `major` 값을 사용하여 사이드바 프로필 영역을 동적으로 업데이트합니다. (이름 이니셜 추출 기능 포함)
 *   **주요 코드**:
     ```javascript
     const response = await fetch('http://127.0.0.1:8000/auth/login', {

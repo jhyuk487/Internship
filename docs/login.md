@@ -12,27 +12,15 @@
 ## 2. 주요 파일 및 코드 설명
 
 ### [router.py (auth)](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/auth/router.py)
-*   **역할**: 로그인 API 엔드포인트 제공.
-*   **주요 코드**:
+*   **POST /login**: 아이디/비밀번호 인증 후 JWT 토큰과 유저 정보를 반환합니다.
+*   **GET /me**: JWT 토큰을 사용하여 현재 로그인한 사용자의 정보를 다시 가져옵니다 (새로고침 시 사용).
     ```python
-    @router.post("/login", response_model=Token)
-    async def login(request: LoginRequest):
-        user = await student_service.authenticate(request.user_id, request.user_password)
-        # ... 인증 실패 시 예외 처리
-        access_token = create_access_token(data={"sub": user["id"]})
-        return {"access_token": access_token, "user_data": user.get("user_data")}
+    @router.get("/me")
+    async def get_me(user_id: str = Depends(get_current_user)):
+        user_profile = await student_service.get_student_info(user_id)
+        return {"user_data": user_profile}
     ```
-    - 사용자 요청을 받아 `student_service`에 전달하고, 결과에 따라 토큰을 생성합니다.
 
 ### [student_service.py](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/services/student_service.py)
-*   **역할**: 실제 인증 로직 및 데이터 조회 수행.
-*   **주요 코드**:
-    ```python
-    async def authenticate(self, user_id, password):
-        account = await Account.find_one(Account.user_id == user_id)
-        if account and account.user_password == password:
-            user_profile = await self.get_student_info(user_id)
-            return {"id": account.user_id, "user_data": user_profile}
-    ```
-    - `Account` 모델(`login_info`)과 `User` 모델(`user_info`)을 차례로 조회하여 데이터를 통합합니다.
-    - 데이터베이스의 `id` 필드가 Beanie의 기본 키와 충돌하지 않도록 `login_id` 필드를 사용합니다.
+*   **authenticate**: `user_id`와 `user_password`를 검증하고 성공 시 유저 데이터를 반환합니다.
+*   **get_student_info**: MongoDB의 `user_info` 컬렉션에서 `user_id`로 정보를 조회합니다. (ID 직렬화 오류 방지 로직 포함)

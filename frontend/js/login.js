@@ -35,14 +35,18 @@ async function handleLogin(event) {
             localStorage.setItem('user_id', studentId);
 
             // Update UI (replicating logic from index.html)
-            // Accessing global variables from index.html if possible, or manipulating DOM directly
             if (typeof updateUserInfo === 'function') {
                 updateUserInfo(studentId);
-            } else {
-                // Fallback direct DOM manipulation
-                document.getElementById('user-name').innerText = studentId;
-                document.getElementById('user-avatar').innerText = studentId.substring(0, 2).toUpperCase();
-                document.getElementById('user-plan').innerText = "Student User";
+            } else if (data.user_data) {
+                // Directly update DOM using returned profile data
+                const user = data.user_data;
+                document.getElementById('user-name').innerText = user.name || studentId;
+
+                // Set initials from name (e.g., "GS" from "Guest Student")
+                const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : studentId.substring(0, 2).toUpperCase();
+                document.getElementById('user-avatar').innerText = initials;
+
+                document.getElementById('user-plan').innerText = user.major || "Student User";
                 document.getElementById('auth-text').innerText = "Logout";
                 document.getElementById('auth-icon').innerText = "logout";
 
@@ -51,6 +55,7 @@ async function handleLogin(event) {
                     authBtn.onclick = handleLogout;
                 }
             }
+
 
             // Update global currentUserId if accessible
             if (typeof currentUserId !== 'undefined') {
@@ -118,3 +123,58 @@ function handleLogout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
 }
+
+// Initialize session on page load
+async function initSession() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/auth/me', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const studentId = localStorage.getItem('user_id');
+
+            // Update UI
+            if (data.user_data) {
+                const user = data.user_data;
+                document.getElementById('user-name').innerText = user.name || studentId;
+
+                const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : studentId.substring(0, 2).toUpperCase();
+                document.getElementById('user-avatar').innerText = initials;
+
+                document.getElementById('user-plan').innerText = user.major || "Student User";
+                document.getElementById('auth-text').innerText = "Logout";
+                document.getElementById('auth-icon').innerText = "logout";
+
+                const authBtn = document.getElementById('auth-btn');
+                if (authBtn) {
+                    authBtn.onclick = handleLogout;
+                }
+
+                if (typeof currentUserId !== 'undefined') {
+                    window.currentUserId = studentId;
+                } else {
+                    window.currentUserId = studentId;
+                }
+
+                console.log("Session restored for:", user.name);
+            }
+        } else {
+            // Token might be expired
+            handleLogout();
+        }
+    } catch (error) {
+        console.error('Session init error:', error);
+    }
+}
+
+// Run on load
+document.addEventListener('DOMContentLoaded', initSession);
+

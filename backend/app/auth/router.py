@@ -60,3 +60,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Could not validate credentials",
         )
     return username
+
+@router.get("/me")
+async def get_me(user_id: str = Depends(get_current_user)):
+    """Retrieve current user profile using JWT token"""
+    user_profile = await student_service.get_student_info(user_id)
+    if not user_profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User profile not found",
+        )
+    return {"user_data": user_profile}
+
+

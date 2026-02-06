@@ -19,7 +19,9 @@ class StudentService:
         # Find user by user_id (from user_info)
         user = await User.find_one(User.user_id == student_id)
         if user:
-            return user.dict()
+            # Exclude MongoDB internal ID (PydanticObjectId) to avoid serialization error
+            return user.dict(exclude={"id"})
         return None
+
 
 student_service = StudentService()
