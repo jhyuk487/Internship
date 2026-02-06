@@ -1,7 +1,302 @@
 [
     {
-        "major_id": "MED-03",
-        "major_name": "Medicine",
+        "major_id": "MJR_001",
+        "major_name": "Doctor of Medicine (MD)",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_002",
+        "major_name": "Bachelor of Nursing (Hons)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_003",
+        "major_name": "Bachelor of Optometry (Hons)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_004",
+        "major_name": "Diploma in Nursing",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_005",
+        "major_name": "Post-Basic Critical Care Nursing",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_006",
+        "major_name": "Advanced Diploma in Midwifery",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_007",
+        "major_name": "Diploma in Opticianry",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_008",
+        "major_name": "BA (Hons) Mass Communication",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_009",
+        "major_name": "BA (Hons) Psychology",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_010",
+        "major_name": "BA (Hons) English Language & Communication",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_011",
+        "major_name": "Bachelor of Early Childhood Education (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_012",
+        "major_name": "Bachelor of Digital Media Production and Broadcasting (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_013",
+        "major_name": "Foundation in Arts (Social Sciences and Liberal Arts)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_014",
+        "major_name": "Bachelor of Classical Music (Hons)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_015",
+        "major_name": "Bachelor of Contemporary Music (Hons)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_016",
+        "major_name": "Diploma in Music Performance",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_017",
+        "major_name": "Foundation in Music",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_018",
+        "major_name": "Bachelor of Chemical Engineering with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_019",
+        "major_name": "Bachelor of Civil Engineering with Honours",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_020",
+        "major_name": "Bachelor of Petroleum Engineering with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_021",
+        "major_name": "Bachelor of Electrical and Electronics Engineering with Honours",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_022",
+        "major_name": "Bachelor of Microelectronic Technology with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_023",
+        "major_name": "Bachelor of Mechatronics Engineering with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_024",
+        "major_name": "Bachelor of Mechanical Engineering with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_025",
+        "major_name": "Bachelor of Energy Engineering with Honours",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_026",
+        "major_name": "Bachelor of Digital Mechanical Technology with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_027",
+        "major_name": "Bachelor of Computer Engineering (Artificial Intelligence) with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_028",
+        "major_name": "Diploma of Engineering Technology (Industrial Design)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_029",
+        "major_name": "Foundation in Science (Engineering)",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_030",
+        "major_name": "Bachelor of Pharmacy (Honours)",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_031",
+        "major_name": "Bachelor of Formulation Science (Honours)",
+        "campus_location": "Springhill (Seremban/PD) Campus"
+    },
+    {
+        "major_id": "MJR_032",
+        "major_name": "Diploma in Pharmacy",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_033",
+        "major_name": "Diploma in Cosmetic Science",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_034",
+        "major_name": "Diploma in Packaging Science and Technology",
+        "campus_location": "Springhill (Seremban/PD) Campus"
+    },
+    {
+        "major_id": "MJR_035",
+        "major_name": "Foundation in Science (Pharmaceutical Sciences)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_036",
+        "major_name": "BSc (Hons) in Biotechnology",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_037",
+        "major_name": "BSc (Hons) Nutrition with Wellness",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_038",
+        "major_name": "Diploma in Aquaculture with Entrepreneurship",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_039",
+        "major_name": "Foundation in Science (Applied Sciences)",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_040",
+        "major_name": "Bachelor of Arts (Hons) in Business Administration",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_041",
+        "major_name": "Bachelor of Business Analytics (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_042",
+        "major_name": "Bachelor of Arts (Hons) Accounting",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_043",
+        "major_name": "Bachelor of Arts (Hons) Accounting and Finance",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_044",
+        "major_name": "Bachelor of Arts (Hons) Marketing",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_045",
+        "major_name": "Bachelor of Arts (Hons) Entrepreneurship",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_046",
+        "major_name": "Bachelor of Arts (Hons) Logistics Management",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_047",
+        "major_name": "Bachelor of Financial Economics (Hons)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_048",
+        "major_name": "Bachelor of International and Sustainable Business (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_049",
+        "major_name": "Diploma in Management",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_050",
+        "major_name": "Bachelor of Science (Hons) in Architecture",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_051",
+        "major_name": "BA (Hons) Graphic Design",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_052",
+        "major_name": "Bachelor of Hospitality Administration",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_053",
+        "major_name": "Bachelor of Computer Science (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_054",
+        "major_name": "Bachelor of Computer Science in Artificial Intelligence with Honours",
+        "campus_location": "Kuching Campus"
+    },
+    {
+        "major_id": "MJR_055",
+        "major_name": "Bachelor of Computer Science in Cyber Security with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_056",
+        "major_name": "Bachelor of Computer Science (Hons) Mobile Computing and Networking",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_057",
+        "major_name": "Bachelor of Computer Science in Data Science with Honours",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_058",
+        "major_name": "Bachelor of Science in Business Information Systems (Honours)",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_059",
+        "major_name": "Diploma in Information Technology",
+        "campus_location": "Kuala Lumpur Campus"
+    },
+    {
+        "major_id": "MJR_060",
+        "major_name": "Bachelor of Science (Hons) Actuarial Science",
         "campus_location": "Kuala Lumpur Campus"
     }
 ]
