@@ -5,7 +5,7 @@ import sys
 import os
 
 # Add backend to path to import app
-sys.path.append(os.path.join(os.getcwd(), 'backend'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.database.models import Account, User, Course, Major, TestRecord
 from app.services.student_service import student_service

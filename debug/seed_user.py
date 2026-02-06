@@ -1,6 +1,12 @@
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
+import sys
+import os
+
+# Add backend directory to sys.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
 from app.database.models import Account
 
 # DB Config (Local)
