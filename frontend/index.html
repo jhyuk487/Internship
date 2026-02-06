@@ -14,13 +14,32 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Prevent row height shifts in GPA table */
+        .grade-row select,
+        .grade-row input:not([type="checkbox"]) {
+            margin: 0 !important;
+            height: 1.5rem !important;
+            line-height: normal !important;
+            background-color: transparent !important;
+        }
+    </style>
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        primary: "#dc2626",
+                        primary: "#dc2645",
                         "primary-dark": "#991b1b",
                         "user-bubble": "#e9967a",
                         "user-bubble-dark": "#b06d58",
@@ -68,7 +87,13 @@
                 class="sticky top-0 z-20 bg-sidebar-light dark:bg-sidebar-dark py-2 mb-2 text-[10px] uppercase font-bold tracking-wider text-white/40 px-2">
                 Chat History</p>
         </div>
-        <div class="mt-auto pt-6 border-t border-white/10 space-y-4">
+
+        <div class="mt-auto pt-6 border-t border-white/10">
+            <button onclick="toggleGradeModal()"
+                class="w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all group mb-2">
+                <span class="material-symbols-outlined text-[20px]">school</span>
+                <span class="text-sm font-medium">My GPA</span>
+            </button>
             <div class="bg-white/10 rounded-2xl p-3 flex flex-col gap-3 border border-white/5">
                 <div class="flex items-center gap-3">
                     <div id="user-avatar"
@@ -240,6 +265,125 @@
                 Affairs office.
             </p>
         </div>
+
+        <!-- Grade Entry Modal (Internal Popup) -->
+        <div id="grade-modal"
+            class="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-30 transform translate-y-full transition-transform duration-300 ease-in-out flex flex-col overflow-hidden">
+            <header
+                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Grade Entry & GPA Calculator</h2>
+                </div>
+                <button onclick="toggleGradeModal()"
+                    class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto pt-4 px-8 pb-8 custom-scrollbar">
+                <div class="max-w-5xl mx-auto space-y-8">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            class="bg-[#A32626] p-6 rounded-2xl shadow-xl shadow-red-900/10 text-white flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium opacity-80">Average GPA (All)</span>
+                            </div>
+                            <div class="mt-4">
+                                <span id="top-gpa-display" class="text-4xl font-bold tracking-tight">3.75</span>
+                                <span class="text-sm opacity-60 ml-2">/ 4.00</span>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Major GPA</span>
+                            </div>
+                            <div class="mt-4">
+                                <span id="major-gpa-display"
+                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">4.00</span>
+                                <span class="text-sm text-slate-400 ml-2">/ 4.00</span>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Credits
+                                    Earned</span>
+                            </div>
+                            <div class="mt-4">
+                                <span id="total-credits-display"
+                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">0</span>
+                                <span class="text-sm text-slate-400 ml-2">Credits</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Records Table -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div
+                            class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
+                            <!-- Semester Tabs moved here -->
+                            <div class="flex-1 overflow-hidden relative">
+                                <div id="semester-tabs"
+                                    class="flex gap-2 overflow-x-auto pb-1 scroll-smooth no-scrollbar">
+                                    <!-- Tabs will be injected here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-auto max-h-[320px]">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest">
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Major</th>
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
+                                            Credit</th>
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
+                                            Name</th>
+                                        <th
+                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
+                                            Grade
+                                            Point</th>
+                                        <th
+                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
+                                            Grade</th>
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 w-16"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    <!-- Rows will be injected by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
+                            <div class="flex items-center gap-6">
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Calculated
+                                        GPA</span>
+                                    <span id="calculated-gpa" class="text-xl font-bold text-primary">4.00</span>
+                                </div>
+                                <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Major
+                                        Specific</span>
+                                    <span id="major-gpa-summary"
+                                        class="text-xl font-bold text-slate-800 dark:text-slate-100">4.00</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="gpa-edit-toggle-btn" onclick="toggleGpaEditMode()"
+                                    class="px-8 py-2.5 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold text-sm">Edit
+                                    Record</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Login Modal -->
@@ -381,12 +525,367 @@
         </div>
     </div>
 
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="custom-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-[100] hidden">
+        <div
+            class="relative bg-white dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
+            <button id="modal-close-btn"
+                class="absolute top-6 right-8 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                <span class="material-icons text-2xl">close</span>
+            </button>
+            <div id="modal-icon-container"
+                class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <span id="modal-icon" class="material-icons text-primary text-3xl">info</span>
+            </div>
+            <h3 id="modal-title" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Notice</h3>
+            <p id="modal-message" class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">Message goes
+                here.</p>
+            <div id="modal-buttons" class="w-full flex flex-col gap-3">
+                <button id="modal-primary-btn"
+                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center">
+                    Confirm
+                </button>
+                <button id="modal-secondary-btn"
+                    class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-bold py-3.5 rounded-xl hover:bg-slate-200 transition-all hidden">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const chatContainer = document.getElementById('chat-container');
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
         const loginModal = document.getElementById('login-modal');
+        const gradeModal = document.getElementById('grade-modal');
         const historyList = document.getElementById('history-list');
+        let isGpaEditMode = false;
+        let currentSemester = "Y1S1";
+
+        // Structure for 5 years, 3 semesters each
+        const semesters = [
+            { id: 'Y1S1', label: '1-1' }, { id: 'Y1S2', label: '1-2' }, { id: 'Y1S3', label: '1-3' },
+            { id: 'Y2S1', label: '2-1' }, { id: 'Y2S2', label: '2-2' }, { id: 'Y2S3', label: '2-3' },
+            { id: 'Y3S1', label: '3-1' }, { id: 'Y3S2', label: '3-2' }, { id: 'Y3S3', label: '3-3' },
+            { id: 'Y4S1', label: '4-1' }, { id: 'Y4S2', label: '4-2' }, { id: 'Y4S3', label: '4-3' },
+            { id: 'Y5S1', label: '5-1' }, { id: 'Y5S2', label: '5-2' }, { id: 'Y5S3', label: '5-3' }
+        ];
+
+        // Initialize semesterData from localStorage or defaults
+        let semesterData = JSON.parse(localStorage.getItem('semesterData')) || {};
+        semesters.forEach(s => {
+            // Check if it's the old default data (1 row, default name) and clear it
+            if (semesterData[s.id] && semesterData[s.id].length === 1 && semesterData[s.id][0].name === 'Course Name') {
+                semesterData[s.id] = [];
+            }
+            if (!semesterData[s.id]) {
+                semesterData[s.id] = [];
+            }
+        });
+
+        function initSemesterTabs() {
+            const container = document.getElementById('semester-tabs');
+            container.innerHTML = semesters.map(s => `
+                <button onclick="switchSemester('${s.id}')" id="tab-${s.id}" 
+                    class="semester-tab px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border
+                    ${currentSemester === s.id
+                    ? 'bg-primary text-white border-primary shadow-sm'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-100'}">
+                    ${s.label}
+                </button>
+            `).join('');
+        }
+
+        function showCustomModal(options) {
+            const modal = document.getElementById('custom-modal');
+            const title = document.getElementById('modal-title');
+            const message = document.getElementById('modal-message');
+            const icon = document.getElementById('modal-icon');
+            const primaryBtn = document.getElementById('modal-primary-btn');
+            const secondaryBtn = document.getElementById('modal-secondary-btn');
+            const closeBtn = document.getElementById('modal-close-btn');
+
+            title.innerText = options.title || "Notice";
+            message.innerText = options.message || "";
+            icon.innerText = options.icon || "info";
+            primaryBtn.innerText = options.primaryText || "Confirm";
+
+            if (options.showSecondary) {
+                secondaryBtn.classList.remove('hidden');
+                secondaryBtn.innerText = options.secondaryText || "Cancel";
+            } else {
+                secondaryBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+
+            return new Promise((resolve) => {
+                const handlePrimary = () => {
+                    modal.classList.add('hidden');
+                    primaryBtn.removeEventListener('click', handlePrimary);
+                    secondaryBtn.removeEventListener('click', handleSecondary);
+                    closeBtn.removeEventListener('click', handleClose);
+                    resolve(true);
+                };
+                const handleSecondary = () => {
+                    modal.classList.add('hidden');
+                    primaryBtn.removeEventListener('click', handlePrimary);
+                    secondaryBtn.removeEventListener('click', handleSecondary);
+                    closeBtn.removeEventListener('click', handleClose);
+                    resolve(false);
+                };
+                const handleClose = () => {
+                    modal.classList.add('hidden');
+                    primaryBtn.removeEventListener('click', handlePrimary);
+                    secondaryBtn.removeEventListener('click', handleSecondary);
+                    closeBtn.removeEventListener('click', handleClose);
+                    resolve(false);
+                };
+                primaryBtn.addEventListener('click', handlePrimary);
+                secondaryBtn.addEventListener('click', handleSecondary);
+                closeBtn.addEventListener('click', handleClose);
+            });
+        }
+
+        async function switchSemester(id) {
+            if (isGpaEditMode) {
+                const confirmed = await showCustomModal({
+                    title: "Unsaved Changes",
+                    message: "You have unsaved changes. Switching semesters will discard your current edits. Do you want to continue?",
+                    icon: "warning",
+                    primaryText: "Continue",
+                    showSecondary: true,
+                    secondaryText: "Go Back"
+                });
+
+                if (!confirmed) return;
+                // If they continue, we revert edit mode to sync UI correctly
+                toggleGpaEditMode();
+            }
+            currentSemester = id;
+            initSemesterTabs();
+            renderSemesterTable();
+            // Scroll tab into view if needed
+            document.getElementById(`tab-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function renderSemesterTable() {
+            const tbody = document.querySelector('#grade-modal tbody');
+            tbody.innerHTML = '';
+
+            const data = semesterData[currentSemester];
+
+            if (data.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td colspan="6" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 italic">
+                        No courses added yet. Click <span class="text-primary font-bold">'Add Row'</span> to start.
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            } else {
+                data.forEach((row, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-center">
+                            <input type="checkbox" onchange="updateRowData(this, 'major')" class="major-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
+                        </td>
+                        <td class="px-6 py-4">
+                            <select onchange="updateRowData(this, 'credit')" class="w-24 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-center appearance-none bg-none" disabled>
+                                <option value="2" ${row.credit == 2 ? 'selected' : ''}>2</option>
+                                <option value="3" ${row.credit == 3 ? 'selected' : ''}>3</option>
+                                <option value="4" ${row.credit == 4 ? 'selected' : ''}>4</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="w-full bg-transparent border-none focus:ring-0 text-sm p-0" type="text" placeholder="Course Name" value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
+                        <td class="px-6 py-4">
+                            <input class="grade-point-input w-20 bg-transparent border-none focus:ring-0 text-sm p-0 text-center" value="${row.point}" readonly />
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-center">
+                                <select onchange="updateRowPoint(this)" 
+                                    class="w-28 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-primary text-center ${!isGpaEditMode ? 'appearance-none bg-none' : ''}" 
+                                    ${!isGpaEditMode ? 'disabled' : ''}
+                                    style="${!isGpaEditMode ? 'background-image: none;' : ''}">
+                                    ${Object.keys(gradeMapping).map(g => `<option value="${g}" ${row.grade === g || (row.grade === undefined && g === 'A') ? 'selected' : ''}>${g}</option>`).join('')}
+                                </select>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteRow(this)" class="delete-row-btn ${!isGpaEditMode ? 'hidden' : ''} text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Sync Add Row button position
+            if (isGpaEditMode) {
+                const addRowTr = document.createElement('tr');
+                addRowTr.innerHTML = `
+                    <td colspan="6" class="px-6 py-4">
+                        <button onclick="addRow()" class="w-fit bg-transparent text-slate-400 hover:bg-primary/10 hover:text-primary transition-all font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm">
+                            + Add New
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(addRowTr);
+            }
+            calculateGPA();
+        }
+
+        function updateRowData(element, field) {
+            const tr = element.closest('tr');
+            const index = Array.from(tr.parentNode.children).indexOf(tr);
+            const val = field === 'major' ? element.checked : element.value;
+            semesterData[currentSemester][index][field] = val;
+
+            if (field === 'name') {
+                // Course Autocomplete Logic
+                // Trigger immediately, backend handles empty query now
+                debouncedSearch(val, element);
+            }
+
+            if (field === 'major' || field === 'credit') {
+                calculateGPA();
+            }
+        }
+
+        async function toggleGradeModal() {
+            if (window.currentUserId === "guest") {
+                const proceedToLogin = await showCustomModal({
+                    title: "Login Required",
+                    message: "Please login with your student account to use the GPA Calculator.",
+                    icon: "lock",
+                    primaryText: "Go to Login"
+                });
+
+                if (proceedToLogin) {
+                    toggleLoginModal();
+                }
+                return;
+            }
+            gradeModal.classList.toggle('translate-y-full');
+            if (!gradeModal.classList.contains('translate-y-full')) {
+                initSemesterTabs();
+                renderSemesterTable();
+            }
+        }
+
+        const gradeMapping = {
+            'A': '4.00', 'A-': '3.67', 'B+': '3.33', 'B': '3.00', 'B-': '2.67',
+            'C+': '2.33', 'C': '2.00', 'C-': '1.67', 'D+': '1.00', 'D': '1.00',
+            'D-': '1.00', 'F': '0.00', 'P': ''
+        };
+
+        function updateRowPoint(selectElement) {
+            const tr = selectElement.closest('tr');
+            const index = Array.from(tr.parentNode.children).indexOf(tr);
+            const grade = selectElement.value;
+            const pointValue = gradeMapping[grade] || '';
+
+            semesterData[currentSemester][index].grade = grade;
+            semesterData[currentSemester][index].point = pointValue;
+
+            renderSemesterTable();
+        }
+
+        function calculateGPA() {
+            let totalCredits = 0;
+            let totalWeightedPoints = 0;
+            let majorCredits = 0;
+            let majorWeightedPoints = 0;
+
+            let currentSemCredits = 0;
+            let currentSemWeightedPoints = 0;
+            let currentSemMajorCredits = 0;
+            let currentSemMajorWeightedPoints = 0;
+
+            // Iterate over all semesters to get cumulative totals
+            semesters.forEach(s => {
+                const data = semesterData[s.id];
+                if (!data) return;
+
+                data.forEach(row => {
+                    const creditValue = parseFloat(row.credit) || 0;
+                    const pointValue = parseFloat(row.point);
+                    const isMajor = row.major;
+                    const isPass = row.grade === 'P';
+
+                    if (!isNaN(pointValue)) {
+                        totalCredits += creditValue;
+                        totalWeightedPoints += pointValue * creditValue;
+
+                        if (s.id === currentSemester) {
+                            currentSemCredits += creditValue;
+                            currentSemWeightedPoints += pointValue * creditValue;
+                        }
+
+                        if (isMajor) {
+                            majorCredits += creditValue;
+                            majorWeightedPoints += pointValue * creditValue;
+
+                            if (s.id === currentSemester) {
+                                currentSemMajorCredits += creditValue;
+                                currentSemMajorWeightedPoints += pointValue * creditValue;
+                            }
+                        }
+                    } else if (isPass) {
+                        // Pass subjects count towards credits if needed
+                        // totalCredits += creditValue; 
+                    }
+                });
+            });
+
+            const cumulativeGPA = totalCredits > 0 ? (totalWeightedPoints / totalCredits).toFixed(2) : "0.00";
+            const cumulativeMajorGPA = majorCredits > 0 ? (majorWeightedPoints / majorCredits).toFixed(2) : "0.00";
+
+            const semesterGPA = currentSemCredits > 0 ? (currentSemWeightedPoints / currentSemCredits).toFixed(2) : "0.00";
+            const semesterMajorGPA = currentSemMajorCredits > 0 ? (currentSemMajorWeightedPoints / currentSemMajorCredits).toFixed(2) : "0.00";
+
+            // Update modal UI elements (Semester-specific)
+            document.querySelector('#calculated-gpa').innerText = semesterGPA;
+            document.querySelector('#major-gpa-summary').innerText = semesterMajorGPA;
+
+            // Update dashboard UI elements (Cumulative)
+            document.querySelector('#top-gpa-display').innerText = cumulativeGPA;
+            document.querySelector('#major-gpa-display').innerText = cumulativeMajorGPA;
+            document.querySelector('#total-credits-display').innerText = totalCredits;
+
+            // Save to local storage for persistence
+            localStorage.setItem('semesterData', JSON.stringify(semesterData));
+        }
+
+        function addRow() {
+            if (!isGpaEditMode) return;
+            const newRow = { major: false, credit: 3, name: '', grade: 'A', point: '4.00' };
+            semesterData[currentSemester].push(newRow);
+            renderSemesterTable();
+        }
+
+        function toggleGpaEditMode() {
+            isGpaEditMode = !isGpaEditMode;
+            const btn = document.getElementById('gpa-edit-toggle-btn');
+            // Static add-row-btn is deprecated in favor of dynamic row
+
+            if (isGpaEditMode) {
+                btn.innerText = "SAVE Record";
+            } else {
+                btn.innerText = "Edit Record";
+            }
+            renderSemesterTable();
+        }
+
+        function deleteRow(button) {
+            if (!isGpaEditMode) return;
+            const tr = button.closest('tr');
+            const index = Array.from(tr.parentNode.children).indexOf(tr);
+
+            semesterData[currentSemester].splice(index, 1);
+            renderSemesterTable();
+        }
 
         window.currentUserId = "guest";
         let isProcessing = false;
@@ -410,6 +909,101 @@
                 btn.disabled = true;
             }
         }
+        // Initialize history on load
+        updateHistoryUI();
+        initSemesterTabs();
+        renderSemesterTable();
+
+        // --- Course Autocomplete Logic ---
+        let debounceTimer;
+
+        async function debouncedSearch(query, inputElement) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => fetchCourseSuggestions(query, inputElement), 300);
+        }
+
+        async function fetchCourseSuggestions(query, inputElement) {
+            try {
+                const response = await fetch(`/courses/search?query=${encodeURIComponent(query)}`);
+                if (response.ok) {
+                    const courses = await response.json();
+                    showSuggestions(courses, inputElement);
+                }
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+            }
+        }
+
+        function showSuggestions(courses, inputElement) {
+            // Remove existing suggestions list if any
+            closeAllLists();
+
+            if (courses.length === 0) return;
+
+            const listDiv = document.createElement("div");
+            listDiv.setAttribute("class", "autocomplete-items fixed z-[9999] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl mt-1 max-h-60 overflow-y-auto font-sans");
+
+            // Calculate position
+            const rect = inputElement.getBoundingClientRect();
+
+            listDiv.style.top = (rect.bottom + window.scrollY) + "px";
+            listDiv.style.left = (rect.left + window.scrollX) + "px";
+            listDiv.style.width = (rect.width * 0.9) + "px";
+
+            // Append to body to avoid overflow clipping from table/modal
+            document.body.appendChild(listDiv);
+
+            courses.forEach(course => {
+                const item = document.createElement("div");
+                item.className = "px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 transition-colors";
+                item.innerHTML = `
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${course.course_name}</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400">${course.credits} Credits</span>
+                    </div>
+                `;
+                item.addEventListener("click", function (e) {
+                    e.stopPropagation(); // Prevent immediate closing
+
+                    // Update Course Name
+                    inputElement.value = course.course_name;
+                    updateRowData(inputElement, 'name');
+
+                    // Update Credits (Find the select element in the same row)
+                    const row = inputElement.closest('tr');
+                    const creditSelect = row.querySelector('select'); // Accessing the credit select
+                    if (creditSelect) {
+                        creditSelect.value = course.credits;
+                        // Trigger change event manually if needed, or call update logic
+                        updateRowData(creditSelect, 'credit');
+                    }
+
+                    closeAllLists();
+                });
+                listDiv.appendChild(item);
+            });
+        }
+
+        function closeAllLists(elmnt) {
+            const x = document.getElementsByClassName("autocomplete-items");
+            for (let i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != document.getElementById("chat-input")) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+
+        // Close lists when clicking outside or scrolling
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+
+        // Close on scroll to prevent detached floating list
+        document.addEventListener("scroll", function (e) {
+            // Ignore scroll events originating from the autocomplete list itself
+            if (e.target && e.target.classList && e.target.classList.contains('autocomplete-items')) return;
+            closeAllLists();
+        }, true); // Capture phase to catch scroll in sub-elements
 
         function toggleLoginModal() {
             loginModal.classList.toggle('hidden');

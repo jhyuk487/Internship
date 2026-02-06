@@ -22,6 +22,10 @@ class DocumentIngestRequest(BaseModel):
     filename: str
     content: str
 
+class CourseSearchResponse(BaseModel):
+    course_name: str
+    credits: int
+
 # Chat History Schemas
 class ChatMessageSchema(BaseModel):
     role: str
