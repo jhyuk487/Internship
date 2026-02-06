@@ -15,4 +15,4 @@ aiofiles
 python-multipart
 requests
 pyjwt
-langchain-huggingface>=0.0.3
+langchain-google-genai
