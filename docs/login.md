@@ -1,40 +1,28 @@
-# Login & User Management Documentation
+﻿# Login & User Management Documentation
 
 이 문서는 사용자의 인증, 계정 보안 및 정보 조회와 관련된 데이터 흐름을 설명합니다.
 
 ## 1. 인증 및 세션 (Authentication)
-
-1.  **로그인 요청 (POST /auth/login)**: 사용자의 `student_id`와 `password`를 검증합니다.
-2.  **JWT 발행**: 인증 성공 시 `access_token`을 발행하여 프론트엔드의 `localStorage`에 저장합니다.
-3.  **세션 유지**: 페이지 새로고침 시 `GET /auth/me`를 통해 토큰 유효성을 검사하고 사용자 정보를 복구합니다.
+1. **로그인 요청 (POST /auth/login)**: `user_id`, `user_password` JSON 검증
+2. **JWT 발행**: 인증 성공 시 `access_token` 발급
+3. **세션 유지 (GET /auth/me)**: 토큰으로 사용자 정보 복구
+4. **OAuth2 로그인 (POST /auth/token)**: 폼 기반 로그인 지원
 
 ## 2. 비밀번호 찾기 (Password Recovery)
-
-사용자가 비밀번호를 분실했을 경우, 추가적인 보안 검증을 통해 비밀번호를 안전하게 조회할 수 있습니다.
-
 - **엔드포인트**: `POST /auth/find-password`
 - **검증 절차**:
-    1. 사용자가 학번(`student_id`)과 이메일(`email`)을 입력합니다.
-    2. 서버는 `User` 컬렉션에서 해당 정보를 조회합니다 (이메일 대소문자 무시 및 공백 제거 로직 적용).
-    3. 정보가 일치할 경우 원본 비밀번호(또는 임시 비밀번호)를 반환합니다.
-- **UI 특징**: 별도의 페이지 이동 없이 기존 모달 내에서 결과를 즉시 확인 가능합니다.
+  1. 학번(`user_id`)과 이메일(`email`) 입력
+  2. `user_info`에서 이메일 일치 확인
+  3. `login_info`에서 비밀번호 반환
 
 ## 3. 게스트 접근 정책 (Guest Policy)
+- 게스트는 채팅 입력이 비활성화됩니다.
+- 채팅 히스토리 및 GPA 계산기 기능은 로그인 후 사용 가능합니다.
 
-보안 강화를 위해 비로그인 사용자의 기능을 제한합니다.
+## 4. 사용자 프로필 조회
+- **`GET /auth/profile/{user_id}`**: 프로필 모달 표시용
+- **`GET /auth/me`**: 세션 복구용
 
-- **채팅 제한**: 로그아웃 상태에서는 `chat-input`이 비활성화되며 "Please login to chat" 메시지가 표시됩니다.
-- **리소스 보호**: AI 상담 기능은 인증된 학생 계정으로만 이용 가능합니다.
-
-## 4. 사용자 프로필 조회 (User Profile)
-
-로그인 후 자신의 상세 정보를 확인할 수 있는 기능입니다.
-
-- **조회 항목**: 학번, 성명, 전공, 학년, 총 취득 학점, 이메일 등.
-- **동작 방식**: 사이드바의 설정 아이콘(`settings`) 클릭 시 `GET /auth/profile/{user_id}`를 호출하여 모달 대화창에 정보를 표시합니다.
-
-## 5. 데이터 구조 (Collection)
-
-- **Account**: 학번, 해싱된 비밀번호 등 인증 정보.
-- **User**: 학생 개인 프로필 및 학적 데이터.
-- **ChatHistory**: 유저별 대화 내역 및 설정(핀 고정 등).
+## 5. 로컬 저장 키
+- `access_token`: JWT 토큰
+- `user_id`: 로그인한 학번

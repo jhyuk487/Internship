@@ -1,38 +1,32 @@
-# AI Implementation Details (Reactivated)
+﻿# AI Implementation Details
 
-이 문서는 프로젝트 내 AI 기능의 구현 현황과 기술적 전략을 설명합니다.
+이 문서는 프로젝트 내 AI 기능의 구현 방식과 현재 동작을 설명합니다.
 
-## 1. 현재 상태: 활성화 (AI Features Active)
+## 1. SDK 및 모델
+- **SDK**: `google-genai` (Python) — `genai.Client`로 초기화합니다.
+- **기본 모델**: `gemma-3-27b-it`
+- **설치 위치**: `backend/app/ai/gemini.py`
+- **프롬프트 방식**: 시스템 지침을 프롬프트에 포함해 전달합니다.
 
-현재 프로젝트의 AI 기능은 완전히 복구되었으며, 최신 모델과 SDK를 기반으로 정상 작동 중입니다.
+## 2. 의도 파악 (Intent Detection)
+- 같은 모델을 사용해 질문을 `general` 또는 `personal`로 분류합니다.
+- `personal` 질문은 로그인된 사용자(`user_id` 또는 JWT)만 접근 가능합니다.
 
-### 주요 업데이트 사항
-- **SDK 마이그레이션:** 최신 `google-genai` (Google AI Python SDK v2) 라이브러리로 완전히 마이그레이션하여 성능과 안정성을 확보했습니다.
-- **하이브리드 지원:** 제미나이(Gemini)와 젬마(Gemma) 모델을 유연하게 교체할 수 있는 구조를 갖추었습니다.
-- **임베딩 최적화:** `GoogleGenerativeAIEmbeddings`를 사용하여 로컬 타임아웃 문제 없이 고성능 RAG 기능을 지원합니다.
+## 3. RAG / 벡터 검색
+- **Vector DB**: FAISS (로컬 디스크 인덱스)
+- **임베딩**: `GoogleGenerativeAIEmbeddings` (`models/embedding-001`)
+- **문서 소스**: `data/docs/**/*.txt`
+- **인덱스 저장 위치**: `data/faiss_index/`
+- **업데이트 API**: `POST /chat/ingest` → 백그라운드에서 인덱스 재구성
 
-## 2. 사용 중인 모델 전략
+## 4. 채팅 엔드포인트 동작
+- **엔드포인트**: `POST /chat` 및 `POST /chat/ask`
+- **토큰 처리**: JWT가 있으면 `sub`에서 `user_id`를 추출해 개인 데이터 접근에 사용합니다.
+- **일반 질문**: 벡터 검색 → 컨텍스트 포함 답변 생성
+- **개인 질문**: `user_info` 조회 후 컨텍스트 구성
+- **출처**: 문서 기반 답변일 때 `sources = ["Vector Knowledge Base"]`
 
-- **주력 모델:** `gemma-3-27b-it` (최신 오픈 소스 모델)
-  - **특징:** 높은 추론 지능과 빠른 응답 속도를 제공하며, 대학 안내 챗봇의 시스템 인스트럭션 이행 능력이 뛰어납니다.
-- **보조 모델:** `gemini-2.0-flash`
-  - 더 광범위한 데이터 처리나 고성능 추론이 필요한 경우 즉시 전환 가능하도록 설계되어 있습니다.
-
-## 3. 핵심 기능 구현 내용
-
-### ✅ 의도 파악 (Intent Detection)
-- 사용자의 질문을 `general`과 `personal`로 분류합니다.
-- 개인 정보(성적, 등록금 등) 관련 질문일 경우 MongoDB 연동을 트리거하여 보안 인증을 거친 정보를 제공합니다.
-
-### ✅ 문맥 인식 상담 (Context Awareness)
-- UCSI 대학교의 특정 데이터를 시스템 인프라 및 프롬프트에 주입하여, 대학교 전용 AI로서 정확하고 신뢰성 있는 답변을 생성합니다.
-
-## 4. 핵심 코드 구조
-
-- **[gemini.py](file:///c:/Users/ehobi/Desktop/uni/%EB%B9%84%EA%B5%90%EA%B3%BC/%EB%A7%90%EB%A0%88%EC%9D%B4%EC%8B%9C%EC%95%84/project3/backend/app/ai/gemini.py)**: `GeminiService` 클래스를 통해 모델 초기화, 텍스트 생성, 의도 파악 등을 중앙 집중 관리합니다.
-- **[vector.py](file:///c:/Users/ehobi/Desktop/uni/%EB%B9%84%EA%B5%90%EA%B3%BC/%EB%A7%90%EB%A0%88%EC%9D%B4%EC%8B%9C%EC%95%84/project3/backend/app/ai/vector.py)**: 벡터 데이터베이스 검색 및 실시간 문서 참조를 처리합니다.
-- **[router.py](file:///c:/Users/ehobi/Desktop/uni/%EB%B9%84%EA%B5%90%EA%B3%BC/%EB%A7%90%EB%A0%88%EC%9D%B4%EC%8B%9C%EC%95%84/project3/backend/app/ai/router.py)**: API 엔드포인트와 AI 서비스를 연결하며, 게스트 및 로그인 사용자의 권한을 제어합니다.
-
-## 5. 향후 로드맵
-1.  **고급 RAG 파이프라인**: 대학 학사 규정(PDF) 등에 대한 FAISS/Vector Search 연동 고도화.
-2.  **멀티모달 확장**: 학생 증명서나 성적표 이미지를 인식하여 자동 답변하는 기능 연구.
+## 5. 주요 파일
+- `backend/app/ai/gemini.py` — 모델 호출, 응답 생성, 의도 분류
+- `backend/app/ai/vector.py` — FAISS 로딩/검색/인덱싱
+- `backend/app/ai/router.py` — `/chat` API 및 히스토리 API

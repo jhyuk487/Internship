@@ -32,6 +32,16 @@
             line-height: normal !important;
             background-color: transparent !important;
         }
+
+        /* Make disabled inputs look exactly like text */
+        .grade-row input:disabled,
+        .grade-row select:disabled {
+            opacity: 1;
+            /* Override default disabled opacity */
+            color: inherit;
+            /* Use parent text color */
+            cursor: default;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -280,8 +290,8 @@
                 </button>
             </header>
 
-            <div class="flex-1 overflow-y-auto pt-4 px-8 pb-8 custom-scrollbar">
-                <div class="max-w-5xl mx-auto space-y-8">
+            <div class="flex-1 overflow-y-auto pt-4 px-8 pb-4 custom-scrollbar h-full">
+                <div class="max-w-5xl mx-auto flex flex-col h-full gap-6">
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div
@@ -321,7 +331,7 @@
 
                     <!-- Records Table -->
                     <div
-                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex-1 flex flex-col">
                         <div
                             class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
                             <!-- Semester Tabs moved here -->
@@ -332,7 +342,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-auto max-h-[320px]">
+                        <div class="overflow-auto flex-1">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr
@@ -352,7 +362,8 @@
                                         <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 w-16"></th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tbody
+                                    class="divide-y divide-slate-100 dark:divide-slate-700 border-b border-slate-100 dark:border-slate-700">
                                     <!-- Rows will be injected by JavaScript -->
                                 </tbody>
                             </table>
@@ -677,13 +688,16 @@
             const data = semesterData[currentSemester];
 
             if (data.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td colspan="6" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 italic">
-                        No courses added yet. Click <span class="text-primary font-bold">'Add Row'</span> to start.
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                if (!isGpaEditMode) {
+                    const tr = document.createElement('tr');
+                    tr.style.height = "100%"; // Ensure row tries to fill available height
+                    tr.innerHTML = `
+                        <td colspan="6" class="px-6 h-full text-center align-middle text-slate-400 dark:text-slate-500 italic">
+                            No courses added yet. Click <span class="text-primary font-bold">'Edit Record'</span> to start.
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             } else {
                 data.forEach((row, index) => {
                     const tr = document.createElement('tr');
@@ -699,7 +713,7 @@
                                 <option value="4" ${row.credit == 4 ? 'selected' : ''}>4</option>
                             </select>
                         </td>
-                        <td class="px-6 py-4"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="w-full bg-transparent border-none focus:ring-0 text-sm p-0" type="text" placeholder="Course Name" value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
+                        <td class="px-6 py-4"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="w-full bg-transparent border-none focus:ring-0 text-sm p-0 placeholder-slate-300 dark:placeholder-slate-600 font-medium text-slate-800 dark:text-slate-200" type="text" placeholder="Search Course..." value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
                         <td class="px-6 py-4">
                             <input class="grade-point-input w-20 bg-transparent border-none focus:ring-0 text-sm p-0 text-center" value="${row.point}" readonly />
                         </td>
@@ -724,10 +738,12 @@
             // Sync Add Row button position
             if (isGpaEditMode) {
                 const addRowTr = document.createElement('tr');
+                addRowTr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
                 addRowTr.innerHTML = `
                     <td colspan="6" class="px-6 py-4">
-                        <button onclick="addRow()" class="w-fit bg-transparent text-slate-400 hover:bg-primary/10 hover:text-primary transition-all font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm">
-                            + Add New
+                        <button onclick="addRow()" class="w-full flex items-center justify-start gap-2 text-slate-400 hover:text-primary transition-colors font-medium text-sm">
+                            <span class="material-symbols-outlined text-lg">add_circle</span>
+                            Add New Course
                         </button>
                     </td>
                 `;
