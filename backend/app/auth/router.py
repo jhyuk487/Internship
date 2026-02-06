@@ -87,4 +87,15 @@ async def get_me(user_id: str = Depends(get_current_user)):
         )
     return {"user_data": user_profile}
 
+@router.get("/profile/{user_id}")
+async def get_profile(user_id: str):
+    """Retrieve user profile by student ID (No token required for simple view)"""
+    user_profile = await student_service.get_student_info(user_id)
+    if not user_profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User profile not found",
+        )
+    return user_profile
+
 
