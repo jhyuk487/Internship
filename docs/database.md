@@ -1,28 +1,36 @@
-# Database 명세서
+# Database 명세서 (최신화)
 
-학생 정보 및 학사 데이터를 관리하기 위한 로컬 데이터 저장소 시스템입니다.
+이 문서는 UCSI 챗봇 프로젝트의 데이터 구조와 관리 방식을 설명합니다.
 
 ## 1. 개요
-- **시스템:** 로컬 MongoDB 인스턴스
-- **드라이버:** Motor (비동기 드라이버)
-- **ODM (Object Data Manager):** Beanie
-- **연결 자동화:** 서버 시작 시 `init_db` 함수를 통해 전역 싱글톤으로 바인딩.
+- **시스템:** MongoDB (Atlas 또는 로컬 인스턴스)
+- **드라이버:** Motor / Beanie ODM
+- **특징:** 6만 건 이상의 데이터를 처리하기 위해 최적화된 인덱싱 및 비동기 통신 지원.
 
-## 2. 데이터 모델 (Schema)
-### 2.1. Student (학생)
-- **Collection Name:** `students`
-- **주요 필드:**
-    - `student_id`: 학생 고유 번호 (PK 개념)
-    - `password`: 인증을 위한 비밀번호
-    - `name`: 학생 이름
-    - `major`: 소속 학과
-    - `gpa`: 현재 평점
-    - `tuition_status`: 학비 납부 상태
+## 2. 데이터 컬렉션 (Collections)
 
-## 3. 이그레이션 및 서비스
-- **JSON Migration:** 기존 `student_db.json` 파일을 읽어와 MongoDB 컬렉션으로 자동 이관하는 유틸리티 지원.
-- **StudentService:** Beanie를 사용하여 비동기적으로 인증(`authenticate`) 및 정보 조회(`get_student_info`)를 수행.
+### 2.1. User (학생 상세 정보)
+- **Collection Name:** `user_info`
+- **주요 필드:** `student_id`, `name`, `major`, `gpa`, `credits_completed`, `course_history`.
+- **용도:** 챗봇이 학생의 개인적인 학업 관련 질문에 대해 답변할 때 사용.
 
-## 4. 보안 및 관리
-- **인증 방식:** 로컬 개발 환경에서는 무인증(No-AUTH) 연결을 지원하며, 운영 환경에서는 `.env` 설정을 통한 사용자 인증 가능.
-- **데이터 무결성:** Pydantic 모델을 사용하여 데이터 유효성을 검증하고 런타임 오류 방지.
+### 2.2. Account (인증 정보)
+- **Collection Name:** `login_info`
+- **주요 필드:** `user_id`, `user_password`.
+- **용도:** 로그인 세션 관리 및 JWT 토큰 발행을 위한 인증 처리.
+
+### 2.3. Course & Major (학사 정보)
+- **Collection Name:** `uni_courses_info`, `uni_majors_info`.
+- **용도:** 대학교 전체 강의 목록 및 전공 정보를 관리하며, 일반적인 학사 안내 답변 생성 시 참조.
+
+## 3. 데이터 동기화 알고리즘
+- **도구:** [seed_db.py](file:///c:/Users/SeChun/Documents/Internship/backend/seed_db.py)
+- **과정:** 
+    1.  `data_sets/` 내 JSON 파일을 로드.
+    2.  Pydantic 모델을 통한 데이터 유효성 검사 실행 (Validation).
+    3.  기존 컬렉션 데이터 초기화 후 대량 주입(Bulk Insert) 방식으로 동기화.
+- **주기:** 데이터 업데이트 필요 시 수동 실행하거나 서버 배포 시 자동화 가능.
+
+## 4. 보안 정책
+- **환경 설정:** `.env`를 통해 호스트, 포트, 계정 정보(DB_USER, DB_PASS) 관리.
+- **접근 제어:** FastAPI의 `get_current_user` 의존성 주입을 통해 인증된 사용자만 자신의 정보에 접근 가능하도록 설계.

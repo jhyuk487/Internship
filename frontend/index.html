@@ -802,14 +802,6 @@
             appendMessage('user', message);
             showLoading();
 
-            // AI communication commented out as requested
-            setTimeout(() => {
-                removeLoading();
-                appendMessage('ai', 'AI service is currently disabled. (Communication commented out)');
-                isProcessing = false;
-            }, 500);
-
-            /*
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
@@ -826,7 +818,6 @@
             } finally {
                 isProcessing = false;
             }
-            */
         }
 
         sendBtn.addEventListener('click', sendMessage);
