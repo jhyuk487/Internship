@@ -23,5 +23,15 @@ class StudentService:
             return user.dict(exclude={"id"})
         return None
 
+    async def find_password(self, student_id: str, email: str):
+        # Verify student exists and email matches
+        user = await User.find_one(User.user_id == student_id)
+        if user and user.email == email:
+            # Retrieve password from Account
+            account = await Account.find_one(Account.user_id == student_id)
+            if account:
+                return account.user_password
+        return None
+
 
 student_service = StudentService()
