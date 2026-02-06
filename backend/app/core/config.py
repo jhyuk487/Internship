@@ -17,6 +17,7 @@ class Settings:
     # External APIs
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     
+
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     DATA_DIR: str = os.path.join(BASE_DIR, "data")

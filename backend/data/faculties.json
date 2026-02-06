@@ -1,0 +1,154 @@
+[
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814480d"
+    },
+    "faculty_id": "FAC_001",
+    "name": "De Institute of Creative Arts and Design",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814480e"
+    },
+    "faculty_id": "FAC_002",
+    "name": "UCSI University, Springhill Campus",
+    "campus": "Branch Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814480f"
+    },
+    "faculty_id": "FAC_003",
+    "name": "Institute of Computer Science and Digital Innovation",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144810"
+    },
+    "faculty_id": "FAC_004",
+    "name": "Faculty of Social Sciences and Liberal Arts",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144811"
+    },
+    "faculty_id": "FAC_005",
+    "name": "Faculty of Medicine and Health Sciences",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144812"
+    },
+    "faculty_id": "FAC_006",
+    "name": "Institute of Languages",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144813"
+    },
+    "faculty_id": "FAC_007",
+    "name": "School of Architecture and Built Environment",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144814"
+    },
+    "faculty_id": "FAC_008",
+    "name": "Faculty of Business and Management",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144815"
+    },
+    "faculty_id": "FAC_009",
+    "name": "Faculty of Applied Sciences",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144816"
+    },
+    "faculty_id": "FAC_010",
+    "name": "Institute of Music",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144817"
+    },
+    "faculty_id": "FAC_011",
+    "name": "Faculty of Hospitality and Tourism Management",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144818"
+    },
+    "faculty_id": "FAC_012",
+    "name": "Faculty of Pharmaceutical Sciences",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa08144819"
+    },
+    "faculty_id": "FAC_013",
+    "name": "UCSI Graduate Business School",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481a"
+    },
+    "faculty_id": "FAC_014",
+    "name": "Faculty of Engineering, Technology and Built Environment",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481b"
+    },
+    "faculty_id": "FAC_015",
+    "name": "Faculty of Hospitality and Tourism Management (Sarawak)",
+    "campus": "Branch Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481c"
+    },
+    "faculty_id": "FAC_016",
+    "name": "Institute of Actuarial Science and Data Analytics",
+    "campus": "Main Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481d"
+    },
+    "faculty_id": "FAC_017",
+    "name": "Faculty of Business and Management / Sarawak",
+    "campus": "Branch Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481e"
+    },
+    "faculty_id": "FAC_018",
+    "name": "Centre for Pre-University Studies (Sarawak)",
+    "campus": "Branch Campus"
+  },
+  {
+    "_id": {
+      "$oid": "698406bbff892faa0814481f"
+    },
+    "faculty_id": "FAC_019",
+    "name": "International Institute of Science Diplomacy and Sustainability",
+    "campus": "Main Campus"
+  }
+]

@@ -1,6 +1,7 @@
 from typing import List, Optional, Any
 from beanie import Document
 from pydantic import Field, BaseModel
+from datetime import datetime
 
 class CourseInfo(BaseModel):
     course_unique_id: str
@@ -69,3 +70,19 @@ class TestRecord(Document):
     
     class Settings:
         name = "teamB"
+
+class ChatMessage(BaseModel):
+    """Single chat message"""
+    role: str  # "user" or "ai"
+    content: str
+
+class ChatHistory(Document):
+    """Chat history document for MongoDB"""
+    user_id: str  # Changed from student_id to match Account model
+    title: str
+    messages: List[ChatMessage] = []
+    is_pinned: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "chat_histories"
