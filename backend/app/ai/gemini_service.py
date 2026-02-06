@@ -30,14 +30,15 @@ class GeminiService:
         """
         
         try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=user_query,
-                config={
-                    'system_instruction': system_instruction
-                }
-            )
-            return response.text
+            # response = self.client.models.generate_content(
+            #     model=self.model_id,
+            #     contents=user_query,
+            #     config={
+            #         'system_instruction': system_instruction
+            #     }
+            # )
+            # return response.text
+            return "AI service is currently disabled. (Quota exceeded or under maintenance)"
         except Exception as e:
             return f"Error communicating with AI: {str(e)}"
 
@@ -45,23 +46,24 @@ class GeminiService:
         """
         Classifies the intent of the question: 'general' vs 'personal'.
         """
-        prompt = f"""Classify the following query into one of these categories: 
-        1. 'general' (University info, campus, facilities, programs)
-        2. 'personal' (Grades, fees, schedule, login, my account)
-        
-        Query: "{user_query}"
-        
-        Return ONLY the category name.
-        """
-        try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt
-            )
-            return response.text.strip().lower()
-        except Exception as e:
-            print(f"Intent detection error: {e}")
-            return "general" # Default
+        # prompt = f"""Classify the following query into one of these categories: 
+        # 1. 'general' (University info, campus, facilities, programs)
+        # 2. 'personal' (Grades, fees, schedule, login, my account)
+        # 
+        # Query: "{user_query}"
+        # 
+        # Return ONLY the category name.
+        # """
+        # try:
+        #     response = self.client.models.generate_content(
+        #         model=self.model_id,
+        #         contents=prompt
+        #     )
+        #     return response.text.strip().lower()
+        # except Exception as e:
+        #     print(f"Intent detection error: {e}")
+        #     return "general" # Default
+        return "general"
 
 from functools import lru_cache
 

@@ -89,6 +89,11 @@ async function handleLogin(event) {
                 loadChatHistoryFromBackend();
             }
 
+            // Update chat input state
+            if (typeof updateChatInputState === 'function') {
+                updateChatInputState(true);
+            }
+
         } else {
             alert("Login Failed: " + (data.detail || "Check credentials"));
         }
@@ -131,6 +136,16 @@ function handleLogout() {
     // Clear chat history UI
     if (typeof checkAndUpdateHistoryUI === 'function') {
         checkAndUpdateHistoryUI();
+    }
+
+    // Clear active chat conversation
+    if (typeof startNewChat === 'function') {
+        startNewChat();
+    }
+
+    // Update chat input state
+    if (typeof updateChatInputState === 'function') {
+        updateChatInputState(false);
     }
 }
 
@@ -179,6 +194,11 @@ async function initSession() {
                 // Load chat history from backend
                 if (typeof loadChatHistoryFromBackend === 'function') {
                     loadChatHistoryFromBackend();
+                }
+
+                // Update chat input state
+                if (typeof updateChatInputState === 'function') {
+                    updateChatInputState(true);
                 }
             }
         } else {

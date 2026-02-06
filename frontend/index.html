@@ -133,10 +133,11 @@
         <div class="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
             <div class="max-w-4xl mx-auto relative group">
                 <input id="chat-input"
-                    class="w-full h-14 pl-6 pr-14 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
-                    placeholder="Type your message..." type="text" />
+                    class="w-full h-14 pl-6 pr-14 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="Please login to chat" type="text" disabled />
                 <button id="send-btn"
-                    class="absolute inset-y-2 right-2 px-4 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all shadow-lg shadow-red-500/20">
+                    class="absolute inset-y-2 right-2 px-4 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
                     <span class="material-symbols-outlined">send</span>
                 </button>
             </div>
@@ -301,6 +302,20 @@
         // Initialize: Check login state before showing history
         // History loading is triggered by initSession() in login.js after successful auth
         checkAndUpdateHistoryUI();
+
+        function updateChatInputState(isLoggedIn) {
+            const input = document.getElementById('chat-input');
+            const btn = document.getElementById('send-btn');
+            if (isLoggedIn) {
+                input.disabled = false;
+                input.placeholder = "Type your message...";
+                btn.disabled = false;
+            } else {
+                input.disabled = true;
+                input.placeholder = "Please login to chat";
+                btn.disabled = true;
+            }
+        }
 
         function toggleLoginModal() {
             loginModal.classList.toggle('hidden');
@@ -654,6 +669,15 @@
             isProcessing = true;
             appendMessage('user', message);
             showLoading();
+
+            // AI communication commented out as requested
+            setTimeout(() => {
+                removeLoading();
+                appendMessage('ai', 'AI service is currently disabled. (Communication commented out)');
+                isProcessing = false;
+            }, 500);
+
+            /*
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
@@ -670,6 +694,7 @@
             } finally {
                 isProcessing = false;
             }
+            */
         }
 
         sendBtn.addEventListener('click', sendMessage);
