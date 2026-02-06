@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 from app.core.config import settings
 
 class GeminiService:
@@ -6,8 +6,8 @@ class GeminiService:
         if not settings.GOOGLE_API_KEY:
             print("WARNING: GOOGLE_API_KEY is not set.")
         
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel('gemini-3-flash-preview')
+        self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+        self.model_id = 'gemini-2.0-flash' # Upgrading to the suggested version
 
     async def generate_response(self, user_query: str, context: str = "") -> str:
         """
@@ -30,9 +30,13 @@ class GeminiService:
         """
         
         try:
-            # Using generate_content_async if available, else sync wrapped
-            # valid_models showed 2.0-flash is available.
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=user_query,
+                config={
+                    'system_instruction': system_instruction
+                }
+            )
             return response.text
         except Exception as e:
             return f"Error communicating with AI: {str(e)}"
@@ -50,7 +54,10 @@ class GeminiService:
         Return ONLY the category name.
         """
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
             return response.text.strip().lower()
         except Exception as e:
             print(f"Intent detection error: {e}")

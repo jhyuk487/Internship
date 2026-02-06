@@ -24,9 +24,13 @@ class StudentService:
         return None
 
     async def find_password(self, student_id: str, email: str):
-        # Verify student exists and email matches
+        # Clean input
+        student_id = student_id.strip()
+        email = email.strip().lower()
+
+        # Verify student exists and email matches (case-insensitive)
         user = await User.find_one(User.user_id == student_id)
-        if user and user.email == email:
+        if user and user.email.lower() == email:
             # Retrieve password from Account
             account = await Account.find_one(Account.user_id == student_id)
             if account:

@@ -13,7 +13,7 @@ async function handleLogin(event) {
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/auth/login', {
+        const response = await fetch('/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -205,12 +205,12 @@ async function handleFindPassword(event) {
     const email = emailInput.value.trim();
 
     if (!studentId || !email) {
-        alert("학번과 이메일을 모두 입력해주세요.");
+        alert("Please enter both Student ID and Email.");
         return;
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/auth/find-password', {
+        const response = await fetch('/auth/find-password', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -231,12 +231,12 @@ async function handleFindPassword(event) {
                 resultDiv.classList.remove('hidden');
             }
         } else {
-            alert("입력하신 정보로 등록된 계정을 찾을 수 없습니다.\n비밀번호를 찾을 수 없는 경우 학과사무실로 문의해 주세요.");
+            alert("No account found with the provided information.\nIf you cannot find your password, please contact the faculty office.");
             resultDiv.classList.add('hidden');
         }
     } catch (error) {
         console.error('Find password error:', error);
-        alert("오류가 발생했습니다. 나중에 다시 시도해주세요.");
+        alert("An error occurred. Please try again later.");
     }
 }
 

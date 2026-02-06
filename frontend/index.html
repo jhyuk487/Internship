@@ -193,7 +193,7 @@
                     <div class="flex justify-end mt-2">
                         <button type="button" onclick="openFindPasswordModal()"
                             class="text-sm text-red-600 hover:text-red-700 hover:underline font-bold transition-colors">
-                            비번을 잊어버렸나요?
+                            Forgot Password?
                         </button>
                     </div>
                 </div>
@@ -221,50 +221,68 @@
                 <div class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center mb-4 shadow-lg">
                     <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">비밀번호 찾기</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">비밀번호를 찾기 위해 학번과 이메일을 입력해주세요.</p>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Find Password</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">Please enter your Student ID and
+                    Email to find your password.</p>
             </div>
-            <form class="space-y-5" onsubmit="handleFindPassword(event)">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                        for="find-student-id">학번</label>
-                    <div class="relative">
-                        <span
-                            class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
-                        <input
-                            class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                            id="find-student-id" placeholder="Enter your Student ID" type="text" required />
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                        for="find-email">이메일</label>
-                    <div class="relative">
-                        <span
-                            class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">email</span>
-                        <input
-                            class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                            id="find-email" placeholder="Enter your registered Email" type="email" required />
-                    </div>
-                </div>
-                <!-- Result display (hidden by default) -->
-                <div id="find-password-result"
-                    class="hidden p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-center">
-                    <p class="text-sm text-green-700 dark:text-green-300">비밀번호: <span id="recovered-password"
-                            class="font-bold"></span></p>
-                </div>
 
-                <button
-                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
-                    type="submit">
-                    비밀번호 찾기
-                    <span class="material-icons text-lg">search</span>
+            <!-- Input Form Section -->
+            <div id="find-password-form-container">
+                <form class="space-y-5" onsubmit="handleFindPassword(event)">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                            for="find-student-id">Student ID</label>
+                        <div class="relative">
+                            <span
+                                class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
+                            <input
+                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                id="find-student-id" placeholder="Enter your Student ID" type="text" required />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                            for="find-email">Email</label>
+                        <div class="relative">
+                            <span
+                                class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">email</span>
+                            <input
+                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                id="find-email" placeholder="Enter your registered Email" type="email" required />
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
+                        type="submit">
+                        Find Password
+                        <span class="material-icons text-lg">search</span>
+                    </button>
+                    <button type="button" onclick="openLoginModal()"
+                        class="w-full text-sm text-slate-500 hover:text-primary transition-colors font-medium mt-2">
+                        Back to Login
+                    </button>
+                </form>
+            </div>
+
+            <!-- Result Section (hidden by default) -->
+            <div id="find-password-result-container" class="hidden text-center animate-in fade-in zoom-in duration-300">
+                <div
+                    class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-icons text-green-500 text-3xl">check_circle</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Password Recovered</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">Your password is:</p>
+                <div
+                    class="bg-slate-50 dark:bg-zinc-800 p-4 rounded-xl border border-dashed border-slate-200 dark:border-zinc-700 mb-8">
+                    <span id="recovered-password-display"
+                        class="text-xl font-mono font-bold text-primary tracking-wider"></span>
+                </div>
+                <button onclick="openLoginModalFromSuccess()"
+                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all">
+                    Back to Login
                 </button>
-                <button type="button" onclick="openLoginModal()"
-                    class="w-full text-sm text-slate-500 hover:text-primary transition-colors font-medium">
-                    로그인 창으로 돌아가기
-                </button>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -295,6 +313,13 @@
         }
 
         function openFindPasswordModal() {
+            // Reset state: show form, hide result
+            document.getElementById('find-password-form-container').classList.remove('hidden');
+            document.getElementById('find-password-result-container').classList.add('hidden');
+            // Clear inputs
+            document.getElementById('find-student-id').value = '';
+            document.getElementById('find-email').value = '';
+
             loginModal.classList.add('hidden');
             findPasswordModal.classList.remove('hidden');
         }
@@ -307,17 +332,23 @@
         const passwordSuccessModal = document.getElementById('password-success-modal');
 
         function togglePasswordSuccessModal() {
-            passwordSuccessModal.classList.toggle('hidden');
+            // No longer used for a separate modal, but keeping for compatibility if needed
+            if (findPasswordModal.classList.contains('hidden')) {
+                openFindPasswordModal();
+            } else {
+                findPasswordModal.classList.add('hidden');
+            }
         }
 
         function openPasswordSuccessModal(password) {
-            findPasswordModal.classList.add('hidden');
+            // Updated to show result in-place
+            document.getElementById('find-password-form-container').classList.add('hidden');
             document.getElementById('recovered-password-display').innerText = password;
-            passwordSuccessModal.classList.remove('hidden');
+            document.getElementById('find-password-result-container').classList.remove('hidden');
         }
 
         function openLoginModalFromSuccess() {
-            passwordSuccessModal.classList.add('hidden');
+            findPasswordModal.classList.add('hidden');
             loginModal.classList.remove('hidden');
         }
 
