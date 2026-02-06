@@ -1,25 +1,27 @@
 from typing import Optional, Dict
-from app.db.models import Student
+from app.db.models import UserCredential
 
-class StudentService:
+class UserService:
     def __init__(self):
-        # We no longer need to load data from JSON on init
         pass
 
-    async def authenticate(self, student_id: str, password: str) -> Optional[Student]:
-        student = await Student.find_one(Student.student_id == student_id, Student.password == password)
-        return student
+    async def authenticate(self, student_id: str, password: str) -> Optional[UserCredential]:
+        """Authenticate user by student_id and password"""
+        # In user_credentials, _id is the student_id
+        user = await UserCredential.find_one(
+            UserCredential.student_id == student_id, 
+            UserCredential.password == password
+        )
+        return user
 
     async def get_student_info(self, student_id: str) -> Optional[Dict]:
-        student = await Student.find_one(Student.student_id == student_id)
-        if student:
-            # Return safe info (beanie document to dict)
-            info = student.model_dump()
-            del info["password"]
-            # Convert ObjectId if necessary, though student_id is the primary identifier for the user
-            if "_id" in info:
-                info["_id"] = str(info["_id"])
-            return info
+        """Get user info by student_id"""
+        user = await UserCredential.find_one(UserCredential.student_id == student_id)
+        if user:
+            return {
+                "student_id": user.student_id,
+                "role": user.role
+            }
         return None
 
-student_service = StudentService()
+student_service = UserService()

@@ -3,16 +3,17 @@ from beanie import Document
 from pydantic import Field, BaseModel
 from datetime import datetime
 
-class Student(Document):
+class UserCredential(Document):
+    """User credentials for login - matches user_credentials collection"""
     student_id: str
     password: str
-    name: str
-    major: str
-    gpa: str
-    tuition_status: str
+    role: str = "student"
 
     class Settings:
-        name = "students"
+        name = "user_credentials"
+    
+    class Config:
+        populate_by_name = True
 
 class ChatMessage(BaseModel):
     """Single chat message"""
