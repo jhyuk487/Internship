@@ -9,12 +9,13 @@ class GeminiService:
         
         # New SDK Initialization
         self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
-        self.model_id = 'gemini-2.5-flash' # User requested version
+        self.model_id = 'gemma-3-27b-it' 
+        print(f"DEBUG: Loaded GeminiService with model: {self.model_id}")
 
 
     async def generate_response(self, user_query: str, context: str = "") -> str:
         """
-        Generates a response using Gemini, optionally using retrieved context (RAG).
+        Generates a response using Gemma 3, moving instructions into the prompt context.
         """
         system_instruction = """You are a helpful AI assistant for UCSI University. 
         Your goal is to assist students with accurate information about the university.
@@ -24,20 +25,20 @@ class GeminiService:
         If the question is about personal student data (grades, etc) and no context is provided, ask them to log in or say you need access.
         """
         
-        prompt = f"""Context:
-        {context}
-        
-        User Query: {user_query}
-        """
+        # Combine instructions and content for Gemma 3
+        prompt = f"""{system_instruction}
+
+Context:
+{context}
+
+User Query: {user_query}
+"""
         
         try:
-            # New SDK usage
+            # Gemma 3 does not support system_instruction in config for current SDK version
             response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt,
-                config={
-                    'system_instruction': system_instruction
-                }
+                contents=prompt
             )
             return response.text
         except Exception as e:

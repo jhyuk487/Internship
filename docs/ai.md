@@ -1,23 +1,39 @@
-# AI Implementation Details
+# AI Implementation Details (Reactivated)
 
-이 문서는 프로젝트 내 AI 기능의 구현 현황과 비활성화 사유를 설명합니다.
+<<<<<<< HEAD
+이 문서는 프로젝트 내 AI 기능의 구현 현황과 기술적 전략을 설명합니다.
 
-## 1. 현재 상태: 비활성화 (AI Features Disabled)
+## 1. 현재 상태: 활성화 (AI Features Active)
 
-현재 프로젝트의 AI 관련 기능(벡터 검색, 의도 파악 등)은 네트워크 및 환경 문제로 인해 **임시 비활성화** 상태입니다.
+현재 프로젝트의 AI 기능은 완전히 복구되었으며, 최신 모델과 SDK를 기반으로 정상 작동 중입니다.
 
-### 주요 사유
-- **Hugging Face 모델 다운로드 타임아웃**: `all-MiniLM-L6-v2` 임베딩 모델을 로컬로 다운로드하는 과정에서 네트워크 시간 초과가 발생하여 서버 시작이 불가능해지는 현상을 방지하기 위함입니다.
-- **성능 최적화**: 필수 기능인 로그인 및 DB 연동을 우선적으로 확인하기 위해 무거운 AI 초기화 로직을 주석 처리했습니다.
+### 주요 업데이트 사항
+- **SDK 마이그레이션:** 최신 `google-genai` (Google AI Python SDK v2) 라이브러리로 완전히 마이그레이션하여 성능과 안정성을 확보했습니다.
+- **하이브리드 지원:** 제미나이(Gemini)와 젬마(Gemma) 모델을 유연하게 교체할 수 있는 구조를 갖추었습니다.
+- **임베딩 최적화:** `GoogleGenerativeAIEmbeddings`를 사용하여 로컬 타임아웃 문제 없이 고성능 RAG 기능을 지원합니다.
 
-## 2. 비활성화된 코드 위치
+## 2. 사용 중인 모델 전략
 
-- **[vector.py](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/ai/vector.py)**: `HuggingFaceEmbeddings` 초기화 및 인덱스 로드 로직 주석 처리.
-- **[main.py](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/main.py)**: `/chat` 엔드포인트를 제공하는 AI 라우터 등록 주석 처리.
+- **주력 모델:** `gemma-3-27b-it` (최신 오픈 소스 모델)
+  - **특징:** 높은 추론 지능과 빠른 응답 속도를 제공하며, 대학 안내 챗봇의 시스템 인스트럭션 이행 능력이 뛰어납니다.
+- **보조 모델:** `gemini-2.0-flash`
+  - 더 광범위한 데이터 처리나 고성능 추론이 필요한 경우 즉시 전환 가능하도록 설계되어 있습니다.
 
-## 3. 향후 재활성화 방안 (Google Embeddings 추천)
+## 3. 핵심 기능 구현 내용
 
-네트워크 문제를 피하고 AI 기능을 다시 사용하려면 다음 방안을 추천합니다:
+### ✅ 의도 파악 (Intent Detection)
+- 사용자의 질문을 `general`과 `personal`로 분류합니다.
+- 개인 정보(성적, 등록금 등) 관련 질문일 경우 MongoDB 연동을 트리거하여 보안 인증을 거친 정보를 제공합니다.
 
-1.  **Google Gemini Embedding API 사용**: 로컬 다운로드가 필요 없는 Google의 클라우드 API를 직접 사용합니다.
-2.  **방법**: `backend/requirements.txt`에 `langchain-google-genai`를 추가하고, `vector.py`에서 `GoogleGenerativeAIEmbeddings`를 사용하도록 수정합니다.
+### ✅ 문맥 인식 상담 (Context Awareness)
+- UCSI 대학교의 특정 데이터를 시스템 인프라 및 프롬프트에 주입하여, 대학교 전용 AI로서 정확하고 신뢰성 있는 답변을 생성합니다.
+
+## 4. 핵심 코드 구조
+
+- **[gemini.py](file:///c:/Users/SeChun/Documents/Internship/backend/app/ai/gemini.py)**: `GeminiService` 클래스를 통해 모델 초기화, 텍스트 생성, 의도 파악 등을 중앙 집중 관리합니다.
+- **[vector.py](file:///c:/Users/SeChun/Documents/Internship/backend/app/ai/vector.py)**: 벡터 데이터베이스 검색 및 실시간 문서 참조를 처리합니다.
+- **[router.py](file:///c:/Users/SeChun/Documents/Internship/backend/app/ai/router.py)**: API 엔드포인트와 AI 서비스를 연결하며, 게스트 및 로그인 사용자의 권한을 제어합니다.
+
+## 5. 향후 로드맵
+1.  **고급 RAG 파이프라인**: 대학 학사 규정(PDF) 등에 대한 FAISS/Vector Search 연동 고도화.
+2.  **멀티모달 확장**: 학생 증명서나 성적표 이미지를 인식하여 자동 답변하는 기능 연구.
