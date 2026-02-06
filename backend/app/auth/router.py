@@ -14,6 +14,10 @@ class LoginRequest(BaseModel):
     user_id: str
     user_password: str
 
+class FindPasswordRequest(BaseModel):
+    user_id: str
+    email: str
+
 
 @router.post("/login", response_model=Token)
 async def login(request: LoginRequest):
@@ -32,6 +36,17 @@ async def login(request: LoginRequest):
         "token_type": "bearer",
         "user_data": user.get("user_data")
     }
+
+@router.post("/find-password")
+async def find_password(request: FindPasswordRequest):
+    """Endpoint to retrieve password by Student ID and Email"""
+    password = await student_service.find_password(request.user_id, request.email)
+    if not password:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found or email does not match",
+        )
+    return {"password": password}
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
