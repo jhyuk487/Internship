@@ -1,18 +1,20 @@
 import os
 from typing import List
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.core.config import settings
 
 class VectorService:
     def __init__(self):
-        # Initialize Embeddings (Disabled to avoid timeout)
-        # self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        self.embeddings = None
+        # Initialize Google Gemini Embeddings (no local download needed)
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001",
+            google_api_key=settings.GOOGLE_API_KEY
+        )
         self.vector_store = None
-        # self.load_index()
+        self.load_index()
 
 
     def load_index(self):
