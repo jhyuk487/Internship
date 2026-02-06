@@ -9,7 +9,7 @@ class GeminiService:
         
         # New SDK Initialization
         self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
-        self.model_id = 'gemini-1.5-flash' # Stable version
+        self.model_id = 'gemini-2.5-flash' # User requested version
 
 
     async def generate_response(self, user_query: str, context: str = "") -> str:
