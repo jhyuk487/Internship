@@ -7,7 +7,7 @@
 ## ✨ 주요 기능 (Key Features)
 
 ### 1. AI 챗봇 상담
-- **Google Gemini API 연동**: 최신 `google-genai` SDK 및 `gemini-2.0-flash` 모델 도입.
+- **Google Gemini/Gemma API 연동**: 최신 `google-genai` SDK 및 `gemma-3-27b-it` (주력), `gemini-2.0-flash` (하이브리드) 모델 도입.
 - **문맥 인식 응답**: 대학교 학사 규정 및 일반 정보를 바탕으로 한 지능형 답변 제공.
 - **RAG (Retrieval-Augmented Generation)**: 벡터 데이터베이스(FAISS)를 통한 문서 기반 지식 추출 및 답변 생성 지원.
 
