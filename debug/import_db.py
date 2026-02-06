@@ -11,7 +11,7 @@ async def import_db():
     db = client[db_name]
     
     # Directory where JSON files are located
-    input_dir = "data"
+    input_dir = os.path.join(os.path.dirname(__file__), "..", "backend", "data")
     
     if not os.path.exists(input_dir):
         print(f"Error: Data directory '{input_dir}' not found.")

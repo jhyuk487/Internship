@@ -1,12 +1,17 @@
 import json
 import asyncio
 import os
+import sys
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
+
+# Add backend directory to sys.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
 from app.database.models import User, Course, Major, Account
 from app.core.config import settings
 
-# Path to the data_sets folder (one level up from backend)
+# Path to the data_sets folder (one level up from root)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
 
 async def seed_data():

@@ -11,7 +11,7 @@ async def export_db():
     db = client[db_name]
     
     # Directory to save JSON files
-    output_dir = "data"
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "backend", "data")
     os.makedirs(output_dir, exist_ok=True)
     
     print(f"Exporting database '{db_name}' to '{output_dir}/'...")
