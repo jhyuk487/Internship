@@ -1,26 +1,40 @@
-# Login Documentation
+# Login & User Management Documentation
 
-이 문서는 사용자가 로그인할 때 발생하는 백엔드 로직과 데이터 흐름을 설명합니다.
+이 문서는 사용자의 인증, 계정 보안 및 정보 조회와 관련된 데이터 흐름을 설명합니다.
 
-## 1. 실행 및 인증 단계
+## 1. 인증 및 세션 (Authentication)
 
-1.  **로그인 요청 (POST)**: 프론트엔드에서 사용자의 `id`와 `password`를 JSON 형태로 서버에 보냅니다.
-2.  **계정 인증**: `login_info` 컬렉션에서 해당 `id`가 존재하는지, 비밀번호가 일치하는지 확인합니다.
-3.  **프로필 연동**: 인증이 성공하면, 동일한 `id`를 가진 유저를 `user_info` 컬렉션에서 찾아 상세 정보(수강 내역 등)를 가져옵니다.
-4.  **응답 반환**: JWT 인증 토큰과 함께 유저의 상세 프로필 데이터를 응답값으로 전달합니다.
+1.  **로그인 요청 (POST /auth/login)**: 사용자의 `student_id`와 `password`를 검증합니다.
+2.  **JWT 발행**: 인증 성공 시 `access_token`을 발행하여 프론트엔드의 `localStorage`에 저장합니다.
+3.  **세션 유지**: 페이지 새로고침 시 `GET /auth/me`를 통해 토큰 유효성을 검사하고 사용자 정보를 복구합니다.
 
-## 2. 주요 파일 및 코드 설명
+## 2. 비밀번호 찾기 (Password Recovery)
 
-### [router.py (auth)](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/auth/router.py)
-*   **POST /login**: 아이디/비밀번호 인증 후 JWT 토큰과 유저 정보를 반환합니다.
-*   **GET /me**: JWT 토큰을 사용하여 현재 로그인한 사용자의 정보를 다시 가져옵니다 (새로고침 시 사용).
-    ```python
-    @router.get("/me")
-    async def get_me(user_id: str = Depends(get_current_user)):
-        user_profile = await student_service.get_student_info(user_id)
-        return {"user_data": user_profile}
-    ```
+사용자가 비밀번호를 분실했을 경우, 추가적인 보안 검증을 통해 비밀번호를 안전하게 조회할 수 있습니다.
 
-### [student_service.py](file:///c:/Users/ehobi/Desktop/uni/비교과/말레이시아/project3/backend/app/services/student_service.py)
-*   **authenticate**: `user_id`와 `user_password`를 검증하고 성공 시 유저 데이터를 반환합니다.
-*   **get_student_info**: MongoDB의 `user_info` 컬렉션에서 `user_id`로 정보를 조회합니다. (ID 직렬화 오류 방지 로직 포함)
+- **엔드포인트**: `POST /auth/find-password`
+- **검증 절차**:
+    1. 사용자가 학번(`student_id`)과 이메일(`email`)을 입력합니다.
+    2. 서버는 `User` 컬렉션에서 해당 정보를 조회합니다 (이메일 대소문자 무시 및 공백 제거 로직 적용).
+    3. 정보가 일치할 경우 원본 비밀번호(또는 임시 비밀번호)를 반환합니다.
+- **UI 특징**: 별도의 페이지 이동 없이 기존 모달 내에서 결과를 즉시 확인 가능합니다.
+
+## 3. 게스트 접근 정책 (Guest Policy)
+
+보안 강화를 위해 비로그인 사용자의 기능을 제한합니다.
+
+- **채팅 제한**: 로그아웃 상태에서는 `chat-input`이 비활성화되며 "Please login to chat" 메시지가 표시됩니다.
+- **리소스 보호**: AI 상담 기능은 인증된 학생 계정으로만 이용 가능합니다.
+
+## 4. 사용자 프로필 조회 (User Profile)
+
+로그인 후 자신의 상세 정보를 확인할 수 있는 기능입니다.
+
+- **조회 항목**: 학번, 성명, 전공, 학년, 총 취득 학점, 이메일 등.
+- **동작 방식**: 사이드바의 설정 아이콘(`settings`) 클릭 시 `GET /user/profile/{user_id}`를 호출하여 모달 대화창에 정보를 표시합니다.
+
+## 5. 데이터 구조 (Collection)
+
+- **Account**: 학번, 해싱된 비밀번호 등 인증 정보.
+- **User**: 학생 개인 프로필 및 학적 데이터.
+- **ChatHistory**: 유저별 대화 내역 및 설정(핀 고정 등).
