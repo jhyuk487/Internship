@@ -248,11 +248,11 @@ async function handleFindPassword(event) {
                 openPasswordSuccessModal(data.password);
             } else {
                 passwordSpan.innerText = data.password;
-                resultDiv.classList.remove('hidden');
+                resultDiv.classList.remove('is-hidden');
             }
         } else {
             alert("No account found with the provided information.\nIf you cannot find your password, please contact the faculty office.");
-            resultDiv.classList.add('hidden');
+            resultDiv.classList.add('is-hidden');
         }
     } catch (error) {
         console.error('Find password error:', error);

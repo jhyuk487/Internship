@@ -32,10 +32,7 @@ function initSemesterTabs() {
     const container = document.getElementById('semester-tabs');
     container.innerHTML = semesters.map(s => `
         <button onclick="switchSemester('${s.id}')" id="tab-${s.id}" 
-            class="semester-tab px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border
-            ${currentSemester === s.id
-            ? 'bg-primary text-white border-primary shadow-sm'
-            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-100'}">
+            class="semester-tab ${currentSemester === s.id ? 'is-active' : ''}">
             ${s.label}
         </button>
     `).join('');
@@ -56,31 +53,31 @@ function showCustomModal(options) {
     primaryBtn.innerText = options.primaryText || "Confirm";
 
     if (options.showSecondary) {
-        secondaryBtn.classList.remove('hidden');
+        secondaryBtn.classList.remove('is-hidden');
         secondaryBtn.innerText = options.secondaryText || "Cancel";
     } else {
-        secondaryBtn.classList.add('hidden');
+        secondaryBtn.classList.add('is-hidden');
     }
 
-    modal.classList.remove('hidden');
+    modal.classList.remove('is-hidden');
 
     return new Promise((resolve) => {
         const handlePrimary = () => {
-            modal.classList.add('hidden');
+            modal.classList.add('is-hidden');
             primaryBtn.removeEventListener('click', handlePrimary);
             secondaryBtn.removeEventListener('click', handleSecondary);
             closeBtn.removeEventListener('click', handleClose);
             resolve(true);
         };
         const handleSecondary = () => {
-            modal.classList.add('hidden');
+            modal.classList.add('is-hidden');
             primaryBtn.removeEventListener('click', handlePrimary);
             secondaryBtn.removeEventListener('click', handleSecondary);
             closeBtn.removeEventListener('click', handleClose);
             resolve(false);
         };
         const handleClose = () => {
-            modal.classList.add('hidden');
+            modal.classList.add('is-hidden');
             primaryBtn.removeEventListener('click', handlePrimary);
             secondaryBtn.removeEventListener('click', handleSecondary);
             closeBtn.removeEventListener('click', handleClose);
@@ -125,8 +122,8 @@ function renderSemesterTable() {
             const tr = document.createElement('tr');
             tr.style.height = "100%"; // Ensure row tries to fill available height
             tr.innerHTML = `
-                <td colspan="6" class="px-6 h-full text-center align-middle text-slate-400 dark:text-slate-500 italic">
-                    No courses added yet. Click <span class="text-primary font-bold">'Edit Record'</span> to start.
+                <td colspan="6" class="empty-row">
+                    No courses added yet. Click <span class="highlight">'Edit Record'</span> to start.
                 </td>
             `;
             tbody.appendChild(tr);
@@ -134,34 +131,29 @@ function renderSemesterTable() {
     } else {
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
-            tr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
+            tr.className = "grade-row";
             tr.innerHTML = `
-                <td class="px-6 py-4 text-center">
-                    <input type="checkbox" onchange="updateRowData(this, 'major')" class="major-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
+                <td class="cell-center">
+                    <input type="checkbox" onchange="updateRowData(this, 'major')" class="major-checkbox" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
                 </td>
-                <td class="px-6 py-4">
-                    <select onchange="updateRowData(this, 'credit')" class="w-24 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-center appearance-none bg-none" disabled>
+                <td class="cell">
+                    <select onchange="updateRowData(this, 'credit')" class="credit-select" ${!isGpaEditMode ? 'disabled' : ''}>
                         <option value="2" ${row.credit == 2 ? 'selected' : ''}>2</option>
                         <option value="3" ${row.credit == 3 ? 'selected' : ''}>3</option>
                         <option value="4" ${row.credit == 4 ? 'selected' : ''}>4</option>
                     </select>
                 </td>
-                <td class="px-6 py-4"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="w-full bg-transparent border-none focus:ring-0 text-sm p-0 placeholder-slate-300 dark:placeholder-slate-600 font-medium text-slate-800 dark:text-slate-200" type="text" placeholder="Search Course..." value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
-                <td class="px-6 py-4">
-                    <input class="grade-point-input w-20 bg-transparent border-none focus:ring-0 text-sm p-0 text-center" value="${row.point}" readonly />
+                <td class="cell"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="course-input" type="text" placeholder="Search Course..." value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
+                <td class="cell">
+                    <input class="grade-point-input" value="${row.point}" readonly />
                 </td>
-                <td class="px-6 py-4">
-                    <div class="flex justify-center">
-                        <select onchange="updateRowPoint(this)" 
-                            class="w-28 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-primary text-center ${!isGpaEditMode ? 'appearance-none bg-none' : ''}" 
-                            ${!isGpaEditMode ? 'disabled' : ''}
-                            style="${!isGpaEditMode ? 'background-image: none;' : ''}">
-                            ${Object.keys(gradeMapping).map(g => `<option value="${g}" ${row.grade === g || (row.grade === undefined && g === 'A') ? 'selected' : ''}>${g}</option>`).join('')}
-                        </select>
-                    </div>
+                <td class="cell">
+                    <select onchange="updateRowPoint(this)" class="grade-select" ${!isGpaEditMode ? 'disabled' : ''}>
+                        ${Object.keys(gradeMapping).map(g => `<option value="${g}" ${row.grade === g || (row.grade === undefined && g === 'A') ? 'selected' : ''}>${g}</option>`).join('')}
+                    </select>
                 </td>
-                <td class="px-6 py-4 text-right">
-                    <button onclick="deleteRow(this)" class="delete-row-btn ${!isGpaEditMode ? 'hidden' : ''} text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                <td class="cell-end">
+                    <button onclick="deleteRow(this)" class="delete-row-btn ${!isGpaEditMode ? 'is-hidden' : ''}"><span class="material-symbols-outlined">delete</span></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -171,11 +163,11 @@ function renderSemesterTable() {
     // Sync Add Row button position
     if (isGpaEditMode) {
         const addRowTr = document.createElement('tr');
-        addRowTr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
+        addRowTr.className = "grade-row";
         addRowTr.innerHTML = `
-            <td colspan="6" class="px-6 py-4">
-                <button onclick="addRow()" class="w-full flex items-center justify-start gap-2 text-slate-400 hover:text-primary transition-colors font-medium text-sm">
-                    <span class="material-symbols-outlined text-lg">add_circle</span>
+            <td colspan="6" class="cell-add">
+                <button onclick="addRow()" class="btn-link">
+                    <span class="material-symbols-outlined">add_circle</span>
                     Add New Course
                 </button>
             </td>
@@ -216,8 +208,8 @@ async function toggleGradeModal() {
         }
         return;
     }
-    gradeModal.classList.toggle('translate-y-full');
-    if (!gradeModal.classList.contains('translate-y-full')) {
+    gradeModal.classList.toggle('grade-modal--hidden');
+    if (!gradeModal.classList.contains('grade-modal--hidden')) {
         initSemesterTabs();
         renderSemesterTable();
     }
@@ -390,7 +382,7 @@ function showSuggestions(courses, inputElement) {
     if (courses.length === 0) return;
 
     const listDiv = document.createElement("div");
-    listDiv.setAttribute("class", "autocomplete-items fixed z-[9999] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl mt-1 max-h-60 overflow-y-auto font-sans");
+    listDiv.setAttribute("class", "autocomplete-items");
 
     // Calculate position
     const rect = inputElement.getBoundingClientRect();
@@ -404,12 +396,10 @@ function showSuggestions(courses, inputElement) {
 
     courses.forEach(course => {
         const item = document.createElement("div");
-        item.className = "px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 transition-colors";
+        item.className = "autocomplete-item";
         item.innerHTML = `
-            <div class="flex flex-col gap-0.5">
-                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${course.course_name}</span>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400">${course.credits} Credits</span>
-            </div>
+            <div class="suggestion-title">${course.course_name}</div>
+            <div class="suggestion-sub">${course.credits} Credits</div>
         `;
         item.addEventListener("click", function (e) {
             e.stopPropagation(); // Prevent immediate closing
@@ -455,60 +445,60 @@ document.addEventListener("scroll", function (e) {
 }, true); // Capture phase to catch scroll in sub-elements
 
 function toggleLoginModal() {
-    loginModal.classList.toggle('hidden');
+    loginModal.classList.toggle('is-hidden');
 }
 
 const findPasswordModal = document.getElementById('find-password-modal');
 
 function toggleFindPasswordModal() {
-    findPasswordModal.classList.toggle('hidden');
+    findPasswordModal.classList.toggle('is-hidden');
 }
 
 function openFindPasswordModal() {
     // Reset state: show form, hide result
-    document.getElementById('find-password-form-container').classList.remove('hidden');
-    document.getElementById('find-password-result-container').classList.add('hidden');
+    document.getElementById('find-password-form-container').classList.remove('is-hidden');
+    document.getElementById('find-password-result-container').classList.add('is-hidden');
     // Clear inputs
     document.getElementById('find-student-id').value = '';
     document.getElementById('find-email').value = '';
 
-    loginModal.classList.add('hidden');
-    findPasswordModal.classList.remove('hidden');
+    loginModal.classList.add('is-hidden');
+    findPasswordModal.classList.remove('is-hidden');
 }
 
 function openLoginModal() {
-    findPasswordModal.classList.add('hidden');
-    loginModal.classList.remove('hidden');
+    findPasswordModal.classList.add('is-hidden');
+    loginModal.classList.remove('is-hidden');
 }
 
 const passwordSuccessModal = document.getElementById('password-success-modal');
 
 function togglePasswordSuccessModal() {
     // No longer used for a separate modal, but keeping for compatibility if needed
-    if (findPasswordModal.classList.contains('hidden')) {
+    if (findPasswordModal.classList.contains('is-hidden')) {
         openFindPasswordModal();
     } else {
-        findPasswordModal.classList.add('hidden');
+        findPasswordModal.classList.add('is-hidden');
     }
 }
 
 function openPasswordSuccessModal(password) {
     // Updated to show result in-place
-    document.getElementById('find-password-form-container').classList.add('hidden');
+    document.getElementById('find-password-form-container').classList.add('is-hidden');
     document.getElementById('recovered-password-display').innerText = password;
-    document.getElementById('find-password-result-container').classList.remove('hidden');
+    document.getElementById('find-password-result-container').classList.remove('is-hidden');
 }
 
 function openLoginModalFromSuccess() {
-    findPasswordModal.classList.add('hidden');
-    loginModal.classList.remove('hidden');
+    findPasswordModal.classList.add('is-hidden');
+    loginModal.classList.remove('is-hidden');
 }
 
 const profileModal = document.getElementById('profile-modal');
-function toggleProfileModal() { profileModal.classList.toggle('hidden'); }
+function toggleProfileModal() { profileModal.classList.toggle('is-hidden'); }
 
 const loginRequiredModal = document.getElementById('login-required-modal');
-function toggleLoginRequiredModal() { loginRequiredModal.classList.toggle('hidden'); }
+function toggleLoginRequiredModal() { loginRequiredModal.classList.toggle('is-hidden'); }
 
 function openLoginFromRequired() {
     toggleLoginRequiredModal();
@@ -564,9 +554,9 @@ function checkAndUpdateHistoryUI() {
         if (header) historyList.appendChild(header);
 
         const loginPrompt = document.createElement('div');
-        loginPrompt.className = 'text-center text-white/60 text-sm py-8';
+        loginPrompt.className = 'history-empty';
         loginPrompt.innerHTML = `
-            <span class="material-symbols-outlined text-4xl mb-2 block">lock</span>
+            <span class="material-symbols-outlined">lock</span>
             <p>Login to save and view<br>your chat history</p>
         `;
         historyList.appendChild(loginPrompt);
@@ -584,7 +574,7 @@ function updateHistoryUI() {
 
     if (chatHistory.length === 0) {
         const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'text-center text-white/40 text-sm py-4';
+        emptyMsg.className = 'history-empty';
         emptyMsg.textContent = 'No conversations yet';
         historyList.appendChild(emptyMsg);
         return;
@@ -599,23 +589,23 @@ function updateHistoryUI() {
 
     sortedHistory.forEach((chat) => {
         const item = document.createElement('div');
-        item.className = "group relative bg-white/10 p-4 rounded-2xl border border-white/5 hover:bg-white/20 cursor-pointer transition-all mb-3";
+        item.className = "history-item";
 
-        const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
+        const pinClass = chat.isPinned ? 'is-pinned' : '';
         const chatId = chat.id || chat.originalIndex;
 
         item.innerHTML = `
-            <div id="display-container-${chatId}" class="flex justify-between items-start gap-2" onclick="loadChat('${chatId}')">
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium line-clamp-1">${chat.title}</p>
-                    <p class="text-xs text-white/40 mt-1">${chat.time || ''}</p>
+            <div id="display-container-${chatId}" class="history-item__content" onclick="loadChat('${chatId}')">
+                <div class="history-item__text">
+                    <p class="history-item__title">${chat.title}</p>
+                    <p class="history-item__time">${chat.time || ''}</p>
                 </div>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
-                        <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
+                <div class="history-item__actions">
+                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="icon-btn ${pinClass}" title="Pin">
+                        <span class="material-symbols-outlined">push_pin</span>
                     </button>
-                    <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
-                        <span class="material-symbols-outlined text-sm text-white/60 hover:text-red-400">delete</span>
+                    <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="icon-btn delete" title="Delete">
+                        <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>
             </div>
@@ -702,10 +692,10 @@ async function togglePinChat(chatId) {
 }
 
 function showRenameUI(index) {
-    document.getElementById(`display-container-${index}`).classList.add('hidden');
+    document.getElementById(`display-container-${index}`).classList.add('is-hidden');
     const renameContainer = document.getElementById(`rename-container-${index}`);
-    renameContainer.classList.remove('hidden');
-    renameContainer.classList.add('flex');
+    renameContainer.classList.remove('is-hidden');
+    renameContainer.classList.add('is-visible');
     const input = document.getElementById(`rename-input-${index}`);
     input.value = chatHistory[index].title;
     input.focus();
@@ -713,10 +703,10 @@ function showRenameUI(index) {
 }
 
 function cancelRename(index) {
-    document.getElementById(`display-container-${index}`).classList.remove('hidden');
+    document.getElementById(`display-container-${index}`).classList.remove('is-hidden');
     const renameContainer = document.getElementById(`rename-container-${index}`);
-    renameContainer.classList.add('hidden');
-    renameContainer.classList.remove('flex');
+    renameContainer.classList.add('is-hidden');
+    renameContainer.classList.remove('is-visible');
 }
 
 function saveRename(index) {
@@ -756,12 +746,12 @@ async function startNewChat() {
 
     currentMessages = [];
     chatContainer.innerHTML = `
-        <div class="flex justify-start items-start gap-4">
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+        <div class="message message--ai">
+            <div class="avatar">
+                <img src="/static/character.jpg" alt="AI Avatar">
             </div>
-            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                <p class="text-slate-700 dark:text-slate-300">
+            <div class="bubble bubble--ai">
+                <p>
                     Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to ask about academic schedules, course registration, graduation requirements, or anything else.
                 </p>
             </div>
@@ -780,20 +770,20 @@ async function loadChat(chatId) {
 
 function renderMessage(role, content) {
     const wrapper = document.createElement('div');
-    wrapper.className = role === 'user' ? 'flex justify-end items-start gap-3' : 'flex justify-start items-start gap-4';
+    wrapper.className = role === 'user' ? 'message message--user' : 'message message--ai';
     if (role === 'user') {
         wrapper.innerHTML = `
-            <div class="max-w-xl bg-user-bubble dark:bg-user-bubble-dark text-slate-900 dark:text-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-user-bubble-dark/20">
-                <p class="text-sm font-medium leading-relaxed">${content}</p>
+            <div class="bubble bubble--user">
+                <p>${content}</p>
             </div>
         `;
     } else {
         wrapper.innerHTML = `
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+            <div class="avatar">
+                <img src="/static/character.jpg" alt="AI Avatar">
             </div>
-            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                <p class="text-slate-700 dark:text-slate-300">${content}</p>
+            <div class="bubble bubble--ai">
+                <p>${content}</p>
             </div>
         `;
     }
@@ -809,13 +799,13 @@ async function appendMessage(role, content) {
 function showLoading() {
     const loader = document.createElement('div');
     loader.id = 'ai-loader';
-    loader.className = 'flex justify-start items-start gap-4';
+    loader.className = 'message message--ai';
     loader.innerHTML = `
-        <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-            <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+        <div class="avatar">
+            <img src="/static/character.jpg" alt="AI Avatar">
         </div>
-        <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
-            <div class="typing-dots text-primary">
+        <div class="bubble bubble--ai bubble--loading">
+            <div class="typing-dots">
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
