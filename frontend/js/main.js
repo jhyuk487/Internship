@@ -760,12 +760,10 @@ async function startNewChat() {
             <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
                 <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
             </div>
-            <div class="max-w-3xl space-y-4">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <p class="text-slate-700 dark:text-slate-300">
-                        Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to ask about academic schedules, course registration, graduation requirements, or anything else.
-                    </p>
-                </div>
+            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
+                <p class="text-slate-700 dark:text-slate-300">
+                    Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to ask about academic schedules, course registration, graduation requirements, or anything else.
+                </p>
             </div>
         </div>
     `;
@@ -794,10 +792,8 @@ function renderMessage(role, content) {
             <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
                 <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
             </div>
-            <div class="max-w-3xl space-y-4">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <p class="text-slate-700 dark:text-slate-300">${content}</p>
-                </div>
+            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
+                <p class="text-slate-700 dark:text-slate-300">${content}</p>
             </div>
         `;
     }
@@ -818,13 +814,11 @@ function showLoading() {
         <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
             <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
         </div>
-        <div class="max-w-3xl space-y-4">
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
-                <div class="typing-dots text-primary">
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                </div>
+        <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
+            <div class="typing-dots text-primary">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
             </div>
         </div>
     `;
