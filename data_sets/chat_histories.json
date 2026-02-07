@@ -1,0 +1,22 @@
+﻿[
+  {
+    "user_id": "5004273354",
+    "title": "졸업 요건 질문",
+    "messages": [
+      { "role": "user", "content": "졸업 요건 알려줘" },
+      { "role": "ai", "content": "전공/학점/필수과목 기준이 있습니다. 학과별 기준을 확인할게요." }
+    ],
+    "is_pinned": true,
+    "created_at": "2026-02-07T12:30:00Z"
+  },
+  {
+    "user_id": "5004273354",
+    "title": "수강신청 일정",
+    "messages": [
+      { "role": "user", "content": "수강신청 언제야?" },
+      { "role": "ai", "content": "학사 일정 확인 후 안내드릴게요." }
+    ],
+    "is_pinned": false,
+    "created_at": "2026-02-06T09:10:00Z"
+  }
+]
