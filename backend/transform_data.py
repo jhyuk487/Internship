@@ -20,26 +20,6 @@ def transform_students_to_user_info():
         # Map fields
         user_id = str(s.get("student_id", s.get("STUDENT_NUMBER")))
         
-        completed = []
-        planned = []
-        
-        # Process courses
-        for c in s.get("enrolled_courses", []):
-            course_data = {
-                "course_unique_id": c.get("course_id", ""),
-                "course_code": c.get("course_code", ""),
-                "course_name": c.get("course_name", ""),
-                "credits": c.get("credits", 0),
-                "score": c.get("grade"),
-                "schedule": "Mon 10:00-12:00", # Dummy
-                "location": "Room 101"        # Dummy
-            }
-            
-            if c.get("status") == "completed":
-                completed.append(course_data)
-            else:
-                planned.append(course_data)
-
         user = {
             "user_id": user_id,
             "name": s.get("STUDENT_NAME", ""),
@@ -49,9 +29,7 @@ def transform_students_to_user_info():
             "email": f"{user_id}@student.university.edu",
             "phone": "010-1234-5678",
             "address": "Student Dormitory",
-            "profile_picture": "default_profile.png",
-            "completed_courses": completed,
-            "planned_courses": planned
+            "profile_picture": "default_profile.png"
         }
         user_info.append(user)
     

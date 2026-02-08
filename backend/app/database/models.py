@@ -4,18 +4,6 @@ from pydantic import Field, BaseModel
 from datetime import datetime
 from typing import Dict
 
-class CourseInfo(BaseModel):
-    course_unique_id: str
-    course_code: str
-    course_name: str
-    credits: int
-    score: Optional[str] = None
-    # schedule and location are missing in the updated user_info.json for completed courses, so making them optional or removing if necessary. 
-    # For now, keeping them or making them optional.
-    schedule: Optional[str] = None
-    location: Optional[str] = None
-
-
 class User(Document):
     user_id: str
     name: str
@@ -26,8 +14,6 @@ class User(Document):
     phone: str
     address: str
     profile_picture: Optional[str] = None
-    completed_courses: List[CourseInfo] = []
-    planned_courses: List[CourseInfo] = []
 
     class Settings:
         name = "user_info"
