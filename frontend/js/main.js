@@ -4,6 +4,7 @@ const sendBtn = document.getElementById('send-btn');
 const loginModal = document.getElementById('login-modal');
 const gradeModal = document.getElementById('grade-modal');
 const historyList = document.getElementById('history-list');
+const conversationTitle = document.getElementById('conversation-title');
 let isGpaEditMode = false;
 let currentSemester = "Y1S1";
 
@@ -423,6 +424,7 @@ const GUEST_CHAT_KEY = 'guestChatHistory';
 const WELCOME_MESSAGE = "## Hello! I am your UCSI University academic assistant.\n\nHow can I help you today?\n\nYou can ask about:\n- Academic schedules\n- Course registration\n- Graduation requirements\n- Anything else you need";
 let currentLoadedChatId = null;
 let isViewingHistoryChat = false;
+let isNewChat = false;
 const ALLOW_GUEST_CHAT = true;
 
 // Initialize: Check login state before showing history
@@ -445,6 +447,11 @@ function updateChatInputState(isLoggedIn) {
         input.placeholder = "Please login to chat";
         btn.disabled = true;
     }
+}
+
+function setConversationTitle(title) {
+    if (!conversationTitle) return;
+    conversationTitle.textContent = title || "Current Conversation";
 }
 
 // Initialize history on load
@@ -736,12 +743,14 @@ function updateHistoryUI() {
 
         const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
         const chatId = chat.id || chat.originalIndex;
+        const isSelected = String(chatId) === String(currentLoadedChatId);
 
         item.innerHTML = `
-            <div id="display-container-${chatId}" class="flex justify-between items-start gap-2" onclick="loadChat('${chatId}')">
+            ${isSelected ? '<span class="absolute right-0 top-2 bottom-2 w-1 bg-yellow-400 rounded-l-md pointer-events-none"></span>' : ''}
+            <div id="display-container-${chatId}" class="flex justify-between items-start gap-2">
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <p class="text-sm font-medium line-clamp-1 ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
+                    <div class="flex items-center gap-1 mb-1 min-w-0">
+                        <p class="text-sm font-medium truncate ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
                         ${chat.isPinned ? '<span class="material-symbols-outlined text-[16px] text-white rotate-45 flex-shrink-0" style="font-variation-settings: \'FILL\' 1">push_pin</span>' : ''}
                     </div>
                     <p class="text-xs text-white/40">${chat.time || ''}</p>
@@ -773,6 +782,7 @@ function updateHistoryUI() {
                 </div>
             </div>
         `;
+        item.onclick = () => loadChat(`${chatId}`);
         historyList.appendChild(item);
     });
 }
@@ -950,20 +960,23 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat() {
+    if (isNewChat) {
+        return;
+    }
+
+    currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
+    currentLoadedChatId = null;
+    isViewingHistoryChat = false;
+    isNewChat = true;
+    setConversationTitle("New Conversation");
+
     if (window.currentUserId === "guest" || !window.currentUserId) {
-        currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
-        currentLoadedChatId = null;
-        isViewingHistoryChat = false;
         saveGuestChatToStorage();
-    } else {
-        currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
-        currentLoadedChatId = null;
-        isViewingHistoryChat = false;
-        await saveChatToBackend();
     }
     chatContainer.innerHTML = '';
     renderMessage('ai', WELCOME_MESSAGE);
     chatContainer.scrollTop = 0;
+    updateHistoryUI();
 }
 
 async function loadChat(chatId) {
@@ -971,9 +984,12 @@ async function loadChat(chatId) {
     if (!chat) return;
     currentLoadedChatId = chat.id || null;
     isViewingHistoryChat = true;
+    isNewChat = false;
+    setConversationTitle(chat.title || "Current Conversation");
     currentMessages = [...chat.messages];
     chatContainer.innerHTML = '';
     currentMessages.forEach(m => renderMessage(m.role, m.content));
+    updateHistoryUI();
 }
 
 function renderMessage(role, content) {
@@ -1012,7 +1028,14 @@ async function appendMessage(role, content) {
         return;
     }
 
-    if (!currentLoadedChatId) {
+    if (isNewChat && role === 'user') {
+        isNewChat = false;
+        if (currentMessages.length > 1) {
+            setConversationTitle(content || "Current Conversation");
+        }
+    }
+
+    if (!currentLoadedChatId && role === 'user') {
         await saveChatToBackend();
         return;
     }
