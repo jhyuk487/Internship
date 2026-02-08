@@ -377,7 +377,7 @@ function calculateGPA() {
 
     // Save to local storage for persistence (guest only)
     if (window.currentUserId === "guest" || !window.currentUserId) {
-        localStorage.setItem('semesterData', JSON.stringify(semesterData));
+        return;
     }
 }
 
@@ -423,6 +423,7 @@ const GUEST_CHAT_KEY = 'guestChatHistory';
 const WELCOME_MESSAGE = "## Hello! I am your UCSI University academic assistant.\n\nHow can I help you today?\n\nYou can ask about:\n- Academic schedules\n- Course registration\n- Graduation requirements\n- Anything else you need";
 let currentLoadedChatId = null;
 let isViewingHistoryChat = false;
+const ALLOW_GUEST_CHAT = true;
 
 // Initialize: Check login state before showing history
 // History loading is triggered by initSession() in login.js after successful auth
@@ -435,14 +436,20 @@ function updateChatInputState(isLoggedIn) {
         input.disabled = false;
         input.placeholder = "Type your message...";
         btn.disabled = false;
+    } else if (ALLOW_GUEST_CHAT) {
+        input.disabled = false;
+        input.placeholder = "Type your message...";
+        btn.disabled = false;
     } else {
         input.disabled = true;
         input.placeholder = "Please login to chat";
         btn.disabled = true;
     }
 }
+
 // Initialize history on load
 updateHistoryUI();
+updateChatInputState(window.currentUserId !== "guest");
 initSemesterTabs();
 renderSemesterTable();
 loadGuestChatFromStorage();
