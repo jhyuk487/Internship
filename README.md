@@ -58,6 +58,21 @@ uvicorn app.main:app --reload
 1. 접속
 브라우저에서 `http://127.0.0.1:8000/`로 접속합니다.
 
+## 프론트엔드 스타일 빌드
+- Tailwind 로컬 빌드 결과는 `frontend/css/tailwind.css`에 생성됩니다.
+- 빌드 입력: `frontend/css/tailwind.input.css`
+- 설정 위치: `frontend/tools/tailwind.config.js`
+- 빌드 명령:
+```bash
+cd frontend/tools
+npm run build:css
+```
+- `frontend/tools/node_modules`는 용량이 커서 Git에서 무시됩니다. 팀원은 아래로 설치 후 빌드하세요.
+```bash
+cd frontend/tools
+npm install
+```
+
 ## 데이터 시드 및 도구
 - `backend/seed_db.py`는 `data_sets/*.json`을 MongoDB에 동기화합니다. `grade_records.json`도 포함합니다.
 - `debug/seed_db.py`는 레거시 동기화 스크립트로, `grade_records`는 처리하지 않습니다.

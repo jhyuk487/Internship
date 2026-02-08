@@ -44,6 +44,22 @@
 1. 코스 검색 → `/courses/search`
 1. 프로필 조회 → `/auth/profile/{user_id}`
 
-## 5. 배포 시 유의
+## 5. Tailwind 로컬 빌드
+- 스타일은 `frontend/css/tailwind.css`로 빌드됩니다.
+- 빌드 입력 파일: `frontend/css/tailwind.input.css`
+- Tailwind 설정: `frontend/tools/tailwind.config.js`
+- 빌드 명령:
+```bash
+cd frontend/tools
+npm run build:css
+```
+- HTML 클래스나 Tailwind 설정을 바꾼 경우, 빌드를 다시 실행해야 합니다.
+- `frontend/tools/node_modules`는 Git에서 무시됩니다. 팀원은 아래 명령으로 설치하세요.
+```bash
+cd frontend/tools
+npm install
+```
+
+## 6. 배포 시 유의
 - `frontend/js/login.js`의 `/auth/me` 호출은 `http://127.0.0.1:8000`로 고정되어 있습니다. 배포 환경에서는 상대 경로로 변경하세요.
 - 백엔드 경로가 바뀌면 모든 `fetch()` 경로를 업데이트해야 합니다.
