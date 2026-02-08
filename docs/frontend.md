@@ -1,53 +1,49 @@
-﻿# Frontend 명세서 & Documentation
+# Frontend 명세서 & Documentation
 
-이 문서는 웹 인터페이스의 구성, 기술 스택, 그리고 백엔드와의 상호작용 방식을 설명합니다.
+이 문서는 웹 UI 구성, 주요 동작, 백엔드 연동 방식을 설명합니다.
 
 ## 1. 개요
-- **기술 스택**: HTML5, CSS3, Vanilla JavaScript
-- **목적**: 로컬 우선(Local-first) UI와 빠른 반응성
-- **주요 기능**: 로그인, AI 채팅, 채팅 히스토리, GPA 계산기, 코스 자동완성
+- 기술 스택: HTML5, CSS3, Vanilla JavaScript
+- 목표: 로컬 우선 UI와 빠른 반응성
+- 핵심 기능: 로그인, AI 채팅, 채팅 히스토리, GPA 계산기, 코스 자동완성
+- 게스트 정책: 채팅은 가능, 히스토리/프로필/GPA는 로그인 필요 (UI에서 제한)
 
 ## 2. 주요 구성 요소
+### 채팅 인터페이스
+- 메시지 로그 및 타이핑 로딩 표시
+- `ALLOW_GUEST_CHAT`가 `true`이면 게스트도 입력 가능
 
-### 2.1. 채팅 인터페이스
-- **메시지 로그**: 사용자와 AI 대화 흐름 표시
-- **입력 제어**: 게스트는 입력 비활성화, 로그인 사용자만 활성화
-- **로딩 표시**: AI 응답 대기 중 타이핑 애니메이션
+### 채팅 히스토리
+- 로그인 사용자: `/chat/history`로 저장/로드/핀/삭제
+- 게스트: `localStorage` 키 `guestChatHistory` 사용
 
-### 2.2. 채팅 히스토리
-- **저장/로드**: `/chat/history` API 기반 저장 및 로드
-- **핀/삭제**: 핀 고정 및 삭제 지원
-- **게스트 제한**: 미로그인 상태에서는 로그인 안내
+### GPA 계산기
+- 학기별 과목/성적 입력 및 GPA 계산
+- 로그인 사용자: `/grades/me`로 저장/로드
+- UI 데이터 구조: `semesterData`, `terms`
 
-### 2.3. GPA 계산기
-- 학기별(최대 5년 3학기) 성적 입력
-- 로컬 스토리지에 저장
-- 전공/전체 GPA 분리 계산
+### 코스 자동완성
+- `/courses/search?query=...` 사용
+- 입력창에서 실시간 추천
 
-### 2.4. 코스 자동완성
-- `GET /courses/search?query=...`로 코스 검색
-- 입력창에서 실시간 추천 및 선택
+### 프로필 모달
+- `/auth/profile/{user_id}` 호출
+- 프론트에서 로그인 여부로 접근 제한
 
-## 3. 주요 파일 및 코드 설명
-
-### `backend/app/main.py`
-- 프론트엔드 정적 파일 제공
-- `/`에서 `frontend/index.html` 반환
-
-### `frontend/js/main.js`
-- 채팅 UI, 히스토리, GPA 계산기 로직
-- 코스 자동완성 및 채팅 렌더링
-
-### `frontend/js/login.js`
-- 로그인/로그아웃, 세션 복구
-- 토큰 저장 및 UI 업데이트
+## 3. 주요 파일
+- `frontend/index.html`: SPA 마크업
+- `frontend/js/main.js`: 채팅, 히스토리, GPA, 코스 검색
+- `frontend/js/login.js`: 로그인/로그아웃, 세션 복구
+- `frontend/css/style.css`: UI 스타일
 
 ## 4. 통신 흐름
-1. 로그인 성공 → 토큰 저장 → `/auth/me`로 세션 복구
-2. 메시지 전송 → `POST /chat` 호출 → AI 응답 표시
-3. 히스토리 저장 → `POST /chat/history` 호출
-4. 코스 검색 → `GET /courses/search`
+1. 로그인 → `POST /auth/login` → 토큰 저장 → `initSession()`에서 `GET /auth/me`
+1. 메시지 전송 → `POST /chat`
+1. 히스토리 저장/로드 → `/chat/history` (JWT)
+1. GPA 저장/로드 → `/grades/me` (JWT)
+1. 코스 검색 → `/courses/search`
+1. 프로필 조회 → `/auth/profile/{user_id}`
 
-## 5. 참고 사항
-- `initSession()`에서 `/auth/me`는 현재 `http://127.0.0.1:8000/auth/me`로 호출합니다.
-- 배포 환경에 맞춰 호출 경로를 조정해야 합니다.
+## 5. 배포 시 유의
+- `frontend/js/login.js`의 `/auth/me` 호출은 `http://127.0.0.1:8000`로 고정되어 있습니다. 배포 환경에서는 상대 경로로 변경하세요.
+- 백엔드 경로가 바뀌면 모든 `fetch()` 경로를 업데이트해야 합니다.
