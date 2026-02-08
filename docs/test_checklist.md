@@ -4,7 +4,8 @@
 
 ## 1. 게스트 채팅
 - `ALLOW_GUEST_CHAT = true`일 때 입력/전송이 가능함
-- 게스트 대화가 `localStorage` 키 `guestChatHistory`에 저장/복원됨
+- 게스트 대화가 `sessionStorage` 키 `guestChatHistory`에 저장/복원됨
+- “Start New Chat” 클릭 시 삭제 확인 모달 표시 후, 확인하면 게스트 기록이 초기화됨
 - 개인/민감 정보 질문 시 로그인 필요 안내 메시지가 표시됨
 
 ## 2. 로그인 후 개인정보

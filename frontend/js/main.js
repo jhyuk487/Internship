@@ -684,7 +684,7 @@ function ensureGuestWelcomeMessage() {
 function loadGuestChatFromStorage() {
     if (window.currentUserId !== "guest") return;
     try {
-        const stored = JSON.parse(localStorage.getItem(GUEST_CHAT_KEY) || '[]');
+        const stored = JSON.parse(sessionStorage.getItem(GUEST_CHAT_KEY) || '[]');
         if (Array.isArray(stored) && stored.length > 0) {
             currentMessages = stored;
             ensureGuestWelcomeMessage();
@@ -704,7 +704,7 @@ function loadGuestChatFromStorage() {
 
 function saveGuestChatToStorage() {
     if (window.currentUserId !== "guest") return;
-    localStorage.setItem(GUEST_CHAT_KEY, JSON.stringify(currentMessages));
+    sessionStorage.setItem(GUEST_CHAT_KEY, JSON.stringify(currentMessages));
 }
 
 function updateHistoryUI() {
@@ -962,6 +962,21 @@ async function deleteChat(chatId) {
 async function startNewChat() {
     if (isNewChat) {
         return;
+    }
+
+    if (window.currentUserId === "guest" || !window.currentUserId) {
+        const confirmed = await showCustomModal({
+            title: "Clear Guest History",
+            message: "Starting a new chat will clear your guest conversation history. Do you want to continue?",
+            icon: "warning",
+            primaryText: "Clear and Start",
+            showSecondary: true,
+            secondaryText: "Cancel"
+        });
+        if (!confirmed) {
+            return;
+        }
+        sessionStorage.removeItem(GUEST_CHAT_KEY);
     }
 
     currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];

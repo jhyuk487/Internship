@@ -15,7 +15,8 @@
 
 ### 채팅 히스토리
 - 로그인 사용자: `/chat/history`로 저장/로드/핀/삭제
-- 게스트: `localStorage` 키 `guestChatHistory` 사용
+- 게스트: `sessionStorage` 키 `guestChatHistory` 사용 (탭 종료 시 자동 삭제)
+- 게스트가 “Start New Chat”을 누르면 기록 삭제 확인 모달이 뜨고, 확인 시 게스트 기록이 초기화됩니다.
 
 ### GPA 계산기
 - 학기별 과목/성적 입력 및 GPA 계산
