@@ -104,8 +104,8 @@ async function switchSemester(id) {
         });
 
         if (!confirmed) return;
-        // If they continue, we revert edit mode to sync UI correctly
-        toggleGpaEditMode();
+        // If they continue, we revert edit mode to sync UI correctly (discard changes)
+        await toggleGpaEditMode({ save: false });
     }
     currentSemester = id;
     initSemesterTabs();
@@ -229,6 +229,78 @@ const gradeMapping = {
     'D-': '1.00', 'F': '0.00', 'P': ''
 };
 
+function mapSemesterDataToTerms() {
+    const terms = {};
+    semesters.forEach(s => {
+        const rows = semesterData[s.id] || [];
+        terms[s.id] = rows.map(row => ({
+            course_code: row.course_code || null,
+            course_name: row.name || null,
+            credits: Number(row.credit) || 0,
+            grade: row.grade || 'A',
+            is_major: !!row.major
+        }));
+    });
+    return terms;
+}
+
+function applyTermsToSemesterData(terms) {
+    const next = {};
+    semesters.forEach(s => {
+        const rows = (terms && terms[s.id]) || [];
+        next[s.id] = rows.map(entry => {
+            const grade = entry.grade || 'A';
+            return {
+                major: !!entry.is_major,
+                credit: entry.credits ?? 3,
+                name: entry.course_name || entry.course_code || '',
+                grade,
+                point: gradeMapping[grade] || ''
+            };
+        });
+    });
+    semesterData = next;
+}
+
+async function loadGradeRecordsFromBackend() {
+    if (window.currentUserId === "guest" || !window.currentUserId) return;
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/grades/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            applyTermsToSemesterData(data.terms || {});
+            initSemesterTabs();
+            renderSemesterTable();
+        }
+    } catch (error) {
+        console.error('Error loading grade records:', error);
+    }
+}
+
+async function saveGradeRecordsToBackend() {
+    if (window.currentUserId === "guest" || !window.currentUserId) return;
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        await fetch('/grades/me', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ terms: mapSemesterDataToTerms() })
+        });
+    } catch (error) {
+        console.error('Error saving grade records:', error);
+    }
+}
+
 function updateRowPoint(selectElement) {
     const tr = selectElement.closest('tr');
     const index = Array.from(tr.parentNode.children).indexOf(tr);
@@ -303,8 +375,10 @@ function calculateGPA() {
     document.querySelector('#major-gpa-display').innerText = cumulativeMajorGPA;
     document.querySelector('#total-credits-display').innerText = totalCredits;
 
-    // Save to local storage for persistence
-    localStorage.setItem('semesterData', JSON.stringify(semesterData));
+    // Save to local storage for persistence (guest only)
+    if (window.currentUserId === "guest" || !window.currentUserId) {
+        localStorage.setItem('semesterData', JSON.stringify(semesterData));
+    }
 }
 
 function addRow() {
@@ -314,7 +388,9 @@ function addRow() {
     renderSemesterTable();
 }
 
-function toggleGpaEditMode() {
+async function toggleGpaEditMode(options = { save: true }) {
+    const { save } = options;
+    const wasEditing = isGpaEditMode;
     isGpaEditMode = !isGpaEditMode;
     const btn = document.getElementById('gpa-edit-toggle-btn');
     // Static add-row-btn is deprecated in favor of dynamic row
@@ -323,6 +399,9 @@ function toggleGpaEditMode() {
         btn.innerText = "SAVE Record";
     } else {
         btn.innerText = "Edit Record";
+    }
+    if (wasEditing && !isGpaEditMode && save) {
+        await saveGradeRecordsToBackend();
     }
     renderSemesterTable();
 }
@@ -340,6 +419,10 @@ window.currentUserId = "guest";
 let isProcessing = false;
 let currentMessages = [];
 let chatHistory = []; // Will be loaded from backend for logged-in users
+const GUEST_CHAT_KEY = 'guestChatHistory';
+const WELCOME_MESSAGE = "## Hello! I am your UCSI University academic assistant.\n\nHow can I help you today?\n\nYou can ask about:\n- Academic schedules\n- Course registration\n- Graduation requirements\n- Anything else you need";
+let currentLoadedChatId = null;
+let isViewingHistoryChat = false;
 
 // Initialize: Check login state before showing history
 // History loading is triggered by initSession() in login.js after successful auth
@@ -362,6 +445,7 @@ function updateChatInputState(isLoggedIn) {
 updateHistoryUI();
 initSemesterTabs();
 renderSemesterTable();
+loadGuestChatFromStorage();
 
 // --- Course Autocomplete Logic ---
 let debounceTimer;
@@ -577,6 +661,38 @@ function checkAndUpdateHistoryUI() {
     updateHistoryUI();
 }
 
+function ensureGuestWelcomeMessage() {
+    if (!currentMessages.some(m => m.role === 'ai' && m.content === WELCOME_MESSAGE)) {
+        currentMessages.unshift({ role: 'ai', content: WELCOME_MESSAGE });
+    }
+}
+
+function loadGuestChatFromStorage() {
+    if (window.currentUserId !== "guest") return;
+    try {
+        const stored = JSON.parse(localStorage.getItem(GUEST_CHAT_KEY) || '[]');
+        if (Array.isArray(stored) && stored.length > 0) {
+            currentMessages = stored;
+            ensureGuestWelcomeMessage();
+            chatContainer.innerHTML = '';
+            currentMessages.forEach(m => renderMessage(m.role, m.content));
+        } else {
+            currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
+            chatContainer.innerHTML = '';
+            renderMessage('ai', WELCOME_MESSAGE);
+        }
+    } catch {
+        currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
+        chatContainer.innerHTML = '';
+        renderMessage('ai', WELCOME_MESSAGE);
+    }
+}
+
+function saveGuestChatToStorage() {
+    if (window.currentUserId !== "guest") return;
+    localStorage.setItem(GUEST_CHAT_KEY, JSON.stringify(currentMessages));
+}
+
 function updateHistoryUI() {
     // If guest, keep the locked prompt instead of empty history
     if (window.currentUserId === "guest" || !window.currentUserId) {
@@ -604,7 +720,12 @@ function updateHistoryUI() {
 
     sortedHistory.forEach((chat) => {
         const item = document.createElement('div');
-        item.className = "group relative bg-white/10 p-4 rounded-2xl border border-white/5 hover:bg-white/20 cursor-pointer transition-all mb-3";
+        item.className = 'group relative p-4 rounded-2xl border cursor-pointer transition-all mb-3';
+        if (chat.isPinned) {
+            item.classList.add('bg-white/20', 'border-white/20');
+        } else {
+            item.classList.add('bg-white/10', 'border-white/5', 'hover:bg-white/20');
+        }
 
         const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
         const chatId = chat.id || chat.originalIndex;
@@ -612,15 +733,35 @@ function updateHistoryUI() {
         item.innerHTML = `
             <div id="display-container-${chatId}" class="flex justify-between items-start gap-2" onclick="loadChat('${chatId}')">
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium line-clamp-1">${chat.title}</p>
-                    <p class="text-xs text-white/40 mt-1">${chat.time || ''}</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="text-sm font-medium line-clamp-1 ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
+                        ${chat.isPinned ? '<span class="material-symbols-outlined text-[16px] text-white rotate-45 flex-shrink-0" style="font-variation-settings: \'FILL\' 1">push_pin</span>' : ''}
+                    </div>
+                    <p class="text-xs text-white/40">${chat.time || ''}</p>
                 </div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Pin">
+                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="${chat.isPinned ? 'Unpin' : 'Pin'}">
                         <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
+                    </button>
+                    <button onclick="event.stopPropagation(); showRenameUI('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
+                        <span class="material-symbols-outlined text-sm text-white/60 hover:text-white">edit</span>
                     </button>
                     <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
                         <span class="material-symbols-outlined text-sm text-white/60 hover:text-red-400">delete</span>
+                    </button>
+                </div>
+            </div>
+            <div id="rename-container-${chatId}" class="hidden items-center gap-2">
+                <input id="rename-input-${chatId}" type="text" 
+                    class="flex-1 bg-white/5 border border-white/20 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-white/40"
+                    onkeyup="if(event.key === 'Enter') saveRename('${chatId}')"
+                    onclick="event.stopPropagation()">
+                <div class="flex gap-1">
+                    <button onclick="event.stopPropagation(); saveRename('${chatId}')" class="p-1 hover:bg-green-500/20 rounded-md text-green-400">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </button>
+                    <button onclick="event.stopPropagation(); cancelRename('${chatId}')" class="p-1 hover:bg-red-500/20 rounded-md text-red-400">
+                        <span class="material-symbols-outlined text-sm">close</span>
                     </button>
                 </div>
             </div>
@@ -677,10 +818,36 @@ async function saveChatToBackend() {
             })
         });
         if (response.ok) {
+            const data = await response.json();
+            currentLoadedChatId = data.id || currentLoadedChatId;
+            isViewingHistoryChat = false;
             await loadChatHistoryFromBackend();
+            return data;
         }
     } catch (error) {
         console.error('Error saving chat:', error);
+    }
+}
+
+async function updateChatMessages(chatId) {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        await fetch(`/chat/history/${chatId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                messages: currentMessages.map(m => ({ role: m.role, content: m.content }))
+            })
+        });
+        const chat = chatHistory.find(c => String(c.id) === String(chatId));
+        if (chat) chat.messages = [...currentMessages];
+    } catch (error) {
+        console.error('Error updating chat:', error);
     }
 }
 
@@ -706,33 +873,55 @@ async function togglePinChat(chatId) {
     }
 }
 
-function showRenameUI(index) {
-    document.getElementById(`display-container-${index}`).classList.add('hidden');
-    const renameContainer = document.getElementById(`rename-container-${index}`);
+function showRenameUI(chatId) {
+    document.getElementById(`display-container-${chatId}`).classList.add('hidden');
+    const renameContainer = document.getElementById(`rename-container-${chatId}`);
     renameContainer.classList.remove('hidden');
     renameContainer.classList.add('flex');
-    const input = document.getElementById(`rename-input-${index}`);
-    input.value = chatHistory[index].title;
+    const input = document.getElementById(`rename-input-${chatId}`);
+    const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
+    input.value = chat?.title || '';
     input.focus();
     input.select();
 }
 
-function cancelRename(index) {
-    document.getElementById(`display-container-${index}`).classList.remove('hidden');
-    const renameContainer = document.getElementById(`rename-container-${index}`);
+function cancelRename(chatId) {
+    document.getElementById(`display-container-${chatId}`).classList.remove('hidden');
+    const renameContainer = document.getElementById(`rename-container-${chatId}`);
     renameContainer.classList.add('hidden');
     renameContainer.classList.remove('flex');
 }
 
-function saveRename(index) {
-    const input = document.getElementById(`rename-input-${index}`);
+async function saveRename(chatId) {
+    const input = document.getElementById(`rename-input-${chatId}`);
     const newTitle = input.value.trim();
-    if (newTitle !== "") {
-        chatHistory[index].title = newTitle;
-        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-        updateHistoryUI();
-    } else {
-        cancelRename(index);
+    if (newTitle === "") {
+        cancelRename(chatId);
+        return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`/chat/history/${chatId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ title: newTitle })
+        });
+        if (response.ok) {
+            const chat = chatHistory.find(c => String(c.id) === String(chatId));
+            if (chat) chat.title = newTitle;
+            updateHistoryUI();
+        } else {
+            cancelRename(chatId);
+        }
+    } catch (error) {
+        console.error('Error renaming chat:', error);
+        cancelRename(chatId);
     }
 }
 
@@ -754,30 +943,27 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat() {
-    // Save current chat to backend if there are messages and user is logged in
-    if (currentMessages.length > 0 && window.currentUserId !== "guest" && window.currentUserId) {
+    if (window.currentUserId === "guest" || !window.currentUserId) {
+        currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
+        currentLoadedChatId = null;
+        isViewingHistoryChat = false;
+        saveGuestChatToStorage();
+    } else {
+        currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
+        currentLoadedChatId = null;
+        isViewingHistoryChat = false;
         await saveChatToBackend();
     }
-
-    currentMessages = [];
-    chatContainer.innerHTML = `
-        <div class="flex justify-start items-start gap-4">
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
-            </div>
-            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                <p class="text-slate-700 dark:text-slate-300">
-                    Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to ask about academic schedules, course registration, graduation requirements, or anything else.
-                </p>
-            </div>
-        </div>
-    `;
+    chatContainer.innerHTML = '';
+    renderMessage('ai', WELCOME_MESSAGE);
     chatContainer.scrollTop = 0;
 }
 
 async function loadChat(chatId) {
-    const chat = chatHistory.find(c => c.id === chatId || c.originalIndex === chatId);
+    const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
+    currentLoadedChatId = chat.id || null;
+    isViewingHistoryChat = true;
     currentMessages = [...chat.messages];
     chatContainer.innerHTML = '';
     currentMessages.forEach(m => renderMessage(m.role, m.content));
@@ -793,12 +979,15 @@ function renderMessage(role, content) {
             </div>
         `;
     } else {
+        const safeHtml = window.DOMPurify
+            ? DOMPurify.sanitize(marked.parse(content))
+            : content;
         wrapper.innerHTML = `
             <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
                 <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
             </div>
-            <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                <p class="text-slate-700 dark:text-slate-300">${content}</p>
+            <div class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
+                <div class="text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${safeHtml}</div>
             </div>
         `;
     }
@@ -809,6 +998,19 @@ function renderMessage(role, content) {
 async function appendMessage(role, content) {
     currentMessages.push({ role, content });
     renderMessage(role, content);
+
+    if (window.currentUserId === "guest" || !window.currentUserId) {
+        ensureGuestWelcomeMessage();
+        saveGuestChatToStorage();
+        return;
+    }
+
+    if (!currentLoadedChatId) {
+        await saveChatToBackend();
+        return;
+    }
+
+    await updateChatMessages(currentLoadedChatId);
 }
 
 function showLoading() {
@@ -819,7 +1021,7 @@ function showLoading() {
         <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
             <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
         </div>
-        <div class="max-w-3xl w-full bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
+        <div class="ai-bubble bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
             <div class="typing-dots text-primary">
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>

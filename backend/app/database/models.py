@@ -2,6 +2,7 @@ from typing import List, Optional, Any
 from beanie import Document
 from pydantic import Field, BaseModel
 from datetime import datetime
+from typing import Dict
 
 class CourseInfo(BaseModel):
     course_unique_id: str
@@ -86,3 +87,18 @@ class ChatHistory(Document):
 
     class Settings:
         name = "chat_histories"
+
+class GradeCourseEntry(BaseModel):
+    course_code: Optional[str] = None
+    course_name: Optional[str] = None
+    credits: int
+    grade: str
+    is_major: Optional[bool] = False
+
+class GradeRecord(Document):
+    user_id: str
+    terms: Dict[str, List[GradeCourseEntry]] = {}
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "grade_records"

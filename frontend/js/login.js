@@ -89,6 +89,11 @@ async function handleLogin(event) {
                 loadChatHistoryFromBackend();
             }
 
+            // Load grade records from backend after login
+            if (typeof loadGradeRecordsFromBackend === 'function') {
+                loadGradeRecordsFromBackend();
+            }
+
             // Update chat input state
             if (typeof updateChatInputState === 'function') {
                 updateChatInputState(true);
@@ -194,6 +199,11 @@ async function initSession() {
                 // Load chat history from backend
                 if (typeof loadChatHistoryFromBackend === 'function') {
                     loadChatHistoryFromBackend();
+                }
+
+                // Load grade records from backend
+                if (typeof loadGradeRecordsFromBackend === 'function') {
+                    loadGradeRecordsFromBackend();
                 }
 
                 // Update chat input state

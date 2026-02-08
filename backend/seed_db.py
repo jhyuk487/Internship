@@ -2,7 +2,7 @@ import json
 import asyncio
 import os
 from app.database.database import init_db, MONGODB_URL, DATABASE_NAME
-from app.database.models import User, Course, Major, Account
+from app.database.models import User, Course, Major, Account, GradeRecord
 
 # Path to the data_sets folder (one level up from backend)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
@@ -17,7 +17,8 @@ async def seed_data():
         "user_info.json": User,
         "login_info.json": Account,
         "uni_courses_info.json": Course,
-        "uni_majors_info.json": Major
+        "uni_majors_info.json": Major,
+        "grade_records.json": GradeRecord
     }
 
     print("\nStarting database synchronization...")

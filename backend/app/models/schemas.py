@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from typing import Dict
 
 class Token(BaseModel):
     access_token: str
@@ -49,3 +50,19 @@ class ChatHistoryResponse(BaseModel):
 
 class ChatListResponse(BaseModel):
     chats: List[ChatHistoryResponse]
+
+# Grade Records
+class GradeCourseSchema(BaseModel):
+    course_code: Optional[str] = None
+    course_name: Optional[str] = None
+    credits: int
+    grade: str
+    is_major: Optional[bool] = False
+
+class GradeRecordUpdate(BaseModel):
+    terms: Dict[str, List[GradeCourseSchema]]
+
+class GradeRecordResponse(BaseModel):
+    user_id: str
+    terms: Dict[str, List[GradeCourseSchema]]
+    updated_at: datetime

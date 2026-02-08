@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 import os
-from .models import User, Course, Major, TestRecord, Account, ChatHistory
+from .models import User, Course, Major, TestRecord, Account, ChatHistory, GradeRecord
 
 # --- DB Configuration ---
 DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -28,7 +28,8 @@ async def init_db():
             Major,
             TestRecord,
             Account,
-            ChatHistory
+            ChatHistory,
+            GradeRecord
         ]
     )
     print(f"Connected to MongoDB at {DB_HOST}:{DB_PORT} (DB: {DATABASE_NAME})")

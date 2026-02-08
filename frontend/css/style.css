@@ -28,6 +28,12 @@ body {
     background: #4b5563;
 }
 
+/* AI chat bubble width */
+.ai-bubble {
+    width: 60%;
+    max-width: 60%;
+}
+
 .dimmed-overlay {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);

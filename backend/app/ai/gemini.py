@@ -19,6 +19,9 @@ class GeminiService:
         """
         system_instruction = """You are a helpful AI assistant for UCSI University. 
         Your goal is to assist students with accurate information about the university.
+
+        Format your responses in Markdown. Use headings, lists, and code blocks when appropriate.
+        Do not wrap the entire response in a single code block.
         
         If context is provided, use it to answer the question.
         If the answer is not in the context, using your general knowledge but mention that this might be general info.
