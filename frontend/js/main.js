@@ -434,11 +434,9 @@ checkAndUpdateHistoryUI();
 function updateChatInputState(isLoggedIn) {
     const input = document.getElementById('chat-input');
     const btn = document.getElementById('send-btn');
-    if (isLoggedIn) {
-        input.disabled = false;
-        input.placeholder = "Type your message...";
-        btn.disabled = false;
-    } else if (ALLOW_GUEST_CHAT) {
+    if (!input || !btn) return;
+
+    if (isLoggedIn || ALLOW_GUEST_CHAT) {
         input.disabled = false;
         input.placeholder = "Type your message...";
         btn.disabled = false;
@@ -1220,10 +1218,10 @@ async function sendMessage() {
         const aiWrapper = renderMessage('ai', "", true);
         aiWrapper.classList.add('hidden'); // Hide until we actually have text
         const contentDiv = aiWrapper.querySelector('.message-content');
-        
+
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        
+
         // Character queue for steady typing
         let charQueue = [];
         let isTypingFinished = false;
@@ -1242,7 +1240,7 @@ async function sendMessage() {
                     fullResponse += nextChar;
                     contentDiv.innerText = fullResponse;
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-                    
+
                     // Faster typing delay (approx 10ms per char)
                     await new Promise(r => setTimeout(r, 10));
                 } else if (isTypingFinished) {
@@ -1296,8 +1294,6 @@ async function sendMessage() {
         isProcessing = false;
         setChatInteractionEnabled(true);
     }
-}
-
 }
 
 sendBtn.addEventListener('click', sendMessage);
