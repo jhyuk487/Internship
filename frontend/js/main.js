@@ -8,6 +8,17 @@ const conversationTitle = document.getElementById('conversation-title');
 let isGpaEditMode = false;
 let currentSemester = "Y1S1";
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('w-80')) {
+        sidebar.classList.remove('w-80');
+        sidebar.classList.add('w-16');
+    } else {
+        sidebar.classList.remove('w-16');
+        sidebar.classList.add('w-80');
+    }
+}
+
 // Structure for 5 years, 3 semesters each
 const semesters = [
     { id: 'Y1S1', label: '1-1' }, { id: 'Y1S2', label: '1-2' }, { id: 'Y1S3', label: '1-3' },
@@ -225,6 +236,12 @@ async function toggleGradeModal() {
     if (!gradeModal.classList.contains('translate-y-full')) {
         initSemesterTabs();
         renderSemesterTable();
+    }
+}
+
+function closeGradeModal() {
+    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
     }
 }
 
@@ -689,7 +706,7 @@ function checkAndUpdateHistoryUI() {
         if (header) historyList.appendChild(header);
 
         const loginPrompt = document.createElement('div');
-        loginPrompt.className = 'text-center text-white/60 text-sm py-8';
+        loginPrompt.className = 'guest-prompt text-center text-white/60 text-sm py-8';
         loginPrompt.innerHTML = `
             <span class="material-symbols-outlined text-4xl mb-2 block">lock</span>
             <p>Login to save and view<br>your chat history</p>
@@ -795,7 +812,7 @@ function updateHistoryUI() {
         const item = document.createElement('div');
         item.className = 'group relative p-4 rounded-2xl border cursor-pointer transition-all mb-3';
         if (chat.isPinned) {
-            item.classList.add('bg-white/20', 'border-white/20');
+            item.classList.add('bg-white/20', 'border-white/20', 'pinned-chat');
         } else {
             item.classList.add('bg-white/10', 'border-white/5', 'hover:bg-white/20');
         }
@@ -1037,10 +1054,8 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat(options = {}) {
-    if (!gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
+    closeGradeModal();
+    
     if (isNewChat) {
         return;
     }
@@ -1083,10 +1098,8 @@ async function startNewChat(options = {}) {
 }
 
 async function loadChat(chatId) {
-    if (!gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
+    closeGradeModal();
+    
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
     currentLoadedChatId = chat.id || null;
