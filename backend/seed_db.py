@@ -1,3 +1,4 @@
+import argparse
 import json
 import asyncio
 import os
@@ -8,7 +9,22 @@ from app.auth.security import get_password_hash
 # Path to the data_sets folder (one level up from backend)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
 
-async def seed_data():
+def parse_only_list(value: str | None) -> set[str] | None:
+    if not value:
+        return None
+    parts = [p.strip() for p in value.split(",") if p.strip()]
+    if not parts:
+        return None
+    normalized = set()
+    for part in parts:
+        if part.endswith(".json"):
+            normalized.add(part)
+        else:
+            normalized.add(f"{part}.json")
+    return normalized
+
+
+async def seed_data(only_files: set[str] | None = None):
     # 1. Initialize DB Connection using the app's own logic
     print(f"Connecting to MongoDB at {MONGODB_URL} (DB: {DATABASE_NAME})...")
     await init_db()
@@ -25,6 +41,8 @@ async def seed_data():
     print("\nStarting database synchronization...")
 
     for filename, model in mappings.items():
+        if only_files and filename not in only_files:
+            continue
         file_path = os.path.join(DATA_SETS_DIR, filename)
         
         if not os.path.exists(file_path):
@@ -77,4 +95,11 @@ async def seed_data():
     print("\nDatabase synchronization complete.")
 
 if __name__ == "__main__":
-    asyncio.run(seed_data())
+    parser = argparse.ArgumentParser(description="Seed database collections from data_sets.")
+    parser.add_argument(
+        "--only",
+        help="Comma-separated list of dataset files or base names (e.g., login_info or login_info.json).",
+    )
+    args = parser.parse_args()
+    only_files = parse_only_list(args.only)
+    asyncio.run(seed_data(only_files=only_files))
