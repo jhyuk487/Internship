@@ -2,6 +2,9 @@ from google import genai
 from app.core.config import settings
 from functools import lru_cache
 
+MODEL_ID = "gemma-3-27b-it"
+PROMPT_VERSION = "v1"
+
 class GeminiService:
     def __init__(self):
         if not settings.GOOGLE_API_KEY:
@@ -9,7 +12,7 @@ class GeminiService:
         
         # New SDK Initialization
         self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
-        self.model_id = 'gemma-3-27b-it' 
+        self.model_id = MODEL_ID
         print(f"DEBUG: Loaded GeminiService with model: {self.model_id}")
 
 

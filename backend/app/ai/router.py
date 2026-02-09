@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, HTTPException, status
 from fastapi.responses import StreamingResponse
 from datetime import datetime
+import hashlib
 from typing import Optional, List
 from app.models.schemas import (
     ChatRequest, ChatResponse, DocumentIngestRequest,
     SaveChatRequest, UpdateChatRequest, ChatHistoryResponse, ChatListResponse, ChatMessageSchema,
     ChatFeedbackRequest
 )
-from .gemini import get_gemini_service, GeminiService
+from .gemini import get_gemini_service, GeminiService, MODEL_ID, PROMPT_VERSION
 from .vector import vector_service
 from app.services.student_service import student_service
 from app.services.chat_service import chat_history_service
@@ -22,6 +23,10 @@ router = APIRouter()
 @router.post("/feedback")
 async def save_feedback(request: ChatFeedbackRequest):
     """Save or update user feedback for AI response quality"""
+    response_hash = request.response_hash or hashlib.sha256(
+        request.ai_response.encode("utf-8")
+    ).hexdigest()
+
     # Try to find existing feedback for this specific message in this chat
     existing = await ChatFeedback.find_one(
         ChatFeedback.chat_id == request.chat_id,
@@ -32,6 +37,22 @@ async def save_feedback(request: ChatFeedbackRequest):
     if existing:
         existing.rating = request.rating
         existing.feedback_text = request.feedback_text
+        if request.model_name is not None:
+            existing.model_name = request.model_name
+        elif not existing.model_name:
+            existing.model_name = MODEL_ID
+        if request.prompt_version is not None:
+            existing.prompt_version = request.prompt_version
+        elif not existing.prompt_version:
+            existing.prompt_version = PROMPT_VERSION
+        if request.context_sources is not None:
+            existing.context_sources = request.context_sources
+        if request.context_snippet is not None:
+            existing.context_snippet = request.context_snippet
+        if request.session_id is not None:
+            existing.session_id = request.session_id
+        if request.response_hash is not None or not existing.response_hash:
+            existing.response_hash = response_hash
         existing.created_at = datetime.utcnow()
         await existing.save()
         return {"status": "success", "message": "Feedback updated"}
@@ -44,7 +65,13 @@ async def save_feedback(request: ChatFeedbackRequest):
         user_query=request.user_query,
         ai_response=request.ai_response,
         rating=request.rating,
-        feedback_text=request.feedback_text
+        feedback_text=request.feedback_text,
+        model_name=request.model_name or MODEL_ID,
+        prompt_version=request.prompt_version or PROMPT_VERSION,
+        context_sources=request.context_sources,
+        context_snippet=request.context_snippet,
+        response_hash=response_hash,
+        session_id=request.session_id
     )
     await feedback.insert()
     return {"status": "success", "message": "Feedback saved"}
