@@ -9,7 +9,7 @@
 - 인증 및 세션: JWT 기반 로그인, `/auth/me` 세션 복구, 비밀번호 찾기
 - 채팅 히스토리: `/chat/history` 저장/핀/삭제, 게스트는 로컬 스토리지 사용
 - GPA 기록 및 통합: `/grades/me` 저장/로드 및 AI 컨텍스트 연동 (`academic_records` 키 추가)
-- AI 피드백 루프: 아이콘 기반 Like/Dislike, 선택 변경(Re-vote) 지원, 데이터 수집 최적화
+- AI 피드백 루프: 아이콘 기반 Like/Dislike, 선택 변경(Re-vote) 지원, 데이터 중복 제거(Upsert) 최적화 완료
 - 프론트 기능: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
 
 ## 3. 구현된 기능 현황
