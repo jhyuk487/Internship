@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, HTTPException, status
+from datetime import datetime
 from typing import Optional, List
 from app.models.schemas import (
     ChatRequest, ChatResponse, DocumentIngestRequest,
@@ -19,7 +20,22 @@ router = APIRouter()
 
 @router.post("/feedback")
 async def save_feedback(request: ChatFeedbackRequest):
-    """Save user feedback for AI response quality"""
+    """Save or update user feedback for AI response quality"""
+    # Try to find existing feedback for this specific message in this chat
+    existing = await ChatFeedback.find_one(
+        ChatFeedback.chat_id == request.chat_id,
+        ChatFeedback.message_index == request.message_index,
+        ChatFeedback.user_id == request.user_id
+    )
+
+    if existing:
+        existing.rating = request.rating
+        existing.feedback_text = request.feedback_text
+        existing.created_at = datetime.utcnow()
+        await existing.save()
+        return {"status": "success", "message": "Feedback updated"}
+    
+    # Otherwise, create a new record
     feedback = ChatFeedback(
         user_id=request.user_id,
         chat_id=request.chat_id,
