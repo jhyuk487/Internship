@@ -195,6 +195,10 @@ function updateRowData(element, field) {
     if (field === 'name') {
         // Course Autocomplete Logic
         // Trigger immediately, backend handles empty query now
+        if (element.dataset.autocompleteSuppress === '1') {
+            delete element.dataset.autocompleteSuppress;
+            return;
+        }
         debouncedSearch(val, element);
     }
 
@@ -506,12 +510,14 @@ function showSuggestions(courses, inputElement) {
     // Calculate position
     const rect = inputElement.getBoundingClientRect();
 
-    listDiv.style.top = (rect.bottom + window.scrollY) + "px";
     listDiv.style.left = (rect.left + window.scrollX) + "px";
     listDiv.style.width = (rect.width * 0.9) + "px";
 
     // Append to body to avoid overflow clipping from table/modal
     document.body.appendChild(listDiv);
+
+    // Default to below the input
+    listDiv.style.top = (rect.bottom + window.scrollY) + "px";
 
     courses.forEach(course => {
         const item = document.createElement("div");
@@ -527,6 +533,7 @@ function showSuggestions(courses, inputElement) {
 
             // Update Course Name
             inputElement.value = course.course_name;
+            inputElement.dataset.autocompleteSuppress = '1';
             updateRowData(inputElement, 'name');
 
             // Update Credits (Find the select element in the same row)
@@ -542,6 +549,13 @@ function showSuggestions(courses, inputElement) {
         });
         listDiv.appendChild(item);
     });
+
+    // If dropdown overflows viewport bottom, flip above the input
+    const listRect = listDiv.getBoundingClientRect();
+    if (listRect.bottom > window.innerHeight) {
+        const top = rect.top + window.scrollY - listRect.height - 8;
+        listDiv.style.top = Math.max(8 + window.scrollY, top) + "px";
+    }
 }
 
 function closeAllLists(elmnt) {

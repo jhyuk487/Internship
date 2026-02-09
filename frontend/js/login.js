@@ -136,6 +136,12 @@ function handleLogout() {
         startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
     }
 
+    // Close grade modal if open
+    const gradeModal = document.getElementById('grade-modal');
+    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     // Update chat input state
     if (typeof updateChatInputState === 'function') {
         updateChatInputState(false);
