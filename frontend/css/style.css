@@ -73,3 +73,84 @@ body {
         transform: scale(1.0);
     }
 }
+
+/* Sidebar Collapse Styles */
+#sidebar {
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+#sidebar.w-16 {
+    width: 4rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    overflow-x: hidden !important;
+}
+
+#sidebar.w-16 .sidebar-text,
+#sidebar.w-16 #sidebar-logo-area,
+#sidebar.w-16 #history-list p {
+    display: none !important;
+}
+
+#sidebar.w-16 #user-info-area {
+    display: flex !important;
+    justify-content: center;
+}
+
+#sidebar.w-16 #user-profile-container {
+    padding: 0.25rem;
+    border: none !important;
+    background: transparent !important;
+}
+
+#sidebar.w-16 #new-chat-btn {
+    justify-content: center;
+    padding: 0.75rem 0;
+}
+
+#sidebar.w-16 #auth-btn {
+    padding: 0.5rem;
+    justify-content: center;
+}
+
+/* Chat History Bars in Collapsed State - Only Pinned */
+#sidebar.w-16 #history-list .group:not(.pinned-chat) {
+    display: none !important;
+}
+
+#sidebar.w-16 #history-list .group.pinned-chat {
+    padding: 0 !important;
+    margin-bottom: 3px !important;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    height: 6.4px !important;
+    min-height: 6.4px !important;
+    width: 65% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    border-radius: 99px !important;
+    overflow: hidden;
+}
+
+#sidebar.w-16 #history-list .group * {
+    display: none !important;
+}
+
+/* Guest Lock Icon - Centered */
+#sidebar.w-16 #history-list .guest-prompt {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+}
+
+#sidebar.w-16 #history-list .guest-prompt p {
+    display: none !important;
+}
+
+#sidebar.w-16 #history-list .guest-prompt .material-symbols-outlined {
+    font-size: 24px !important;
+    margin: 0 !important;
+}

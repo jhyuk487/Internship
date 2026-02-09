@@ -136,8 +136,7 @@ function handleLogout() {
         startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
     }
 
-    // Close grade modal if open
-    const gradeModal = document.getElementById('grade-modal');
+    // Close grade modal if open (already referenced above)
     if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
         gradeModal.classList.add('translate-y-full');
     }
