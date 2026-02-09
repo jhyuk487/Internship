@@ -1020,12 +1020,29 @@ function renderMessage(role, content) {
         const safeHtml = window.DOMPurify
             ? DOMPurify.sanitize(marked.parse(content))
             : content;
+
+        // Don't show feedback for welcome message or if we are loading
+        const isWelcome = content === WELCOME_MESSAGE;
+        const msgIndex = currentMessages.length - 1;
+
         wrapper.innerHTML = `
             <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
                 <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
             </div>
-            <div class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                <div class="text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${safeHtml}</div>
+            <div class="flex flex-col gap-2 max-w-[85%]">
+                <div class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
+                    <div class="text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${safeHtml}</div>
+                </div>
+                ${!isWelcome ? `
+                <div class="flex items-center gap-2 px-2">
+                    <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-green-500 hover:bg-green-500/10 transition-all hover:scale-110" title="Useful">
+                        <span class="material-icons text-base">thumb_up</span>
+                    </button>
+                    <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all hover:scale-110" title="Not Useful">
+                        <span class="material-icons text-base">thumb_down</span>
+                    </button>
+                </div>
+                ` : ''}
             </div>
         `;
     }
@@ -1113,3 +1130,74 @@ sendBtn.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
 });
+
+async function handleFeedback(button, rating, msgIndex) {
+    const parent = button.parentElement;
+    const currentRating = parent.dataset.currentRating;
+
+    // If clicking the same rating, treat it as a toggle (optional, but here we'll just allow switching)
+    if (currentRating === rating) return;
+
+    const aiMsg = currentMessages[msgIndex];
+    let userQuery = "N/A";
+    for (let i = msgIndex - 1; i >= 0; i--) {
+        if (currentMessages[i].role === 'user') {
+            userQuery = currentMessages[i].content;
+            break;
+        }
+    }
+
+    if (!aiMsg || aiMsg.role !== 'ai') return;
+
+    const feedbackData = {
+        user_id: window.currentUserId || "guest",
+        chat_id: currentLoadedChatId,
+        message_index: msgIndex,
+        user_query: userQuery,
+        ai_response: aiMsg.content,
+        rating: rating
+    };
+
+    try {
+        const response = await fetch('/chat/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(feedbackData)
+        });
+
+        if (response.ok) {
+            // Update state
+            parent.dataset.currentRating = rating;
+
+            // Reset and update UI
+            const allBtns = parent.querySelectorAll('button');
+            allBtns.forEach(b => {
+                b.classList.remove('text-green-500', 'text-red-500', 'bg-green-500/10', 'bg-red-500/10');
+                b.classList.add('text-slate-400');
+                b.style.opacity = '1';
+                b.style.pointerEvents = 'auto';
+            });
+
+            // Highlight the active one
+            button.classList.remove('text-slate-400');
+            if (rating === 'like') {
+                button.classList.add('text-green-500', 'bg-green-500/10');
+            } else {
+                button.classList.add('text-red-500', 'bg-red-500/10');
+            }
+
+            // Quietly update or show a tiny temporary notice
+            let notice = parent.querySelector('.feedback-notice');
+            if (!notice) {
+                notice = document.createElement('span');
+                notice.className = 'feedback-notice text-[9px] text-slate-400 opacity-0 transition-opacity ml-1';
+                notice.innerText = 'Updated';
+                parent.appendChild(notice);
+            }
+            notice.classList.remove('opacity-0');
+            setTimeout(() => notice.classList.add('opacity-0'), 1500);
+        }
+    } catch (error) {
+        console.error("Error saving feedback:", error);
+    }
+}

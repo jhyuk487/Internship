@@ -1,4 +1,4 @@
-from app.database.models import Account, User
+from app.database.models import Account, User, GradeRecord
 
 class StudentService:
     async def authenticate(self, user_id: str, password: str):
@@ -16,11 +16,20 @@ class StudentService:
 
 
     async def get_student_info(self, student_id: str):
-        # Find user by user_id (from user_info)
+        # 1. User 정보 조회
         user = await User.find_one(User.user_id == student_id)
+        
         if user:
-            # Exclude MongoDB internal ID (PydanticObjectId) to avoid serialization error
-            return user.dict(exclude={"id"})
+            user_data = user.dict(exclude={"id"})
+            
+            # 2. GradeRecord 정보 조회 및 추가
+            grades = await GradeRecord.find_one(GradeRecord.user_id == student_id)
+            if grades:
+                # "academic_records" 키로 성적 정보 추가 (AI가 명확히 인식하도록)
+                user_data["academic_records"] = grades.dict(exclude={"id", "user_id"})
+                
+            return user_data
+            
         return None
 
     async def find_password(self, student_id: str, email: str):

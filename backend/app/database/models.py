@@ -88,3 +88,17 @@ class GradeRecord(Document):
 
     class Settings:
         name = "grade_records"
+
+class ChatFeedback(Document):
+    """Feedback for AI responses (Like/Dislike)"""
+    user_id: Optional[str] = None
+    chat_id: Optional[str] = None
+    message_index: Optional[int] = None
+    user_query: str
+    ai_response: str
+    rating: str  # "like" or "dislike"
+    feedback_text: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "chat_feedback"
