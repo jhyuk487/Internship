@@ -16,11 +16,11 @@ class GeminiService:
         print(f"DEBUG: Loaded GeminiService with model: {self.model_id}")
 
 
-    async def generate_response(self, user_query: str, context: str = "") -> str:
+    async def generate_response(self, user_query: str, context: str = "", conversation_history: list = None) -> str:
         """
-        Generates a response using Gemma 3, moving instructions into the prompt context.
+        Generates a response using Gemma 3, with conversation history support.
         """
-        prompt = self._prepare_prompt(user_query, context)
+        prompt = self._prepare_prompt(user_query, context, conversation_history)
         
         try:
             response = self.client.models.generate_content(
@@ -31,11 +31,11 @@ class GeminiService:
         except Exception as e:
             return f"Error communicating with AI: {str(e)}"
 
-    async def stream_chat_response(self, user_query: str, context: str = ""):
+    async def stream_chat_response(self, user_query: str, context: str = "", conversation_history: list = None):
         """
-        Generates a streaming response using Gemma 3.
+        Generates a streaming response using Gemma 3 with history.
         """
-        prompt = self._prepare_prompt(user_query, context)
+        prompt = self._prepare_prompt(user_query, context, conversation_history)
         
         try:
             for chunk in self.client.models.generate_content_stream(
@@ -47,7 +47,7 @@ class GeminiService:
         except Exception as e:
             yield f"\n[Error: {str(e)}]"
 
-    def _prepare_prompt(self, user_query: str, context: str = "") -> str:
+    def _prepare_prompt(self, user_query: str, context: str = "", conversation_history: list = None) -> str:
         system_instruction = """You are a helpful AI assistant for UCSI University. 
         Your goal is to assist students with accurate information about the university.
 
@@ -57,9 +57,24 @@ class GeminiService:
         If context is provided, use it to answer the question.
         If the answer is not in the context, use your general knowledge but mention that this might be general info.
         If the question is about personal student data (grades, etc) and no context is provided, ask them to log in or say you need access.
+        
+        IMPORTANT: Pay attention to the conversation history. If the user asks a follow-up question, 
+        refer to the previous messages to understand the context and provide a relevant answer.
         """
         
+        # Build conversation history string
+        history_text = ""
+        if conversation_history:
+            history_text = "\n\nConversation History:\n"
+            # Last 10 messages for context (similar to jun1 logic)
+            for msg in conversation_history[-10:]:
+                role = "User" if msg.get("role") == "user" else "Assistant"
+                content = msg.get("content", "")
+                if content != "[WELCOME]": # Skip internal markers if any
+                    history_text += f"{role}: {content}\n"
+        
         return f"""{system_instruction}
+{history_text}
 
 Context:
 {context}

@@ -110,8 +110,11 @@ async def chat_stream_endpoint(
             context = "\n\n".join(retrieved_docs) if retrieved_docs else "No specific documents found."
 
         # 2. Return StreamingResponse
+        # Convert Pydantic models to dicts for the service
+        history = [m.dict() for m in request.conversation_history] if request.conversation_history else None
+        
         return StreamingResponse(
-            gemini_service.stream_chat_response(request.message, context),
+            gemini_service.stream_chat_response(request.message, context, conversation_history=history),
             media_type="text/plain"
         )
     except Exception as e:
@@ -162,8 +165,20 @@ async def chat_endpoint(
             else:
                 context = "No specific documents found in knowledge base."
 
-        # 3. Generate Response
-        response_text = await gemini_service.generate_response(request.message, context)
+        # 3. Prepare conversation history
+        conversation_history = []
+        if request.conversation_history:
+            conversation_history = [
+                {"role": msg.role, "content": msg.content} 
+                for msg in request.conversation_history
+            ]
+
+        # 4. Generate Response with conversation history
+        response_text = await gemini_service.generate_response(
+            request.message, 
+            context,
+            conversation_history=conversation_history
+        )
         
         return ChatResponse(response=response_text, sources=sources)
     except Exception as e:

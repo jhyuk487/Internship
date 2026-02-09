@@ -1025,6 +1025,10 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat(options = {}) {
+    if (!gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     if (isNewChat) {
         return;
     }
@@ -1067,6 +1071,10 @@ async function startNewChat(options = {}) {
 }
 
 async function loadChat(chatId) {
+    if (!gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
     currentLoadedChatId = chat.id || null;
@@ -1185,6 +1193,12 @@ async function sendMessage() {
     showLoading();
 
     try {
+        // Prepare conversation history (exclude welcome message and current user message)
+        const conversationHistory = currentMessages
+            .filter(m => m.content !== WELCOME_MESSAGE)
+            .slice(0, -1) // Exclude the message we just added
+            .map(m => ({ role: m.role, content: m.content }));
+
         const token = localStorage.getItem('access_token');
         const response = await fetch('/chat/stream', {
             method: 'POST',
@@ -1192,7 +1206,11 @@ async function sendMessage() {
                 'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             },
-            body: JSON.stringify({ message: message, user_id: window.currentUserId })
+            body: JSON.stringify({
+                message: message,
+                user_id: window.currentUserId,
+                conversation_history: conversationHistory
+            })
         });
 
         if (!response.ok) throw new Error('Network response was not ok');
@@ -1202,10 +1220,10 @@ async function sendMessage() {
         const aiWrapper = renderMessage('ai', "", true);
         aiWrapper.classList.add('hidden'); // Hide until we actually have text
         const contentDiv = aiWrapper.querySelector('.message-content');
-
+        
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-
+        
         // Character queue for steady typing
         let charQueue = [];
         let isTypingFinished = false;
@@ -1224,7 +1242,7 @@ async function sendMessage() {
                     fullResponse += nextChar;
                     contentDiv.innerText = fullResponse;
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-
+                    
                     // Faster typing delay (approx 10ms per char)
                     await new Promise(r => setTimeout(r, 10));
                 } else if (isTypingFinished) {
@@ -1278,6 +1296,8 @@ async function sendMessage() {
         isProcessing = false;
         setChatInteractionEnabled(true);
     }
+}
+
 }
 
 sendBtn.addEventListener('click', sendMessage);

@@ -5,26 +5,19 @@
 - **기술 스택**: Python 3.13, FastAPI, MongoDB, Google GenAI (Gemma 3)
 - **현재 상태**: 핵심 기능 구현 완료, 프로덕션 준비 단계
 
-## 2. 주요 업데이트 사항
+## 2. 주요 업데이트 사항 (2026-02-09)
 - **보안 강화**: 비밀번호 `bcrypt` 해싱 도입 및 기존 데이터 500건 일괄 마이그레이션 완료
-- **AI 엔진 고도화**: `gemma-3-27b-it` 모델 적용 및 RAG(FAISS) 기반 지식 베이스 구축
-- **인증 시스템**: JWT 기반 보안 인증, 세션 복구(`/auth/me`), 비밀번호 찾기 구현
-- **데이터 통합**: 학생 프로필(`User`)과 성적(`GradeRecord`) 실시간 병합 및 AI 컨텍스트 주입
 - **사용자 경험 고도화**: AI 답변 **실시간 스트리밍(Streaming)** 기능 및 부드러운 **타이핑 효과(10ms/char)** 도입
-- **피드백 루프**: AI 답변 품질 평가(Like/Dislike) 및 데이터 수집(Upsert 방식) 시스템 구축
+- **AI 엔진 고도화**: `gemma-3-27b-it` 모델 적용 및 RAG(FAISS) 기반 지식 베이스 구축. 대화 문맥 유지(Conversation History) 기능 추가
+- **인증 시스템**: JWT 기반 보안 인증, 세션 복구(`/auth/me`), 비밀번호 찾기 구현
+- **데이터 통합**: 학생 프로필(`User`)과 성적(`GradeRecord`) 실시간 병합 및 AI 컨텍스트 주입 (`academic_records` 키 최적화)
+- **GPA 기록 및 통합**: `/grades/me` 저장/로드 UI 개선. **성적 계산창 자동 닫힘 기능 추가**
+- **피드백 루프**: AI 답변 품질 평가(Like/Dislike), **재선택(Re-vote)** 지원 및 데이터 수집 최적화
 - **프론트 기능**: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
 
-## 3. 구현된 기능 현황
-- AI 채팅 (실시간 스트리밍 및 타이핑 효과 적용)
-- 사용자 인증 및 프로필 조회 (비밀번호 Bcrypt 암호화)
-- 채팅 히스토리 관리 (저장/핀/Rename/삭제)
-- GPA 기록 및 계산 (AI 상담 데이터 연동 완료)
-- AI 답변 피드백 루프 (Like/Dislike 수집 및 데이터 최적화)
-- 코스 검색 및 자동완성
+## 3. 시스템 아키텍처
 
-## 2. 시스템 아키텍처
-
-### 2.1 백엔드 (FastAPI)
+### 3.1 백엔드 (FastAPI)
 ```
 backend/
 ├── app/
@@ -37,19 +30,24 @@ backend/
 │   └── main.py          # FastAPI 앱 진입점
 ├── data/                # RAG 문서 및 FAISS 인덱스
 ├── requirements.txt
+<<<<<<< HEAD
 ├── .env                 # 환경 변수
 └── migrate_passwords.py # 비밀번호 마이그레이션 스크립트
+=======
+└── .env                 # 환경 변수
+```
+>>>>>>> origin/jun1
 
-### 2.2 프론트엔드
+### 3.2 프론트엔드
 ```
 frontend/
 ├── index.html           # 메인 UI (34KB, 단일 페이지)
 ├── css/                 # Tailwind + 커스텀 스타일
-├── js/                  # Vanilla JS (login, main, GPA)
+├── js/                  # Vanilla JS (login, main)
 └── tools/               # Tailwind 빌드 도구
 ```
 
-### 2.3 데이터베이스 (MongoDB)
+### 3.3 데이터베이스 (MongoDB)
 **컬렉션 구조**:
 - `login_info` (Account): 로그인 인증 정보
 - `user_info` (User): 학생 프로필 정보
@@ -59,7 +57,7 @@ frontend/
 - `grade_records` (GradeRecord): 학생 성적 기록
 - `teamB` (TestRecord): 테스트용 컬렉션
 
-## 3. 구현된 기능 상세
+## 4. 구현된 기능 상세
 
 ### 3.1 AI 채팅 시스템
 **엔드포인트**: `POST /chat`, `POST /chat/ask`
