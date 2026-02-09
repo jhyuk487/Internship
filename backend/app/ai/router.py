@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, HTTPException, status
+from fastapi.responses import StreamingResponse
 from datetime import datetime
 from typing import Optional, List
 from app.models.schemas import (
@@ -49,6 +50,47 @@ async def save_feedback(request: ChatFeedbackRequest):
     return {"status": "success", "message": "Feedback saved"}
 
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
+
+@router.post("/stream")
+async def chat_stream_endpoint(
+    request: ChatRequest, 
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    gemini_service: GeminiService = Depends(get_gemini_service)
+):
+    try:
+        user_id = request.user_id
+        if token and not user_id:
+            try:
+                payload = verify_token(token)
+                user_id = payload.get("sub")
+            except:
+                pass
+
+        # 1. Intent Detection
+        intent = await gemini_service.detect_intent(request.message)
+        
+        context = ""
+        if intent == "personal":
+            if not user_id or user_id == "guest":
+                async def guest_error():
+                    yield "This appears to be a personal question. Please log in to access your information."
+                return StreamingResponse(guest_error(), media_type="text/plain")
+            
+            student_info = await student_service.get_student_info(user_id)
+            context = f"Student Information: {str(student_info)}" if student_info else "Student record not found."
+        else:
+            retrieved_docs = vector_service.search(request.message)
+            context = "\n\n".join(retrieved_docs) if retrieved_docs else "No specific documents found."
+
+        # 2. Return StreamingResponse
+        return StreamingResponse(
+            gemini_service.stream_chat_response(request.message, context),
+            media_type="text/plain"
+        )
+    except Exception as e:
+        async def internal_error():
+            yield f"Error: {str(e)}"
+        return StreamingResponse(internal_error(), media_type="text/plain")
 
 @router.post("", response_model=ChatResponse)
 @router.post("/ask", response_model=ChatResponse)
