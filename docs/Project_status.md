@@ -5,26 +5,17 @@
 - **기술 스택**: Python 3.13, FastAPI, MongoDB, Google GenAI (Gemma 3)
 - **현재 상태**: 핵심 기능 구현 완료, 프로덕션 준비 단계
 
-<<<<<<< HEAD
-## 2. 주요 업데이트 사항
-- AI 모델 및 RAG: `gemma-3-27b-it` + FAISS, `/chat/ingest` 인덱스 재생성
-- 인증 및 세션: JWT 기반 로그인, `/auth/me` 세션 복구, 비밀번호 찾기
-- 채팅 히스토리: `/chat/history` 저장/핀/삭제, 게스트는 로컬 스토리지 사용
-- GPA 기록 및 통합: `/grades/me` 저장/로드 및 AI 컨텍스트 연동 (`academic_records` 키 추가)
-- AI 피드백 루프: 아이콘 기반 Like/Dislike, 선택 변경(Re-vote) 지원, 데이터 수집 최적화
-- 프론트 기능: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
+## 2. 주요 업데이트 사항 (2026-02-09)
+- **AI 모델 및 RAG**: `gemma-3-27b-it` + FAISS 기반 문서 검색, `/chat/ingest` 인덱스 재생성
+- **인증 및 세션**: JWT 기반 로그인, `/auth/me` 세션 복구, 비밀번호 찾기 지원
+- **채팅 히스토리**: `/chat/history` 저장/핀/삭제, 게스트는 로컬 스토리지 사용
+- **GPA 기록 및 통합**: `/grades/me` 저장/로드 및 AI 컨텍스트 연동 (`academic_records` 키 추가). **성적 계산창 자동 닫힘 기능 추가**
+- **AI 피드백 루프**: 아이콘 기반 Like/Dislike, 선택 변경(Re-vote) 지원, 데이터 수집 최적화
+- **프론트 기능**: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
 
-## 3. 구현된 기능 현황
-- AI 채팅 (일반/개인 질문 분리)
-- 사용자 인증 및 프로필 조회
-- 채팅 히스토리 관리
-- GPA 기록 및 계산 (AI 상담 데이터 연동 완료)
-- AI 답변 피드백 루프 (Like/Dislike 수집 기능)
-- 코스 검색
-=======
-## 2. 시스템 아키텍처
+## 3. 시스템 아키텍처
 
-### 2.1 백엔드 (FastAPI)
+### 3.1 백엔드 (FastAPI)
 ```
 backend/
 ├── app/
@@ -39,18 +30,17 @@ backend/
 ├── requirements.txt
 └── .env                 # 환경 변수
 ```
->>>>>>> origin/jun3
 
-### 2.2 프론트엔드
+### 3.2 프론트엔드
 ```
 frontend/
 ├── index.html           # 메인 UI (34KB, 단일 페이지)
 ├── css/                 # Tailwind + 커스텀 스타일
-├── js/                  # Vanilla JS (login, main, GPA)
+├── js/                  # Vanilla JS (login, main)
 └── tools/               # Tailwind 빌드 도구
 ```
 
-### 2.3 데이터베이스 (MongoDB)
+### 3.3 데이터베이스 (MongoDB)
 **컬렉션 구조**:
 - `login_info` (Account): 로그인 인증 정보
 - `user_info` (User): 학생 프로필 정보
@@ -60,7 +50,7 @@ frontend/
 - `grade_records` (GradeRecord): 학생 성적 기록
 - `teamB` (TestRecord): 테스트용 컬렉션
 
-## 3. 구현된 기능 상세
+## 4. 구현된 기능 상세
 
 ### 3.1 AI 채팅 시스템
 **엔드포인트**: `POST /chat`, `POST /chat/ask`

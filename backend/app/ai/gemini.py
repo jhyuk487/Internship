@@ -13,9 +13,9 @@ class GeminiService:
         print(f"DEBUG: Loaded GeminiService with model: {self.model_id}")
 
 
-    async def generate_response(self, user_query: str, context: str = "") -> str:
+    async def generate_response(self, user_query: str, context: str = "", conversation_history: list = None) -> str:
         """
-        Generates a response using Gemma 3, moving instructions into the prompt context.
+        Generates a response using Gemma 3, with conversation history support.
         """
         system_instruction = """You are a helpful AI assistant for UCSI University. 
         Your goal is to assist students with accurate information about the university.
@@ -26,11 +26,22 @@ class GeminiService:
         If context is provided, use it to answer the question.
         If the answer is not in the context, using your general knowledge but mention that this might be general info.
         If the question is about personal student data (grades, etc) and no context is provided, ask them to log in or say you need access.
+        
+        IMPORTANT: Pay attention to the conversation history. If the user asks a follow-up question, 
+        refer to the previous messages to understand the context and provide a relevant answer.
         """
+        
+        # Build conversation history string
+        history_text = ""
+        if conversation_history:
+            history_text = "\n\nConversation History:\n"
+            for msg in conversation_history[-10:]:  # Last 10 messages for context
+                role = "User" if msg.get("role") == "user" else "Assistant"
+                history_text += f"{role}: {msg.get('content', '')}\n"
         
         # Combine instructions and content for Gemma 3
         prompt = f"""{system_instruction}
-
+{history_text}
 Context:
 {context}
 

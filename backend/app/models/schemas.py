@@ -14,6 +14,7 @@ class TokenData(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     user_id: Optional[str] = None
+    conversation_history: Optional[List['ChatMessageSchema']] = None
 
 class ChatResponse(BaseModel):
     response: str

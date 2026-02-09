@@ -97,6 +97,12 @@ function navigateAfterLogin() {
 }
 
 function handleLogout() {
+    // Close grade modal BEFORE changing user to guest
+    const gradeModal = document.getElementById('grade-modal');
+    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     if (typeof currentUserId !== 'undefined') {
         window.currentUserId = "guest";
     } else {
@@ -176,7 +182,8 @@ async function initSession() {
                     window.currentUserId = studentId;
                 }
 
-                console.log("Session restored for:", user.name);
+                // console.log("Session restored for:", user.name);
+
 
                 // Load chat history from backend
                 if (typeof loadChatHistoryFromBackend === 'function') {
@@ -210,8 +217,8 @@ async function handleFindPassword(event) {
 
     const studentIdInput = document.getElementById('find-student-id');
     const emailInput = document.getElementById('find-email');
-    const resultDiv = document.getElementById('find-password-result');
-    const passwordSpan = document.getElementById('recovered-password');
+    const resultDiv = document.getElementById('find-password-result-container');
+    const passwordSpan = document.getElementById('recovered-password-display');
 
     const studentId = studentIdInput.value.trim();
     const email = emailInput.value.trim();

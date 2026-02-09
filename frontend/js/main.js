@@ -1025,6 +1025,10 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat(options = {}) {
+    if (!gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     if (isNewChat) {
         return;
     }
@@ -1067,6 +1071,10 @@ async function startNewChat(options = {}) {
 }
 
 async function loadChat(chatId) {
+    if (!gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
     currentLoadedChatId = chat.id || null;
@@ -1182,10 +1190,20 @@ async function sendMessage() {
     showLoading();
 
     try {
+        // Prepare conversation history (exclude welcome message and current user message)
+        const conversationHistory = currentMessages
+            .filter(m => m.content !== WELCOME_MESSAGE)
+            .slice(0, -1) // Exclude the message we just added
+            .map(m => ({ role: m.role, content: m.content }));
+
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message, user_id: window.currentUserId })
+            body: JSON.stringify({
+                message: message,
+                user_id: window.currentUserId,
+                conversation_history: conversationHistory
+            })
         });
         const data = await response.json();
         removeLoading();

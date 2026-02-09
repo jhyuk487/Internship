@@ -93,8 +93,20 @@ async def chat_endpoint(
             else:
                 context = "No specific documents found in knowledge base."
 
-        # 3. Generate Response
-        response_text = await gemini_service.generate_response(request.message, context)
+        # 3. Prepare conversation history
+        conversation_history = []
+        if request.conversation_history:
+            conversation_history = [
+                {"role": msg.role, "content": msg.content} 
+                for msg in request.conversation_history
+            ]
+
+        # 4. Generate Response with conversation history
+        response_text = await gemini_service.generate_response(
+            request.message, 
+            context,
+            conversation_history=conversation_history
+        )
         
         return ChatResponse(response=response_text, sources=sources)
     except Exception as e:
