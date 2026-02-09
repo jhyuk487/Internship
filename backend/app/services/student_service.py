@@ -1,10 +1,11 @@
 from app.database.models import Account, User, GradeRecord
+from app.auth.security import verify_password
 
 class StudentService:
     async def authenticate(self, user_id: str, password: str):
         # Find account by user_id (from login_info)
         account = await Account.find_one(Account.user_id == user_id)
-        if account and account.user_password == password:
+        if account and verify_password(password, account.user_password):
             # Fetch profile info from User collection (user_info)
             user_profile = await self.get_student_info(user_id)
             return {
@@ -43,7 +44,7 @@ class StudentService:
             # Retrieve password from Account
             account = await Account.find_one(Account.user_id == student_id)
             if account:
-                return account.user_password
+                return "[보안] 비밀번호가 암호화되어 있어 직접 조회할 수 없습니다. 관리자에게 문의하세요."
         return None
 
 
