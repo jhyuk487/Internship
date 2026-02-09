@@ -127,7 +127,7 @@ function handleLogout() {
 
     // Clear active chat conversation
     if (typeof startNewChat === 'function') {
-        startNewChat();
+        startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
     }
 
     // Update chat input state

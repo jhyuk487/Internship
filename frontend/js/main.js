@@ -141,7 +141,7 @@ function renderSemesterTable() {
                     <input type="checkbox" onchange="updateRowData(this, 'major')" class="major-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
                 </td>
                 <td class="px-6 py-4">
-                    <select onchange="updateRowData(this, 'credit')" class="w-24 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-center appearance-none bg-none" disabled>
+                    <select onchange="updateRowData(this, 'credit')" class="w-24 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-center ${!isGpaEditMode ? 'appearance-none bg-none' : ''}" ${!isGpaEditMode ? 'disabled' : ''} style="${!isGpaEditMode ? 'background-image: none;' : ''}">
                         <option value="2" ${row.credit == 2 ? 'selected' : ''}>2</option>
                         <option value="3" ${row.credit == 3 ? 'selected' : ''}>3</option>
                         <option value="4" ${row.credit == 4 ? 'selected' : ''}>4</option>
@@ -446,6 +446,21 @@ function updateChatInputState(isLoggedIn) {
         input.disabled = true;
         input.placeholder = "Please login to chat";
         btn.disabled = true;
+    }
+}
+
+function setChatInteractionEnabled(enabled) {
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('send-btn');
+    const history = document.getElementById('history-list');
+    const newChatBtn = document.getElementById('new-chat-btn');
+
+    if (input) input.disabled = !enabled;
+    if (btn) btn.disabled = !enabled;
+    if (newChatBtn) newChatBtn.disabled = !enabled;
+    if (history) {
+        history.classList.toggle('pointer-events-none', !enabled);
+        history.classList.toggle('opacity-60', !enabled);
     }
 }
 
@@ -959,24 +974,31 @@ async function deleteChat(chatId) {
     }
 }
 
-async function startNewChat() {
+async function startNewChat(options = {}) {
     if (isNewChat) {
         return;
     }
 
-    if (window.currentUserId === "guest" || !window.currentUserId) {
-        const confirmed = await showCustomModal({
-            title: "Clear Guest History",
-            message: "Starting a new chat will clear your guest conversation history. Do you want to continue?",
-            icon: "warning",
-            primaryText: "Clear and Start",
-            showSecondary: true,
-            secondaryText: "Cancel"
-        });
-        if (!confirmed) {
-            return;
+    const isGuest = window.currentUserId === "guest" || !window.currentUserId;
+    const { suppressGuestConfirm = false, clearGuestHistory = false } = options;
+
+    if (isGuest) {
+        if (!suppressGuestConfirm) {
+            const confirmed = await showCustomModal({
+                title: "Clear Guest History",
+                message: "Starting a new chat will clear your guest conversation history. Do you want to continue?",
+                icon: "warning",
+                primaryText: "Clear and Start",
+                showSecondary: true,
+                secondaryText: "Cancel"
+            });
+            if (!confirmed) {
+                return;
+            }
+            sessionStorage.removeItem(GUEST_CHAT_KEY);
+        } else if (clearGuestHistory) {
+            sessionStorage.removeItem(GUEST_CHAT_KEY);
         }
-        sessionStorage.removeItem(GUEST_CHAT_KEY);
     }
 
     currentMessages = [{ role: 'ai', content: WELCOME_MESSAGE }];
@@ -1088,6 +1110,7 @@ async function sendMessage() {
     if (!message || isProcessing) return;
     chatInput.value = '';
     isProcessing = true;
+    setChatInteractionEnabled(false);
     appendMessage('user', message);
     showLoading();
 
@@ -1106,6 +1129,7 @@ async function sendMessage() {
         appendMessage('ai', 'An error occurred. Please try again.');
     } finally {
         isProcessing = false;
+        setChatInteractionEnabled(true);
     }
 }
 
