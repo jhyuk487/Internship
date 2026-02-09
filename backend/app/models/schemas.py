@@ -67,3 +67,12 @@ class GradeRecordResponse(BaseModel):
     user_id: str
     terms: Dict[str, List[GradeCourseSchema]]
     updated_at: datetime
+
+class ChatFeedbackRequest(BaseModel):
+    user_id: Optional[str] = None
+    chat_id: Optional[str] = None
+    message_index: Optional[int] = None
+    user_query: str
+    ai_response: str
+    rating: str  # "like" or "dislike"
+    feedback_text: Optional[str] = None

@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, HTTPE
 from typing import Optional, List
 from app.models.schemas import (
     ChatRequest, ChatResponse, DocumentIngestRequest,
-    SaveChatRequest, UpdateChatRequest, ChatHistoryResponse, ChatListResponse, ChatMessageSchema
+    SaveChatRequest, UpdateChatRequest, ChatHistoryResponse, ChatListResponse, ChatMessageSchema,
+    ChatFeedbackRequest
 )
 from .gemini import get_gemini_service, GeminiService
 from .vector import vector_service
@@ -11,9 +12,25 @@ from app.services.chat_service import chat_history_service
 # Correct auth import for ehobin architecture
 from app.auth.router import get_current_user
 from app.auth.security import verify_token
+from app.database.models import ChatFeedback
 from fastapi.security import OAuth2PasswordBearer
 
 router = APIRouter()
+
+@router.post("/feedback")
+async def save_feedback(request: ChatFeedbackRequest):
+    """Save user feedback for AI response quality"""
+    feedback = ChatFeedback(
+        user_id=request.user_id,
+        chat_id=request.chat_id,
+        message_index=request.message_index,
+        user_query=request.user_query,
+        ai_response=request.ai_response,
+        rating=request.rating,
+        feedback_text=request.feedback_text
+    )
+    await feedback.insert()
+    return {"status": "success", "message": "Feedback saved"}
 
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
 
