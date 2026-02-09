@@ -47,6 +47,7 @@ class ChatHistoryResponse(BaseModel):
     messages: List[ChatMessageSchema]
     is_pinned: bool
     created_at: datetime
+    updated_at: datetime
 
 class ChatListResponse(BaseModel):
     chats: List[ChatHistoryResponse]

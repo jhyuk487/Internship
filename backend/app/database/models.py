@@ -70,6 +70,7 @@ class ChatHistory(Document):
     messages: List[ChatMessage] = []
     is_pinned: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
 
     class Settings:
         name = "chat_histories"

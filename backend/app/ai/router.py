@@ -119,7 +119,8 @@ async def get_chat_history(current_user: str = Depends(get_current_user)):
             title=chat.title,
             messages=[ChatMessageSchema(role=m.role, content=m.content) for m in chat.messages],
             is_pinned=chat.is_pinned,
-            created_at=chat.created_at
+            created_at=chat.created_at,
+            updated_at=chat.updated_at or chat.created_at
         ) for chat in chats
     ])
 
@@ -136,7 +137,8 @@ async def save_chat_history(
         title=chat.title,
         messages=[ChatMessageSchema(role=m.role, content=m.content) for m in chat.messages],
         is_pinned=chat.is_pinned,
-        created_at=chat.created_at
+        created_at=chat.created_at,
+        updated_at=chat.updated_at or chat.created_at
     )
 
 @router.get("/history/{chat_id}", response_model=ChatHistoryResponse)
@@ -153,7 +155,8 @@ async def get_chat_by_id(
         title=chat.title,
         messages=[ChatMessageSchema(role=m.role, content=m.content) for m in chat.messages],
         is_pinned=chat.is_pinned,
-        created_at=chat.created_at
+        created_at=chat.created_at,
+        updated_at=chat.updated_at or chat.created_at
     )
 
 @router.put("/history/{chat_id}", response_model=ChatHistoryResponse)
@@ -180,7 +183,8 @@ async def update_chat(
         title=chat.title,
         messages=[ChatMessageSchema(role=m.role, content=m.content) for m in chat.messages],
         is_pinned=chat.is_pinned,
-        created_at=chat.created_at
+        created_at=chat.created_at,
+        updated_at=chat.updated_at or chat.created_at
     )
 
 @router.delete("/history/{chat_id}")
