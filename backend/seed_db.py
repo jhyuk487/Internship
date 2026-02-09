@@ -3,6 +3,7 @@ import asyncio
 import os
 from app.database.database import init_db, MONGODB_URL, DATABASE_NAME
 from app.database.models import User, Course, Major, Account, GradeRecord
+from app.auth.security import get_password_hash
 
 # Path to the data_sets folder (one level up from backend)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
@@ -57,6 +58,12 @@ async def seed_data():
                         continue
                 
                 if objects:
+                    # Specific logic for Account: hash passwords if they look like plain text
+                    if model == Account:
+                        for obj in objects:
+                            if not obj.user_password.startswith("$2b$"):
+                                obj.user_password = get_password_hash(obj.user_password)
+                    
                     await model.insert_many(objects)
                     print(f" [OK] Successfully synced {len(objects)} records.")
                 else:
