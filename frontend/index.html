@@ -141,38 +141,38 @@
                         class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-inner">
                         <span class="material-icons text-6xl">account_circle</span>
                     </div>
-                    <h2 id="profile-name" class="text-2xl font-bold text-slate-900 dark:text-white">사용자 정보</h2>
-                    <p id="profile-major" class="text-slate-500 dark:text-slate-400 font-medium">전공 정보</p>
+                    <h2 id="profile-name" class="text-2xl font-bold text-slate-900 dark:text-white">User Profile</h2>
+                    <p id="profile-major" class="text-slate-500 dark:text-slate-400 font-medium">Major</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">학번</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student ID</span>
                         <span id="profile-id" class="text-sm font-semibold">20240001</span>
                     </div>
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">학년</span>
-                        <span id="profile-grade" class="text-sm font-semibold">3 학년</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
+                        <span id="profile-grade" class="text-sm font-semibold">Year 3</span>
                     </div>
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
                         <span
-                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">이메일</span>
+                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Email</span>
                         <span id="profile-email" class="text-sm font-semibold truncate block">gildong@example.com</span>
                     </div>
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">총
-                            학점</span>
-                        <span id="profile-credits" class="text-sm font-semibold">85 학점</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Total
+                            Credits</span>
+                        <span id="profile-credits" class="text-sm font-semibold">85 credits</span>
                     </div>
                 </div>
 
                 <button onclick="toggleProfileModal()"
                     class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
-                    닫기
+                    Close
                 </button>
             </div>
         </div>
@@ -193,20 +193,20 @@
                         class="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-4 text-amber-600 dark:text-amber-400 shadow-inner">
                         <span class="material-icons text-5xl">lock</span>
                     </div>
-                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">로그인이 필요합니다</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">계정 설정을 확인하시려면 먼저 로그인을 해주세요.
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Login Required</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account settings.
                     </p>
                 </div>
 
                 <div class="flex flex-col gap-3">
                     <button onclick="openLoginFromRequired()"
                         class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        로그인하러 가기
+                        Go to Login
                         <span class="material-icons text-lg">login</span>
                     </button>
                     <button onclick="toggleLoginRequiredModal()"
                         class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
-                        나중에 하기
+                        Not Now
                     </button>
                 </div>
             </div>

@@ -642,16 +642,16 @@ async function handleSettingsClick() {
             document.getElementById('profile-name').innerText = data.name;
             document.getElementById('profile-id').innerText = data.user_id;
             document.getElementById('profile-major').innerText = data.major;
-            document.getElementById('profile-grade').innerText = `${data.grade} 학년`;
-            document.getElementById('profile-credits').innerText = `${data.credits} 학점`;
+            document.getElementById('profile-grade').innerText = `Year ${data.grade}`;
+            document.getElementById('profile-credits').innerText = `${data.credits} credits`;
             document.getElementById('profile-email').innerText = data.email;
             toggleProfileModal();
         } else {
-            alert(data.detail || "정보를 불러오지 못했습니다.");
+            alert(data.detail || "Unable to load information.");
         }
     } catch (error) {
         console.error('Error:', error);
-        alert("정보를 가져오는 중 오류가 발생했습니다.");
+        alert("An error occurred while fetching information.");
     }
 }
 
@@ -722,6 +722,31 @@ function saveGuestChatToStorage() {
     sessionStorage.setItem(GUEST_CHAT_KEY, JSON.stringify(currentMessages));
 }
 
+function isSameLocalDate(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+}
+
+function formatChatTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const now = new Date();
+    const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (isSameLocalDate(date, now)) {
+        return time;
+    }
+    const day = date.toLocaleDateString();
+    return `${day} ${time}`;
+}
+
+function getChatSortTime(chat) {
+    const value = chat.updatedAt || chat.updated_at || chat.createdAt || chat.created_at;
+    const time = value ? new Date(value).getTime() : 0;
+    return Number.isNaN(time) ? 0 : time;
+}
+
 function updateHistoryUI() {
     // If guest, keep the locked prompt instead of empty history
     if (window.currentUserId === "guest" || !window.currentUserId) {
@@ -740,10 +765,17 @@ function updateHistoryUI() {
         return;
     }
 
-    const sortedHistory = [...chatHistory].map((chat, originalIndex) => ({ ...chat, originalIndex }))
+    const sortedHistory = [...chatHistory]
+        .map((chat, originalIndex) => ({
+            ...chat,
+            originalIndex,
+            sortTime: getChatSortTime(chat)
+        }))
         .sort((a, b) => {
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
+            const timeDiff = b.sortTime - a.sortTime;
+            if (timeDiff !== 0) return timeDiff;
             return b.originalIndex - a.originalIndex;
         });
 
@@ -760,6 +792,7 @@ function updateHistoryUI() {
         const chatId = chat.id || chat.originalIndex;
         const isSelected = String(chatId) === String(currentLoadedChatId);
 
+        const displayTime = formatChatTime(chat.updatedAt || chat.createdAt) || chat.time || '';
         item.innerHTML = `
             ${isSelected ? '<span class="absolute right-0 top-2 bottom-2 w-1 bg-yellow-400 rounded-l-md pointer-events-none"></span>' : ''}
             <div id="display-container-${chatId}" class="flex justify-between items-start gap-2">
@@ -768,7 +801,7 @@ function updateHistoryUI() {
                         <p class="text-sm font-medium truncate ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
                         ${chat.isPinned ? '<span class="material-symbols-outlined text-[16px] text-white rotate-45 flex-shrink-0" style="font-variation-settings: \'FILL\' 1">push_pin</span>' : ''}
                     </div>
-                    <p class="text-xs text-white/40">${chat.time || ''}</p>
+                    <p class="text-xs text-white/40">${displayTime}</p>
                 </div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="${chat.isPinned ? 'Unpin' : 'Pin'}">
@@ -813,13 +846,18 @@ async function loadChatHistoryFromBackend() {
         });
         if (response.ok) {
             const data = await response.json();
-            chatHistory = data.chats.map(c => ({
-                id: c.id,
-                title: c.title,
-                messages: c.messages,
-                isPinned: c.is_pinned,
-                time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }));
+            chatHistory = data.chats.map(c => {
+                const updatedAt = c.updated_at || c.created_at;
+                return {
+                    id: c.id,
+                    title: c.title,
+                    messages: c.messages,
+                    isPinned: c.is_pinned,
+                    createdAt: c.created_at,
+                    updatedAt: updatedAt,
+                    time: formatChatTime(updatedAt)
+                };
+            });
             updateHistoryUI();
         }
     } catch (error) {
@@ -877,7 +915,13 @@ async function updateChatMessages(chatId) {
             })
         });
         const chat = chatHistory.find(c => String(c.id) === String(chatId));
-        if (chat) chat.messages = [...currentMessages];
+        if (chat) {
+            chat.messages = [...currentMessages];
+            const now = new Date().toISOString();
+            chat.updatedAt = now;
+            chat.time = formatChatTime(now);
+        }
+        updateHistoryUI();
     } catch (error) {
         console.error('Error updating chat:', error);
     }
@@ -945,8 +989,14 @@ async function saveRename(chatId) {
             body: JSON.stringify({ title: newTitle })
         });
         if (response.ok) {
+            const data = await response.json();
             const chat = chatHistory.find(c => String(c.id) === String(chatId));
-            if (chat) chat.title = newTitle;
+            if (chat) {
+                chat.title = data.title || newTitle;
+                const updatedAt = data.updated_at || data.created_at || new Date().toISOString();
+                chat.updatedAt = updatedAt;
+                chat.time = formatChatTime(updatedAt);
+            }
             updateHistoryUI();
         } else {
             cancelRename(chatId);
