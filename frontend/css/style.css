@@ -1307,6 +1307,10 @@ table {
     padding: 1rem 1.5rem;
 }
 
+.grade-cell--no-padding {
+    padding: 0 !important;
+}
+
 .grade-empty {
     padding: 1rem 1.5rem;
     text-align: center;
@@ -1435,7 +1439,8 @@ table {
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    padding: 1rem 1.5rem;
 }
 
 .grade-add-btn:hover {
@@ -2239,6 +2244,7 @@ table {
         opacity: 0;
         transform: translateY(8px) scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -2273,8 +2279,16 @@ table {
 
 /* AI chat bubble width */
 .ai-bubble {
-    width: 60%;
-    max-width: 60%;
+    width: fit-content;
+    max-width: 85%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 1024px) {
+    .ai-bubble {
+        max-width: 65%;
+    }
 }
 
 .dimmed-overlay {
@@ -2341,9 +2355,13 @@ table {
 }
 
 #sidebar.sidebar--collapsed #user-profile-container {
-    padding: 0.25rem;
-    border: none !important;
-    background: transparent !important;
+    padding: 0.5rem;
+    margin: 0 auto;
+    width: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 #sidebar.sidebar--collapsed #new-chat-btn {
