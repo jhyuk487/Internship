@@ -43,9 +43,11 @@ Request
 Response
 ```json
 {
-  "password": "password123"
+  "password": "[보안] 비밀번호가 암호화되어 있어 직접 조회할 수 없습니다. 관리자에게 문의하세요."
 }
 ```
+Notes
+- 실제 비밀번호는 반환하지 않습니다.
 
 ## Chat
 ### POST /chat
@@ -67,6 +69,30 @@ Response
 Notes
 - `user_id`는 선택 사항입니다. 없으면 토큰에서 user를 추출합니다.
 - intent가 `personal`이고 user가 없으면 로그인 안내 메시지를 반환합니다.
+
+### POST /chat/stream
+- `/chat`과 동일한 요청 스키마를 사용합니다.
+- 응답은 `text/plain` 스트리밍입니다.
+
+### POST /chat/feedback
+Request
+```json
+{
+  "user_query": "question text",
+  "ai_response": "answer text",
+  "rating": "like",
+  "user_id": "5004273354",
+  "chat_id": "abc123",
+  "message_index": 2
+}
+```
+Response
+```json
+{
+  "status": "success",
+  "message": "Feedback saved"
+}
+```
 
 ### POST /chat/ingest
 FAISS 재인덱싱을 백그라운드 작업으로 시작합니다.

@@ -1,11 +1,11 @@
-# 프로젝트 상태 보고서: UCSI 챗봇 (업데이트: 2026-02-09)
+# 프로젝트 상태 보고서: UCSI 챗봇 (업데이트: 2026-02-10)
 
 ## 1. 프로젝트 개요
 - **목표**: UCSI 대학교 학생을 위한 AI 학사 도우미 개발
 - **기술 스택**: Python 3.13, FastAPI, MongoDB, Google GenAI (Gemma 3)
 - **현재 상태**: 핵심 기능 구현 완료, 프로덕션 준비 단계
 
-## 2. 주요 업데이트 사항 (2026-02-09)
+## 2. 주요 업데이트 사항 (2026-02-10)
 - **보안 강화**: 비밀번호 `bcrypt` 해싱 도입 및 기존 데이터 500건 일괄 마이그레이션 완료
 - **사용자 경험 고도화**: AI 답변 **실시간 스트리밍(Streaming)** 기능 및 부드러운 **타이핑 효과(10ms/char)** 도입
 - **AI 엔진 고도화**: `gemma-3-27b-it` 모델 적용 및 RAG(FAISS) 기반 지식 베이스 구축. 대화 문맥 유지(Conversation History) 기능 추가
@@ -14,6 +14,7 @@
 - **GPA 기록 및 통합**: `/grades/me` 저장/로드 UI 개선. **성적 계산창 자동 닫힘 기능 추가**
 - **피드백 루프**: AI 답변 품질 평가(Like/Dislike), **재선택(Re-vote)** 지원 및 데이터 수집 최적화
 - **프론트 기능**: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
+- **프론트 스타일 정리**: Tailwind 제거, 로컬 CSS로 통합
 
 ## 3. 시스템 아키텍처
 
@@ -37,9 +38,9 @@ backend/
 ```
 frontend/
 ├── index.html           # 메인 UI (34KB, 단일 페이지)
-├── css/                 # Tailwind + 커스텀 스타일
+├── css/                 # 커스텀 CSS
 ├── js/                  # Vanilla JS (login, main)
-└── tools/               # Tailwind 빌드 도구
+└── tools/               # (레거시) Tailwind 빌드 도구
 ```
 
 ### 3.3 데이터베이스 (MongoDB)
@@ -54,7 +55,7 @@ frontend/
 
 ## 4. 구현된 기능 상세
 
-### 3.1 AI 채팅 시스템
+### 4.1 AI 채팅 시스템
 **엔드포인트**: `POST /chat`, `POST /chat/ask`
 - **AI 모델**: Google Gemma 3 (27B-IT)
 - **Intent Detection**: 질문을 'general' (일반) / 'personal' (개인) 분류
@@ -73,7 +74,7 @@ frontend/
   - `academic_records` 키로 성적 정보 포함 (AI 인식 최적화)
   - 게스트는 로그인 유도 메시지 반환
 
-### 3.2 인증 및 사용자 관리
+### 4.2 인증 및 사용자 관리
 **엔드포인트**:
 - `POST /auth/login`: JSON 기반 로그인 (JWT 토큰 발급)
 - `POST /auth/token`: OAuth2 폼 기반 로그인
@@ -86,7 +87,7 @@ frontend/
 - 토큰 만료: 30분
 - **비밀번호 bcrypt 해싱 저장 완료** (보안성 강화)
 
-### 3.3 채팅 히스토리 관리
+### 4.3 채팅 히스토리 관리
 **엔드포인트**:
 - `GET /chat/history`: 사용자의 모든 채팅 히스토리 조회
 - `POST /chat/history`: 새 채팅 저장
@@ -99,7 +100,7 @@ frontend/
 - 게스트: 세션 스토리지에 임시 저장 (브라우저 종료 시 삭제)
 - 핀 기능 지원 (중요 채팅 상단 고정)
 
-### 3.4 GPA 기록 및 계산
+### 4.4 GPA 기록 및 계산
 **엔드포인트**:
 - `GET /grades/me`: 현재 사용자의 성적 기록 조회
 - `PUT /grades/me`: 성적 기록 저장/업데이트
@@ -110,14 +111,14 @@ frontend/
 - 프론트엔드에서 시각적 성적 입력 UI 제공
 - 코스 자동완성 지원 (`/courses/search`)
 
-### 3.5 코스 검색
+### 4.5 코스 검색
 **엔드포인트**: `GET /courses/search?query={검색어}`
 - 과목명 기반 검색
 - 자동완성 UI 지원
 
-## 4. 주요 기술 구현 세부사항
+## 5. 주요 기술 구현 세부사항
 
-### 4.1 AI 서비스 (GeminiService)
+### 5.1 AI 서비스 (GeminiService)
 ```python
 # backend/app/ai/gemini.py
 - 모델: gemma-3-27b-it
@@ -126,7 +127,7 @@ frontend/
 - Markdown 형식 응답 지원
 ```
 
-### 4.2 학생 서비스 (StudentService)
+### 5.2 학생 서비스 (StudentService)
 ```python
 # backend/app/services/student_service.py
 - authenticate(): 로그인 인증
@@ -137,7 +138,7 @@ frontend/
 - `get_student_info()`에서 `GradeRecord` 자동 조회 및 병합
 - `academic_records` 키로 성적 정보 제공 → AI가 개인 질문 시 성적 정보 활용 가능
 
-### 4.3 벡터 DB (VectorService)
+### 5.3 벡터 DB (VectorService)
 ```python
 # backend/app/ai/vector.py
 - FAISS 인덱스 기반 문서 검색
@@ -145,101 +146,97 @@ frontend/
 - LangChain TextSplitter로 문서 청킹
 ```
 
-## 5. 프론트엔드 기능
+## 6. 프론트엔드 기능
 
-### 5.1 메인 UI (index.html)
+### 6.1 메인 UI (index.html)
 - **게스트 모드**: 일반 질문만 가능, 채팅 히스토리 세션 스토리지
 - **로그인 모드**: 모든 기능 사용 가능
 - **프로필 모달**: 사용자 정보 표시
 - **GPA 계산기**: 학기별 성적 입력 및 GPA 계산
 - **채팅 히스토리**: 저장/로드/핀/삭제
-- **반응형 디자인**: Tailwind CSS
+- **반응형 디자인**: 커스텀 CSS
 
-### 5.2 JavaScript 모듈
+### 6.2 JavaScript 모듈
 - `login.js`: 로그인/로그아웃/세션 복구
 - `main.js`: 채팅 UI 및 API 통신
 - `gpa.js`: GPA 계산 로직 (미사용 시 제거 가능)
 
-## 6. 환경 설정
+## 7. 환경 설정
 
-### 6.1 필수 환경 변수 (.env)
+### 7.1 필수 환경 변수 (.env)
 ```env
-GOOGLE_API_KEY=AIzaSyCIxGg6PCWkZiVFyFEKcA91nw48WGDMpvQ
-SECRET_KEY=dkqmfkzkekqmfk
+GOOGLE_API_KEY=your_google_api_key_here
+SECRET_KEY=your_secret_key_here
 DB_HOST=localhost
 DB_PORT=27017
 DATABASE_NAME=teamB
 ```
 
-### 6.2 의존성 (requirements.txt)
-```
-fastapi, uvicorn, pydantic, python-dotenv
-langchain, langchain-community, langchain-google-genai
-faiss-cpu, sentence-transformers
-beanie, motor (MongoDB)
-google-generativeai, google-genai
-pyjwt, aiofiles, python-multipart
-```
+### 7.2 의존성 (requirements.txt)
+- `backend/requirements.txt`에 버전 고정되어 있습니다.
+- 주요 구성: fastapi, uvicorn, pydantic, pydantic-settings, python-dotenv, langchain*,
+  faiss-cpu, sentence-transformers, beanie, motor, google-genai, google-generativeai,
+  pyjwt, aiofiles, python-multipart, requests 등
 
-## 7. 실행 방법
+## 8. 실행 방법
 
-### 7.1 서버 시작
+### 8.1 서버 시작
 ```bash
 cd backend
 .\venv\Scripts\activate  # Windows
 python -m uvicorn app.main:app --port 8000 --reload
 ```
 
-### 7.2 접속
+### 8.2 접속
 - URL: `http://127.0.0.1:8000/`
 - Health Check: `http://127.0.0.1:8000/health`
 
-### 7.3 데이터 시드
+### 8.3 데이터 시드
 ```bash
 cd backend
 python seed_db.py  # data_sets/*.json → MongoDB 동기화
 ```
 
-## 8. 테스트 계정
+## 9. 테스트 계정
 - 학번: (data_sets/login_info.json 참조)
 - 비밀번호: (data_sets/login_info.json 참조)
 
-## 9. 향후 개선 사항
+## 10. 향후 개선 사항
 
-### 9.1 보안
+### 10.1 보안
 - [x] 비밀번호 해싱 (bcrypt 적용 완료)
 - [ ] JWT SECRET_KEY 강화 (현재 14바이트 → 32바이트 이상)
 - [ ] HTTPS 적용 (프로덕션 배포 시)
 
-### 9.2 기능
+### 10.2 기능
 - [ ] RAG 문서 소스 확장 (PDF, DOCX 지원)
 - [ ] 실시간 채팅 (WebSocket)
 - [ ] 다국어 지원 (영어/말레이어)
 - [ ] 프로필 편집 기능
 - [ ] 관리자 대시보드
 
-### 9.3 성능
+### 10.3 성능
 - [ ] FAISS 인덱스 최적화
 - [ ] Redis 캐싱
 - [ ] API 응답 시간 모니터링
 
-### 9.4 배포
+### 10.4 배포
 - [ ] Docker 컨테이너화
 - [ ] CI/CD 파이프라인
 - [ ] 프로덕션 환경 설정 분리
 
-## 10. 알려진 이슈
+## 11. 알려진 이슈
 - JWT 키 길이 경고 (14바이트 → 32바이트 권장)
 - 프로필 API 인증 정책 불일치 (`/auth/profile/{user_id}` vs `/auth/me`)
 
-## 11. 문서
+## 12. 문서
 - `README.md`: 프로젝트 개요 및 빠른 시작
 - `docs/backend.md`: 백엔드 API 상세
 - `docs/frontend.md`: 프론트엔드 구조
 - `docs/ai.md`: AI 엔진 설명
 - `docs/database.md`: 데이터베이스 스키마
 
-## 12. 변경 이력
+## 13. 변경 이력
 - **2026-02-09**: `get_student_info()`에 `GradeRecord` 자동 병합 추가, Google API Key 업데이트
 - **2026-02-08**: 채팅 히스토리, GPA 기록 기능 완료
 - **2026-02-05**: 프로젝트 구조 재정리 (backend/frontend 분리)

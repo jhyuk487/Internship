@@ -11,7 +11,7 @@
 ## 2. 비밀번호 찾기 (Password Recovery)
 - 엔드포인트: `POST /auth/find-password`
 - 입력: 학번(`user_id`)과 이메일(`email`)
-- 결과: `login_info`의 비밀번호 반환
+- 결과: 비밀번호는 반환하지 않고 안내 메시지를 반환 (보안 정책)
 
 ## 3. 게스트 접근 정책 (Guest Policy)
 - 채팅은 `ALLOW_GUEST_CHAT` 값에 따라 허용됩니다.
