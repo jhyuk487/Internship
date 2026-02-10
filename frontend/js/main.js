@@ -267,6 +267,7 @@ function applyTermsToSemesterData(terms) {
             return {
                 major: !!entry.is_major,
                 credit: entry.credits ?? 3,
+                course_code: entry.course_code || null,
                 name: entry.course_name || entry.course_code || '',
                 grade,
                 point: gradeMapping[grade] || ''
@@ -551,6 +552,13 @@ function showSuggestions(courses, inputElement) {
                 creditSelect.value = course.credits;
                 // Trigger change event manually if needed, or call update logic
                 updateRowData(creditSelect, 'credit');
+            }
+
+            // Store course code for backend grade records
+            const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+            if (rowIndex >= 0) {
+                const courseCode = course.course_unique_id || course.course_code || null;
+                semesterData[currentSemester][rowIndex].course_code = courseCode;
             }
 
             closeAllLists();

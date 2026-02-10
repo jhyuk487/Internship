@@ -18,8 +18,15 @@ class CourseService:
         
         return [
             CourseSearchResponse(
+                course_unique_id=c.course_unique_id,
                 course_name=c.course_name,
-                credits=c.credits
+                credits=c.credits,
+                major_id=c.major_id,
+                major_name=c.major_name,
+                year=c.year,
+                semester=c.semester,
+                prerequisite_code=c.prerequisite_code or [],
+                recommended_courses=c.recommended_courses or []
             ) for c in courses
         ]
 

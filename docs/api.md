@@ -143,6 +143,22 @@ FAISS 재인덱싱을 백그라운드 작업으로 시작합니다.
 ## Courses
 ### GET /courses/search?query=...
 코스 검색 결과 목록을 반환합니다.
+Response
+```json
+[
+  {
+    "course_unique_id": "MED-001-1000",
+    "course_name": "Human Anatomy",
+    "credits": 4,
+    "major_id": "MED-001",
+    "major_name": "Doctor of Medicine (MD)",
+    "year": 1,
+    "semester": 1,
+    "prerequisite_code": [],
+    "recommended_courses": ["MED-001-1008", "MED-001-1009"]
+  }
+]
+```
 
 ## Health
 ### GET /health

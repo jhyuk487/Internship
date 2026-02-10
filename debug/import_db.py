@@ -4,6 +4,14 @@ import json
 import os
 from bson import json_util
 
+def _normalize_documents(data):
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        return [data]
+    return []
+
+
 async def import_db():
     # Connect to MongoDB
     client = AsyncIOMotorClient("mongodb://localhost:27017")
@@ -11,7 +19,7 @@ async def import_db():
     db = client[db_name]
     
     # Directory where JSON files are located
-    input_dir = os.path.join(os.path.dirname(__file__), "..", "backend", "data")
+    input_dir = os.path.join(os.path.dirname(__file__), "..", "data_sets")
     
     if not os.path.exists(input_dir):
         print(f"Error: Data directory '{input_dir}' not found.")
@@ -34,15 +42,17 @@ async def import_db():
         
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                data = json_util.loads(f.read())
-                
-            if data:
+                data = json.load(f)
+
+            docs = _normalize_documents(data)
+
+            if docs:
                 # Optional: Drop existing collection to ensure clean state
                 await db[collection_name].drop()
                 
                 # Insert data
-                await db[collection_name].insert_many(data)
-                print(f"  - Imported {len(data)} documents into '{collection_name}'")
+                await db[collection_name].insert_many(docs)
+                print(f"  - Imported {len(docs)} documents into '{collection_name}'")
             else:
                 print(f"  - No data found in {filename}, skipping.")
                 

@@ -33,13 +33,25 @@ class SectionInfo(BaseModel):
     location: str
     section_number: int
 
+class CurriculumSemester(BaseModel):
+    semester: int
+    courses: List[str] = []
+
+class CurriculumYear(BaseModel):
+    year: int
+    semesters: List[CurriculumSemester] = []
+
 class Course(Document):
     course_unique_id: str
     course_name: str
     credits: int
     major_id: str
+    major_name: Optional[str] = None
+    year: Optional[int] = None
+    semester: Optional[int] = None
     sections: List[SectionInfo] = []
-    prerequisite_code: Optional[str] = None
+    prerequisite_code: List[str] = []
+    recommended_courses: List[str] = []
 
     class Settings:
         name = "uni_courses_info"
@@ -48,6 +60,7 @@ class Major(Document):
     major_id: str
     major_name: str
     campus_location: str
+    curriculum: List[CurriculumYear] = []
 
     class Settings:
         name = "uni_majors_info"

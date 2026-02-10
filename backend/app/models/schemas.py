@@ -25,8 +25,15 @@ class DocumentIngestRequest(BaseModel):
     content: str
 
 class CourseSearchResponse(BaseModel):
+    course_unique_id: str
     course_name: str
     credits: int
+    major_id: Optional[str] = None
+    major_name: Optional[str] = None
+    year: Optional[int] = None
+    semester: Optional[int] = None
+    prerequisite_code: List[str] = []
+    recommended_courses: List[str] = []
 
 # Chat History Schemas
 class ChatMessageSchema(BaseModel):
