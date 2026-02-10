@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, HTTPException, status
-from fastapi.responses import StreamingResponse
 from datetime import datetime
-import hashlib
 from typing import Optional, List
 from app.models.schemas import (
     ChatRequest, ChatResponse, DocumentIngestRequest,
     SaveChatRequest, UpdateChatRequest, ChatHistoryResponse, ChatListResponse, ChatMessageSchema,
     ChatFeedbackRequest
 )
-from .gemini import get_gemini_service, GeminiService, MODEL_ID, PROMPT_VERSION
+from .gemini import get_gemini_service, GeminiService
 from .vector import vector_service
 from app.services.student_service import student_service
 from app.services.chat_service import chat_history_service
@@ -23,10 +21,6 @@ router = APIRouter()
 @router.post("/feedback")
 async def save_feedback(request: ChatFeedbackRequest):
     """Save or update user feedback for AI response quality"""
-    response_hash = request.response_hash or hashlib.sha256(
-        request.ai_response.encode("utf-8")
-    ).hexdigest()
-
     # Try to find existing feedback for this specific message in this chat
     existing = await ChatFeedback.find_one(
         ChatFeedback.chat_id == request.chat_id,
@@ -37,22 +31,6 @@ async def save_feedback(request: ChatFeedbackRequest):
     if existing:
         existing.rating = request.rating
         existing.feedback_text = request.feedback_text
-        if request.model_name is not None:
-            existing.model_name = request.model_name
-        elif not existing.model_name:
-            existing.model_name = MODEL_ID
-        if request.prompt_version is not None:
-            existing.prompt_version = request.prompt_version
-        elif not existing.prompt_version:
-            existing.prompt_version = PROMPT_VERSION
-        if request.context_sources is not None:
-            existing.context_sources = request.context_sources
-        if request.context_snippet is not None:
-            existing.context_snippet = request.context_snippet
-        if request.session_id is not None:
-            existing.session_id = request.session_id
-        if request.response_hash is not None or not existing.response_hash:
-            existing.response_hash = response_hash
         existing.created_at = datetime.utcnow()
         await existing.save()
         return {"status": "success", "message": "Feedback updated"}
@@ -65,62 +43,12 @@ async def save_feedback(request: ChatFeedbackRequest):
         user_query=request.user_query,
         ai_response=request.ai_response,
         rating=request.rating,
-        feedback_text=request.feedback_text,
-        model_name=request.model_name or MODEL_ID,
-        prompt_version=request.prompt_version or PROMPT_VERSION,
-        context_sources=request.context_sources,
-        context_snippet=request.context_snippet,
-        response_hash=response_hash,
-        session_id=request.session_id
+        feedback_text=request.feedback_text
     )
     await feedback.insert()
     return {"status": "success", "message": "Feedback saved"}
 
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
-
-@router.post("/stream")
-async def chat_stream_endpoint(
-    request: ChatRequest, 
-    token: Optional[str] = Depends(oauth2_scheme_optional),
-    gemini_service: GeminiService = Depends(get_gemini_service)
-):
-    try:
-        user_id = request.user_id
-        if token and not user_id:
-            try:
-                payload = verify_token(token)
-                user_id = payload.get("sub")
-            except:
-                pass
-
-        # 1. Intent Detection
-        intent = await gemini_service.detect_intent(request.message)
-        
-        context = ""
-        if intent == "personal":
-            if not user_id or user_id == "guest":
-                async def guest_error():
-                    yield "This appears to be a personal question. Please log in to access your information."
-                return StreamingResponse(guest_error(), media_type="text/plain")
-            
-            student_info = await student_service.get_student_info(user_id)
-            context = f"Student Information: {str(student_info)}" if student_info else "Student record not found."
-        else:
-            retrieved_docs = vector_service.search(request.message)
-            context = "\n\n".join(retrieved_docs) if retrieved_docs else "No specific documents found."
-
-        # 2. Return StreamingResponse
-        # Convert Pydantic models to dicts for the service
-        history = [m.dict() for m in request.conversation_history] if request.conversation_history else None
-        
-        return StreamingResponse(
-            gemini_service.stream_chat_response(request.message, context, conversation_history=history),
-            media_type="text/plain"
-        )
-    except Exception as e:
-        async def internal_error():
-            yield f"Error: {str(e)}"
-        return StreamingResponse(internal_error(), media_type="text/plain")
 
 @router.post("", response_model=ChatResponse)
 @router.post("/ask", response_model=ChatResponse)

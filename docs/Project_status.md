@@ -6,13 +6,11 @@
 - **현재 상태**: 핵심 기능 구현 완료, 프로덕션 준비 단계
 
 ## 2. 주요 업데이트 사항 (2026-02-09)
-- **보안 강화**: 비밀번호 `bcrypt` 해싱 도입 및 기존 데이터 500건 일괄 마이그레이션 완료
-- **사용자 경험 고도화**: AI 답변 **실시간 스트리밍(Streaming)** 기능 및 부드러운 **타이핑 효과(10ms/char)** 도입
-- **AI 엔진 고도화**: `gemma-3-27b-it` 모델 적용 및 RAG(FAISS) 기반 지식 베이스 구축. 대화 문맥 유지(Conversation History) 기능 추가
-- **인증 시스템**: JWT 기반 보안 인증, 세션 복구(`/auth/me`), 비밀번호 찾기 구현
-- **데이터 통합**: 학생 프로필(`User`)과 성적(`GradeRecord`) 실시간 병합 및 AI 컨텍스트 주입 (`academic_records` 키 최적화)
-- **GPA 기록 및 통합**: `/grades/me` 저장/로드 UI 개선. **성적 계산창 자동 닫힘 기능 추가**
-- **피드백 루프**: AI 답변 품질 평가(Like/Dislike), **재선택(Re-vote)** 지원 및 데이터 수집 최적화
+- **AI 모델 및 RAG**: `gemma-3-27b-it` + FAISS 기반 문서 검색, `/chat/ingest` 인덱스 재생성
+- **인증 및 세션**: JWT 기반 로그인, `/auth/me` 세션 복구, 비밀번호 찾기 지원
+- **채팅 히스토리**: `/chat/history` 저장/핀/삭제, 게스트는 로컬 스토리지 사용
+- **GPA 기록 및 통합**: `/grades/me` 저장/로드 및 AI 컨텍스트 연동 (`academic_records` 키 추가). **성적 계산창 자동 닫힘 기능 추가**
+- **AI 피드백 루프**: 아이콘 기반 Like/Dislike, 선택 변경(Re-vote) 지원, 데이터 수집 최적화
 - **프론트 기능**: 코스 자동완성, 프로필 모달, 게스트/로그인 UI 분리
 
 ## 3. 시스템 아키텍처
@@ -30,13 +28,8 @@ backend/
 │   └── main.py          # FastAPI 앱 진입점
 ├── data/                # RAG 문서 및 FAISS 인덱스
 ├── requirements.txt
-<<<<<<< HEAD
-├── .env                 # 환경 변수
-└── migrate_passwords.py # 비밀번호 마이그레이션 스크립트
-=======
 └── .env                 # 환경 변수
 ```
->>>>>>> origin/jun1
 
 ### 3.2 프론트엔드
 ```
@@ -68,11 +61,6 @@ frontend/
   - LangChain + Sentence Transformers
   - 문서 경로: `backend/data/docs/**/*.txt`
   - 인덱스 재생성: `POST /chat/ingest`
-- **스트리밍 & UX 최적화**:
-  - **엔드포인트**: `POST /chat/stream`
-  - **Character Queue**: 네트워크 버스트에 상관없이 일정한 타이핑 속도 보장
-  - **속도 설정**: 10ms 지연 시간으로 경쾌한 응답 속도 구현
-  - **지연 로딩**: 첫 글자가 생성될 때까지 로딩 애니메이션 유지
 - **개인 질문 처리**:
   - 로그인 사용자의 `User` + `GradeRecord` 정보를 컨텍스트로 제공
   - `academic_records` 키로 성적 정보 포함 (AI 인식 최적화)
@@ -89,7 +77,7 @@ frontend/
 **보안**:
 - JWT (HS256) 기반 인증
 - 토큰 만료: 30분
-- **비밀번호 bcrypt 해싱 저장 완료** (보안성 강화)
+- 비밀번호 평문 저장 (⚠️ 향후 해싱 필요)
 
 ### 3.3 채팅 히스토리 관리
 **엔드포인트**:
@@ -212,7 +200,7 @@ python seed_db.py  # data_sets/*.json → MongoDB 동기화
 ## 9. 향후 개선 사항
 
 ### 9.1 보안
-- [x] 비밀번호 해싱 (bcrypt 적용 완료)
+- [ ] 비밀번호 해싱 (bcrypt)
 - [ ] JWT SECRET_KEY 강화 (현재 14바이트 → 32바이트 이상)
 - [ ] HTTPS 적용 (프로덕션 배포 시)
 
@@ -235,6 +223,7 @@ python seed_db.py  # data_sets/*.json → MongoDB 동기화
 
 ## 10. 알려진 이슈
 - JWT 키 길이 경고 (14바이트 → 32바이트 권장)
+- 비밀번호 평문 저장 (해싱 필요)
 - 프로필 API 인증 정책 불일치 (`/auth/profile/{user_id}` vs `/auth/me`)
 
 ## 11. 문서

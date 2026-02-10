@@ -8,13 +8,13 @@
 ## 2. 주요 기능
 - **아이콘 기반 평가 UI:** 텍스트 메시지 하단에 간결한 엄지 아이콘(Like/Dislike) 배치
 - **자유로운 재투표(Re-vote):** 실수로 클릭했더라도 언제든 반대 버튼을 눌러 평가 수정 가능
-- **실시간 데이터 기록 및 중복 방지 (Upsert):** 모든 평가는 즉시 MongoDB 전용 콜렉션에 저장되며, 사용자가 평가를 변경할 경우 기존 레코드가 업데이트되어 데이터의 중복을 방지합니다.
+- **실시간 데이터 기록:** 모든 평가는 즉시 MongoDB 전용 콜렉션에 저장
 
 ## 3. 기술 구조
 
 ### 백엔드 (FastAPI + MongoDB)
 - **Model:** `ChatFeedback` (MongoDB `chat_feedback` 콜렉션)
-- **Endpoint:** `POST /chat/feedback` (Upsert 로직 적용: 동일 메시지 인덱스에 대해 기존 피드백이 있으면 Update, 없으면 Insert 실행)
+- **Endpoint:** `POST /chat/feedback`
 - **데이터 구조:**
   - `user_query`: 사용자 질문
   - `ai_response`: AI 답변 내용

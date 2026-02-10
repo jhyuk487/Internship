@@ -17,4 +17,3 @@ python-multipart
 requests
 pyjwt
 langchain-google-genai
-bcrypt==3.2.2

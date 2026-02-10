@@ -51,30 +51,22 @@
 <body
     class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen flex overflow-hidden">
     <!-- Sidebar -->
-    <aside id="sidebar"
-        class="w-80 bg-sidebar-light dark:bg-sidebar-dark flex flex-col p-4 text-white shadow-xl z-20 transition-all duration-300 ease-in-out overflow-hidden relative">
-        <div class="mb-4 p-2 flex items-center justify-between">
-            <div class="flex items-center gap-2 overflow-hidden transition-all duration-300" id="sidebar-logo-area">
-                <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-                    <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
-                </div>
-                <span class="font-bold text-lg tracking-tight sidebar-text whitespace-nowrap">UCSI Support AI</span>
+    <aside class="w-80 bg-sidebar-light dark:bg-sidebar-dark flex flex-col p-4 text-white shadow-xl z-20">
+        <div class="mb-8 p-2 flex items-center gap-2">
+            <div class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+                <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
             </div>
-            <button onclick="toggleSidebar()"
-                class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10 ml-auto">
-                <span class="material-symbols-outlined text-xl">menu</span>
-            </button>
+            <span class="font-bold text-lg tracking-tight">UCSI Support AI</span>
         </div>
-
-        <button id="new-chat-btn"
-            class="w-full bg-white text-sidebar-light py-3 px-3 rounded-xl flex items-center gap-2 font-bold mb-6 hover:bg-red-50 transition-all active:scale-95 group shadow-lg overflow-hidden"
+        <button
+            id="new-chat-btn"
+            class="w-full bg-white text-sidebar-light py-3 px-4 rounded-xl flex items-center gap-2 font-bold mb-6 hover:bg-red-50 transition-all active:scale-95 group shadow-lg"
             onclick="startNewChat()">
             <span
-                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform flex-shrink-0">add_circle</span>
-            <span class="sidebar-text whitespace-nowrap">Start New Chat</span>
+                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_circle</span>
+            Start New Chat
         </button>
-        <div id="history-list"
-            class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar space-y-3 flex flex-col">
+        <div id="history-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-3">
             <p
                 class="sticky top-0 z-20 bg-sidebar-light dark:bg-sidebar-dark py-2 mb-2 text-[10px] uppercase font-bold tracking-wider text-white/40 px-2">
                 Chat History</p>
@@ -82,19 +74,17 @@
 
         <div class="mt-auto pt-6 border-t border-white/10">
             <button onclick="toggleGradeModal()"
-                class="w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all group mb-2 overflow-hidden"
-                title="My GPA">
-                <span class="material-symbols-outlined text-[20px] flex-shrink-0">school</span>
-                <span class="text-sm font-medium sidebar-text whitespace-nowrap">My GPA</span>
+                class="w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all group mb-2">
+                <span class="material-symbols-outlined text-[20px]">school</span>
+                <span class="text-sm font-medium">My GPA</span>
             </button>
-            <div class="bg-white/10 rounded-2xl p-2 flex flex-col gap-3 border border-white/5 overflow-hidden transition-all duration-300"
-                id="user-profile-container">
-                <div class="flex items-center gap-3 transition-all duration-300" id="user-info-area">
+            <div class="bg-white/10 rounded-2xl p-3 flex flex-col gap-3 border border-white/5">
+                <div class="flex items-center gap-3">
                     <div id="user-avatar"
-                        class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm shadow-sm border border-white/10 transition-colors flex-shrink-0">
+                        class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm shadow-sm border border-white/10 transition-colors">
                         GS
                     </div>
-                    <div class="flex-1 min-w-0 flex items-center justify-between gap-1 sidebar-text">
+                    <div class="flex-1 min-w-0 flex items-center justify-between gap-1">
                         <div class="flex-1 min-w-0">
                             <h3 id="user-name" class="font-semibold text-sm truncate">Guest Student</h3>
                             <p id="user-plan" class="text-[10px] text-white/60 uppercase tracking-tighter">Newcomer</p>
@@ -108,10 +98,10 @@
                     </div>
                 </div>
                 <button id="auth-btn" onclick="toggleLoginModal()"
-                    class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm font-semibold transition-all group overflow-hidden">
+                    class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm font-semibold transition-all group">
                     <span id="auth-icon"
-                        class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform flex-shrink-0">login</span>
-                    <span id="auth-text" class="sidebar-text whitespace-nowrap">Login</span>
+                        class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">login</span>
+                    <span id="auth-text">Login</span>
                 </button>
             </div>
         </div>
@@ -158,14 +148,12 @@
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student
-                            ID</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student ID</span>
                         <span id="profile-id" class="text-sm font-semibold">20240001</span>
                     </div>
                     <div
                         class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span
-                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
                         <span id="profile-grade" class="text-sm font-semibold">Year 3</span>
                     </div>
                     <div
@@ -206,8 +194,7 @@
                         <span class="material-icons text-5xl">lock</span>
                     </div>
                     <h2 class="text-xl font-bold text-slate-900 dark:text-white">Login Required</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account
-                        settings.
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account settings.
                     </p>
                 </div>
 

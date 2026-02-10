@@ -136,11 +136,6 @@ function handleLogout() {
         startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
     }
 
-    // Close grade modal if open (already referenced above)
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
     // Update chat input state
     if (typeof updateChatInputState === 'function') {
         updateChatInputState(false);
@@ -150,12 +145,7 @@ function handleLogout() {
 // Initialize session on page load
 async function initSession() {
     const token = localStorage.getItem('access_token');
-    if (!token) {
-        if (typeof updateChatInputState === 'function') {
-            updateChatInputState(false);
-        }
-        return;
-    }
+    if (!token) return;
 
     try {
         const response = await fetch('http://127.0.0.1:8000/auth/me', {
@@ -166,7 +156,6 @@ async function initSession() {
         });
 
         if (response.ok) {
-            // ... (keep existing logic)
             const data = await response.json();
             const studentId = localStorage.getItem('user_id');
 
@@ -193,6 +182,9 @@ async function initSession() {
                     window.currentUserId = studentId;
                 }
 
+                // console.log("Session restored for:", user.name);
+
+
                 // Load chat history from backend
                 if (typeof loadChatHistoryFromBackend === 'function') {
                     loadChatHistoryFromBackend();
@@ -214,10 +206,6 @@ async function initSession() {
         }
     } catch (error) {
         console.error('Session init error:', error);
-        // Ensure guest chat is still enabled on network error if configured
-        if (typeof updateChatInputState === 'function') {
-            updateChatInputState(false);
-        }
     }
 }
 
