@@ -1,10 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import uvicorn
+
 from app.core.config import settings
+from app.auth import router as auth_router
+from app.ai import router as ai_router
+from app.database import router as db_router
+from app.api import course as course_router
+from app.api import grade_records as grade_records_router
+from app.database.database import init_db
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description=settings.DESCRIPTON,
+    description=settings.DESCRIPTION,
     version=settings.VERSION
 )
 
@@ -17,9 +27,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
 # Mount Static Files
 app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
@@ -30,13 +37,6 @@ async def root():
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {"status": "ok"}
-
-from app.auth import router as auth_router
-from app.ai import router as ai_router
-from app.database import router as db_router
-from app.api import course as course_router
-from app.api import grade_records as grade_records_router
-from app.database.database import init_db
 
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(ai_router, prefix="/chat", tags=["Chat"])
@@ -49,5 +49,4 @@ async def start_db():
     await init_db()
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)

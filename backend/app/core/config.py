@@ -7,7 +7,7 @@ load_dotenv()
 class Settings:
     PROJECT_NAME: str = "UCSI University Chatbot"
     VERSION: str = "2.0.0"
-    DESCRIPTON: str = "AI Chatbot for UCSI University students (Free & Local-First)"
+    DESCRIPTION: str = "AI Chatbot for UCSI University students (Free & Local-First)"
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "super_secret_key_for_dev_only")
@@ -23,6 +23,5 @@ class Settings:
     DATA_DIR: str = os.path.join(BASE_DIR, "data")
     DOCS_DIR: str = os.path.join(DATA_DIR, "docs")
     FAISS_INDEX_DIR: str = os.path.join(DATA_DIR, "faiss_index")
-    STUDENT_DB_PATH: str = os.path.join(DATA_DIR, "student_db.json")
 
 settings = Settings()
