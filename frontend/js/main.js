@@ -1028,11 +1028,16 @@ async function deleteChat(chatId) {
     if (!token) return;
 
     try {
-        await fetch(`/chat/history/${chatId}`, {
+        const response = await fetch(`/chat/history/${chatId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        await loadChatHistoryFromBackend();
+        if (response.ok) {
+            if (String(chatId) === String(currentLoadedChatId)) {
+                startNewChat({ suppressGuestConfirm: true });
+            }
+            await loadChatHistoryFromBackend();
+        }
     } catch (error) {
         console.error('Error deleting chat:', error);
     }
