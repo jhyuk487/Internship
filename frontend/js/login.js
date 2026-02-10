@@ -99,8 +99,8 @@ function navigateAfterLogin() {
 function handleLogout() {
     // Close grade modal BEFORE changing user to guest
     const gradeModal = document.getElementById('grade-modal');
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
+    if (gradeModal && !gradeModal.classList.contains('grade-modal--closed')) {
+        gradeModal.classList.add('grade-modal--closed');
     }
 
     if (typeof currentUserId !== 'undefined') {
@@ -137,8 +137,8 @@ function handleLogout() {
     }
 
     // Close grade modal if open (already referenced above)
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
+    if (gradeModal && !gradeModal.classList.contains('grade-modal--closed')) {
+        gradeModal.classList.add('grade-modal--closed');
     }
 
     // Update chat input state
