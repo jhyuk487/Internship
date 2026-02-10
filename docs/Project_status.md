@@ -244,6 +244,7 @@ python seed_db.py  # data_sets/*.json → MongoDB 동기화
 - `docs/database.md`: 데이터베이스 스키마
 
 ## 12. 변경 이력
+- **2026-02-10**: `origin/ehobin` 브랜치 병합 완료 (UI/UX 혁신 + 보안 인프라 통합), 기술 문서 전면 업데이트
 - **2026-02-09**: `get_student_info()`에 `GradeRecord` 자동 병합 추가, Google API Key 업데이트
 - **2026-02-08**: 채팅 히스토리, GPA 기록 기능 완료
 - **2026-02-05**: 프로젝트 구조 재정리 (backend/frontend 분리)
