@@ -24,8 +24,7 @@ const semesters = [
     { id: 'Y1S1', label: '1-1' }, { id: 'Y1S2', label: '1-2' }, { id: 'Y1S3', label: '1-3' },
     { id: 'Y2S1', label: '2-1' }, { id: 'Y2S2', label: '2-2' }, { id: 'Y2S3', label: '2-3' },
     { id: 'Y3S1', label: '3-1' }, { id: 'Y3S2', label: '3-2' }, { id: 'Y3S3', label: '3-3' },
-    { id: 'Y4S1', label: '4-1' }, { id: 'Y4S2', label: '4-2' }, { id: 'Y4S3', label: '4-3' },
-    { id: 'Y5S1', label: '5-1' }, { id: 'Y5S2', label: '5-2' }, { id: 'Y5S3', label: '5-3' }
+    { id: 'Y4S1', label: '4-1' }, { id: 'Y4S2', label: '4-2' }, { id: 'Y4S3', label: '4-3' }
 ];
 
 // Initialize semesterData from localStorage or defaults

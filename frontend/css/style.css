@@ -30,8 +30,16 @@ body {
 
 /* AI chat bubble width */
 .ai-bubble {
-    width: 60%;
-    max-width: 60%;
+    width: fit-content;
+    max-width: 85%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 1024px) {
+    .ai-bubble {
+        max-width: 65%;
+    }
 }
 
 .dimmed-overlay {
