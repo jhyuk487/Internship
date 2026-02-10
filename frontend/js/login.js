@@ -97,18 +97,7 @@ function navigateAfterLogin() {
 }
 
 function handleLogout() {
-    // Close grade modal BEFORE changing user to guest
-    const gradeModal = document.getElementById('grade-modal');
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
-    if (typeof currentUserId !== 'undefined') {
-        window.currentUserId = "guest";
-    } else {
-        window.currentUserId = "guest";
-    }
-
+    // 1. UI elements cleanup
     document.getElementById('user-name').innerText = "Guest Student";
     document.getElementById('user-avatar').innerText = "GS";
     document.getElementById('user-plan').innerText = "Newcomer";
@@ -122,27 +111,31 @@ function handleLogout() {
         };
     }
 
-    // Clear token
+    // 2. Global state and session cleanup
+    if (typeof currentUserId !== 'undefined') {
+        window.currentUserId = "guest";
+    } else {
+        window.currentUserId = "guest";
+    }
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
 
-    // Clear chat history UI
-    if (typeof checkAndUpdateHistoryUI === 'function') {
-        checkAndUpdateHistoryUI();
-    }
-
-    // Clear active chat conversation
-    if (typeof startNewChat === 'function') {
-        startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
-    }
-
-    // Close grade modal if open
+    // 3. UI Modules updates
+    // Close grade modal BEFORE anything else
     const gradeModal = document.getElementById('grade-modal');
     if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
         gradeModal.classList.add('translate-y-full');
     }
 
-    // Update chat input state
+    if (typeof checkAndUpdateHistoryUI === 'function') {
+        checkAndUpdateHistoryUI();
+    }
+
+    if (typeof startNewChat === 'function') {
+        startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
+    }
+
     if (typeof updateChatInputState === 'function') {
         updateChatInputState(false);
     }
@@ -159,7 +152,7 @@ async function initSession() {
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/auth/me', {
+        const response = await fetch('/auth/me', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
