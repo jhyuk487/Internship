@@ -1,11 +1,26 @@
 from app.database.models import Account, User, GradeRecord
-from app.auth.security import verify_password
+from app.auth.security import verify_password, get_password_hash
 
 class StudentService:
     async def authenticate(self, user_id: str, password: str):
         # Find account by user_id (from login_info)
         account = await Account.find_one(Account.user_id == user_id)
-        if account and verify_password(password, account.user_password):
+        if not account:
+            return None
+
+        stored = account.user_password or ""
+        is_hashed = stored.startswith("$2")
+
+        if is_hashed:
+            valid = verify_password(password, stored)
+        else:
+            # Legacy/plaintext fallback: validate and upgrade to bcrypt
+            valid = password == stored
+            if valid:
+                account.user_password = get_password_hash(password)
+                await account.save()
+
+        if valid:
             # Fetch profile info from User collection (user_info)
             user_profile = await self.get_student_info(user_id)
             return {
