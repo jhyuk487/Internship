@@ -28,8 +28,6 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Login Successful!");
-
             // Save token
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('user_id', studentId);
@@ -122,10 +120,10 @@ function handleLogout() {
     localStorage.removeItem('user_id');
 
     // 3. UI Modules updates
-    // Close grade modal BEFORE anything else
+    // Close grade modal BEFORE anything else using the new CSS class from ehobin branch
     const gradeModal = document.getElementById('grade-modal');
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
+    if (gradeModal && !gradeModal.classList.contains('grade-modal--closed')) {
+        gradeModal.classList.add('grade-modal--closed');
     }
 
     if (typeof checkAndUpdateHistoryUI === 'function') {

@@ -8,13 +8,17 @@ const conversationTitle = document.getElementById('conversation-title');
 let isGpaEditMode = false;
 let currentSemester = "Y1S1";
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('sidebar--collapsed');
+}
+
 // Structure for 5 years, 3 semesters each
 const semesters = [
     { id: 'Y1S1', label: '1-1' }, { id: 'Y1S2', label: '1-2' }, { id: 'Y1S3', label: '1-3' },
     { id: 'Y2S1', label: '2-1' }, { id: 'Y2S2', label: '2-2' }, { id: 'Y2S3', label: '2-3' },
     { id: 'Y3S1', label: '3-1' }, { id: 'Y3S2', label: '3-2' }, { id: 'Y3S3', label: '3-3' },
-    { id: 'Y4S1', label: '4-1' }, { id: 'Y4S2', label: '4-2' }, { id: 'Y4S3', label: '4-3' },
-    { id: 'Y5S1', label: '5-1' }, { id: 'Y5S2', label: '5-2' }, { id: 'Y5S3', label: '5-3' }
+    { id: 'Y4S1', label: '4-1' }, { id: 'Y4S2', label: '4-2' }, { id: 'Y4S3', label: '4-3' }
 ];
 
 // Initialize semesterData from localStorage or defaults
@@ -33,10 +37,7 @@ function initSemesterTabs() {
     const container = document.getElementById('semester-tabs');
     container.innerHTML = semesters.map(s => `
         <button onclick="switchSemester('${s.id}')" id="tab-${s.id}" 
-            class="semester-tab px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border
-            ${currentSemester === s.id
-            ? 'bg-primary text-white border-primary shadow-sm'
-            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-100'}">
+            class="semester-tab ${currentSemester === s.id ? 'semester-tab--active' : 'semester-tab--inactive'}">
             ${s.label}
         </button>
     `).join('');
@@ -126,8 +127,8 @@ function renderSemesterTable() {
             const tr = document.createElement('tr');
             tr.style.height = "100%"; // Ensure row tries to fill available height
             tr.innerHTML = `
-                <td colspan="6" class="px-6 h-full text-center align-middle text-slate-400 dark:text-slate-500 italic">
-                    No courses added yet. Click <span class="text-primary font-bold">'Edit Record'</span> to start.
+                <td colspan="6" class="grade-empty">
+                    No courses added yet. Click <span class="grade-empty__highlight">'Edit Record'</span> to start.
                 </td>
             `;
             tbody.appendChild(tr);
@@ -135,34 +136,36 @@ function renderSemesterTable() {
     } else {
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
-            tr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
+            tr.className = "grade-row";
             tr.innerHTML = `
-                <td class="px-6 py-4 text-center">
-                    <input type="checkbox" onchange="updateRowData(this, 'major')" class="major-checkbox w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
+                <td class="grade-cell grade-cell--center">
+                    <input type="checkbox" onchange="updateRowData(this, 'major')" class="grade-checkbox" ${row.major ? 'checked' : ''} ${!isGpaEditMode ? 'disabled' : ''}>
                 </td>
-                <td class="px-6 py-4">
-                    <select onchange="updateRowData(this, 'credit')" class="w-24 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-center ${!isGpaEditMode ? 'appearance-none bg-none' : ''}" ${!isGpaEditMode ? 'disabled' : ''} style="${!isGpaEditMode ? 'background-image: none;' : ''}">
+                <td class="grade-cell">
+                    <select onchange="updateRowData(this, 'credit')" class="grade-select grade-select--credit ${!isGpaEditMode ? 'grade-select--readonly' : ''}" ${!isGpaEditMode ? 'disabled' : ''}>
                         <option value="2" ${row.credit == 2 ? 'selected' : ''}>2</option>
                         <option value="3" ${row.credit == 3 ? 'selected' : ''}>3</option>
                         <option value="4" ${row.credit == 4 ? 'selected' : ''}>4</option>
                     </select>
                 </td>
-                <td class="px-6 py-4"><input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="w-full bg-transparent border-none focus:ring-0 text-sm p-0 placeholder-slate-300 dark:placeholder-slate-600 font-medium text-slate-800 dark:text-slate-200" type="text" placeholder="Search Course..." value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} /></td>
-                <td class="px-6 py-4">
-                    <input class="grade-point-input w-20 bg-transparent border-none focus:ring-0 text-sm p-0 text-center" value="${row.point}" readonly />
+                <td class="grade-cell">
+                    <input onfocus="updateRowData(this, 'name')" oninput="updateRowData(this, 'name')" class="grade-input" type="text" placeholder="Search Course..." value="${row.name}" ${!isGpaEditMode ? 'disabled' : ''} />
                 </td>
-                <td class="px-6 py-4">
-                    <div class="flex justify-center">
+                <td class="grade-cell grade-cell--center">
+                    <input class="grade-point-input" value="${row.point}" readonly />
+                </td>
+                <td class="grade-cell grade-cell--center">
+                    <div class="grade-select-wrap">
                         <select onchange="updateRowPoint(this)" 
-                            class="w-28 bg-transparent border-none focus:ring-0 text-sm p-0 px-2 font-bold text-primary text-center ${!isGpaEditMode ? 'appearance-none bg-none' : ''}" 
+                            class="grade-select grade-select--grade ${!isGpaEditMode ? 'grade-select--readonly' : ''}" 
                             ${!isGpaEditMode ? 'disabled' : ''}
-                            style="${!isGpaEditMode ? 'background-image: none;' : ''}">
+                            >
                             ${Object.keys(gradeMapping).map(g => `<option value="${g}" ${row.grade === g || (row.grade === undefined && g === 'A') ? 'selected' : ''}>${g}</option>`).join('')}
                         </select>
                     </div>
                 </td>
-                <td class="px-6 py-4 text-right">
-                    <button onclick="deleteRow(this)" class="delete-row-btn ${!isGpaEditMode ? 'hidden' : ''} text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+                <td class="grade-cell grade-cell--right">
+                    <button onclick="deleteRow(this)" class="grade-delete-btn ${!isGpaEditMode ? 'hidden' : ''}"><span class="material-symbols-outlined">delete</span></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -172,11 +175,11 @@ function renderSemesterTable() {
     // Sync Add Row button position
     if (isGpaEditMode) {
         const addRowTr = document.createElement('tr');
-        addRowTr.className = "grade-row hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors";
+        addRowTr.className = "grade-row";
         addRowTr.innerHTML = `
-            <td colspan="6" class="px-6 py-4">
-                <button onclick="addRow()" class="w-full flex items-center justify-start gap-2 text-slate-400 hover:text-primary transition-colors font-medium text-sm">
-                    <span class="material-symbols-outlined text-lg">add_circle</span>
+            <td colspan="6" class="grade-cell grade-cell--full">
+                <button onclick="addRow()" class="grade-add-btn">
+                    <span class="material-symbols-outlined">add_circle</span>
                     Add New Course
                 </button>
             </td>
@@ -221,10 +224,16 @@ async function toggleGradeModal() {
         }
         return;
     }
-    gradeModal.classList.toggle('translate-y-full');
-    if (!gradeModal.classList.contains('translate-y-full')) {
+    gradeModal.classList.toggle('grade-modal--closed');
+    if (!gradeModal.classList.contains('grade-modal--closed')) {
         initSemesterTabs();
         renderSemesterTable();
+    }
+}
+
+function closeGradeModal() {
+    if (gradeModal && !gradeModal.classList.contains('grade-modal--closed')) {
+        gradeModal.classList.add('grade-modal--closed');
     }
 }
 
@@ -461,8 +470,7 @@ function setChatInteractionEnabled(enabled) {
     if (btn) btn.disabled = !enabled;
     if (newChatBtn) newChatBtn.disabled = !enabled;
     if (history) {
-        history.classList.toggle('pointer-events-none', !enabled);
-        history.classList.toggle('opacity-60', !enabled);
+        history.classList.toggle('is-disabled', !enabled);
     }
 }
 
@@ -505,7 +513,7 @@ function showSuggestions(courses, inputElement) {
     if (courses.length === 0) return;
 
     const listDiv = document.createElement("div");
-    listDiv.setAttribute("class", "autocomplete-items fixed z-[9999] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl mt-1 max-h-60 overflow-y-auto font-sans");
+    listDiv.setAttribute("class", "autocomplete-list");
 
     // Calculate position
     const rect = inputElement.getBoundingClientRect();
@@ -521,11 +529,11 @@ function showSuggestions(courses, inputElement) {
 
     courses.forEach(course => {
         const item = document.createElement("div");
-        item.className = "px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 transition-colors";
+        item.className = "autocomplete-item";
         item.innerHTML = `
-            <div class="flex flex-col gap-0.5">
-                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${course.course_name}</span>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400">${course.credits} Credits</span>
+            <div class="autocomplete-item__content">
+                <span class="autocomplete-item__title">${course.course_name}</span>
+                <span class="autocomplete-item__meta">${course.credits} Credits</span>
             </div>
         `;
         item.addEventListener("click", function (e) {
@@ -559,7 +567,7 @@ function showSuggestions(courses, inputElement) {
 }
 
 function closeAllLists(elmnt) {
-    const x = document.getElementsByClassName("autocomplete-items");
+    const x = document.getElementsByClassName("autocomplete-list");
     for (let i = 0; i < x.length; i++) {
         if (elmnt != x[i] && elmnt != document.getElementById("chat-input")) {
             x[i].parentNode.removeChild(x[i]);
@@ -575,7 +583,7 @@ document.addEventListener("click", function (e) {
 // Close on scroll to prevent detached floating list
 document.addEventListener("scroll", function (e) {
     // Ignore scroll events originating from the autocomplete list itself
-    if (e.target && e.target.classList && e.target.classList.contains('autocomplete-items')) return;
+    if (e.target && e.target.classList && e.target.classList.contains('autocomplete-list')) return;
     closeAllLists();
 }, true); // Capture phase to catch scroll in sub-elements
 
@@ -689,10 +697,10 @@ function checkAndUpdateHistoryUI() {
         if (header) historyList.appendChild(header);
 
         const loginPrompt = document.createElement('div');
-        loginPrompt.className = 'text-center text-white/60 text-sm py-8';
+        loginPrompt.className = 'history-guest guest-prompt';
         loginPrompt.innerHTML = `
-            <span class="material-symbols-outlined text-4xl mb-2 block">lock</span>
-            <p>Login to save and view<br>your chat history</p>
+            <span class="material-symbols-outlined history-guest__icon">lock</span>
+            <p class="history-guest__text">Login to save and view<br>your chat history</p>
         `;
         historyList.appendChild(loginPrompt);
         return;
@@ -771,7 +779,7 @@ function updateHistoryUI() {
 
     if (chatHistory.length === 0) {
         const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'text-center text-white/40 text-sm py-4';
+        emptyMsg.className = 'history-empty';
         emptyMsg.textContent = 'No conversations yet';
         historyList.appendChild(emptyMsg);
         return;
@@ -793,51 +801,51 @@ function updateHistoryUI() {
 
     sortedHistory.forEach((chat) => {
         const item = document.createElement('div');
-        item.className = 'group relative p-4 rounded-2xl border cursor-pointer transition-all mb-3';
+        item.className = 'history-item';
         if (chat.isPinned) {
-            item.classList.add('bg-white/20', 'border-white/20');
+            item.classList.add('history-item--pinned', 'pinned-chat');
         } else {
-            item.classList.add('bg-white/10', 'border-white/5', 'hover:bg-white/20');
+            item.classList.add('history-item--default');
         }
 
-        const pinClass = chat.isPinned ? 'text-yellow-400 rotate-45' : 'text-white/20 group-hover:text-white/60';
+        const pinButtonClass = chat.isPinned ? 'history-action history-action--pin is-pinned' : 'history-action history-action--pin';
         const chatId = chat.id || chat.originalIndex;
         const isSelected = String(chatId) === String(currentLoadedChatId);
 
         const displayTime = formatChatTime(chat.updatedAt || chat.createdAt) || chat.time || '';
         item.innerHTML = `
-            ${isSelected ? '<span class="absolute right-0 top-2 bottom-2 w-1 bg-yellow-400 rounded-l-md pointer-events-none"></span>' : ''}
-            <div id="display-container-${chatId}" class="flex justify-between items-start gap-2">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-1 mb-1 min-w-0">
-                        <p class="text-sm font-medium truncate ${chat.isPinned ? 'text-white' : 'text-white/80'}">${chat.title}</p>
-                        ${chat.isPinned ? '<span class="material-symbols-outlined text-[16px] text-white rotate-45 flex-shrink-0" style="font-variation-settings: \'FILL\' 1">push_pin</span>' : ''}
+            ${isSelected ? '<span class="history-item__marker"></span>' : ''}
+            <div id="display-container-${chatId}" class="history-item__content">
+                <div class="history-item__main">
+                    <div class="history-item__title-row">
+                        <p class="history-item__title">${chat.title}</p>
+                        ${chat.isPinned ? '<span class="material-symbols-outlined history-item__pin-tag">push_pin</span>' : ''}
                     </div>
-                    <p class="text-xs text-white/40">${displayTime}</p>
+                    <p class="history-item__time">${displayTime}</p>
                 </div>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="${chat.isPinned ? 'Unpin' : 'Pin'}">
-                        <span class="material-symbols-outlined text-sm ${pinClass}">push_pin</span>
+                <div class="history-item__actions">
+                    <button onclick="event.stopPropagation(); togglePinChat('${chatId}')" class="${pinButtonClass}" title="${chat.isPinned ? 'Unpin' : 'Pin'}">
+                        <span class="material-symbols-outlined history-action__icon">push_pin</span>
                     </button>
-                    <button onclick="event.stopPropagation(); showRenameUI('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Rename">
-                        <span class="material-symbols-outlined text-sm text-white/60 hover:text-white">edit</span>
+                    <button onclick="event.stopPropagation(); showRenameUI('${chatId}')" class="history-action history-action--edit" title="Rename">
+                        <span class="material-symbols-outlined history-action__icon">edit</span>
                     </button>
-                    <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="p-1 hover:bg-white/10 rounded-md transition-colors" title="Delete">
-                        <span class="material-symbols-outlined text-sm text-white/60 hover:text-red-400">delete</span>
+                    <button onclick="event.stopPropagation(); deleteChat('${chatId}')" class="history-action history-action--delete" title="Delete">
+                        <span class="material-symbols-outlined history-action__icon">delete</span>
                     </button>
                 </div>
             </div>
-            <div id="rename-container-${chatId}" class="hidden items-center gap-2">
-                <input id="rename-input-${chatId}" type="text" 
-                    class="flex-1 bg-white/5 border border-white/20 rounded-lg px-2 py-1 text-sm text-white outline-none focus:border-white/40"
+            <div id="rename-container-${chatId}" class="history-rename hidden">
+                <input id="rename-input-${chatId}" type="text"
+                    class="history-rename__input"
                     onkeyup="if(event.key === 'Enter') saveRename('${chatId}')"
                     onclick="event.stopPropagation()">
-                <div class="flex gap-1">
-                    <button onclick="event.stopPropagation(); saveRename('${chatId}')" class="p-1 hover:bg-green-500/20 rounded-md text-green-400">
-                        <span class="material-symbols-outlined text-sm">check</span>
+                <div class="history-rename__actions">
+                    <button onclick="event.stopPropagation(); saveRename('${chatId}')" class="history-rename__button history-rename__button--confirm">
+                        <span class="material-symbols-outlined history-rename__icon">check</span>
                     </button>
-                    <button onclick="event.stopPropagation(); cancelRename('${chatId}')" class="p-1 hover:bg-red-500/20 rounded-md text-red-400">
-                        <span class="material-symbols-outlined text-sm">close</span>
+                    <button onclick="event.stopPropagation(); cancelRename('${chatId}')" class="history-rename__button history-rename__button--cancel">
+                        <span class="material-symbols-outlined history-rename__icon">close</span>
                     </button>
                 </div>
             </div>
@@ -965,7 +973,6 @@ function showRenameUI(chatId) {
     document.getElementById(`display-container-${chatId}`).classList.add('hidden');
     const renameContainer = document.getElementById(`rename-container-${chatId}`);
     renameContainer.classList.remove('hidden');
-    renameContainer.classList.add('flex');
     const input = document.getElementById(`rename-input-${chatId}`);
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     input.value = chat?.title || '';
@@ -977,7 +984,6 @@ function cancelRename(chatId) {
     document.getElementById(`display-container-${chatId}`).classList.remove('hidden');
     const renameContainer = document.getElementById(`rename-container-${chatId}`);
     renameContainer.classList.add('hidden');
-    renameContainer.classList.remove('flex');
 }
 
 async function saveRename(chatId) {
@@ -1037,10 +1043,8 @@ async function deleteChat(chatId) {
 }
 
 async function startNewChat(options = {}) {
-    if (!gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
+    closeGradeModal();
+    
     if (isNewChat) {
         return;
     }
@@ -1083,10 +1087,8 @@ async function startNewChat(options = {}) {
 }
 
 async function loadChat(chatId) {
-    if (!gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
+    closeGradeModal();
+    
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
     currentLoadedChatId = chat.id || null;
@@ -1101,11 +1103,11 @@ async function loadChat(chatId) {
 
 function renderMessage(role, content, isStreaming = false) {
     const wrapper = document.createElement('div');
-    wrapper.className = role === 'user' ? 'flex justify-end items-start gap-3' : 'flex justify-start items-start gap-4';
+    wrapper.className = role === 'user' ? 'chat-message chat-message--user' : 'chat-message chat-message--ai';
     if (role === 'user') {
         wrapper.innerHTML = `
-            <div class="max-w-xl bg-user-bubble dark:bg-user-bubble-dark text-slate-900 dark:text-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-user-bubble-dark/20">
-                <p class="text-sm font-medium leading-relaxed">${content}</p>
+            <div class="chat-bubble chat-bubble--user">
+                <p class="message-content">${content}</p>
             </div>
         `;
     } else {
@@ -1118,20 +1120,20 @@ function renderMessage(role, content, isStreaming = false) {
         }
 
         wrapper.innerHTML = `
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+            <div class="chat-avatar">
+                <img src="/static/character.jpg" alt="AI Avatar" class="chat-avatar__image">
             </div>
-            <div class="flex flex-col gap-2 max-w-[85%] flex-1">
-                <div class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <div class="message-content text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${contentHtml}</div>
+            <div class="chat-bubble-wrap">
+                <div class="chat-bubble chat-bubble--ai ai-bubble">
+                    <div class="message-content">${contentHtml}</div>
                 </div>
                 ${(!isWelcome && !isStreaming) ? `
-                <div class="feedback-container flex items-center gap-2 px-2">
-                    <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-green-500 hover:bg-green-500/10 transition-all hover:scale-110" title="Useful">
-                        <span class="material-icons text-base">thumb_up</span>
+                <div class="feedback-bar">
+                    <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn" title="Useful">
+                        <span class="material-icons">thumb_up</span>
                     </button>
-                    <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all hover:scale-110" title="Not Useful">
-                        <span class="material-icons text-base">thumb_down</span>
+                    <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn" title="Not Useful">
+                        <span class="material-icons">thumb_down</span>
                     </button>
                 </div>
                 ` : ''}
@@ -1173,16 +1175,18 @@ async function appendMessage(role, content, skipRendering = false) {
 function showLoading() {
     const loader = document.createElement('div');
     loader.id = 'ai-loader';
-    loader.className = 'flex justify-start items-start gap-4';
+    loader.className = 'chat-message chat-message--ai';
     loader.innerHTML = `
-        <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-            <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+        <div class="chat-avatar">
+            <img src="/static/character.jpg" alt="AI Avatar" class="chat-avatar__image">
         </div>
-        <div class="ai-bubble bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center">
-            <div class="typing-dots text-primary">
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
+        <div class="chat-bubble-wrap">
+            <div class="chat-bubble chat-bubble--ai ai-bubble">
+                <div class="typing-dots text-primary">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
             </div>
         </div>
     `;
@@ -1287,15 +1291,15 @@ async function sendMessage() {
 
         // Add feedback buttons
         const msgIndex = currentMessages.length; // Will be pushed below
-        const bubbleContainer = aiWrapper.querySelector('.flex.flex-col');
+        const bubbleContainer = aiWrapper.querySelector('.chat-bubble-wrap');
         const feedbackDiv = document.createElement('div');
-        feedbackDiv.className = "feedback-container flex items-center gap-2 px-2";
+        feedbackDiv.className = "feedback-bar";
         feedbackDiv.innerHTML = `
-            <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-green-500 hover:bg-green-500/10 transition-all hover:scale-110" title="Useful">
-                <span class="material-icons text-base">thumb_up</span>
+            <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn" title="Useful">
+                <span class="material-icons">thumb_up</span>
             </button>
-            <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all hover:scale-110" title="Not Useful">
-                <span class="material-icons text-base">thumb_down</span>
+            <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn" title="Not Useful">
+                <span class="material-icons">thumb_down</span>
             </button>
         `;
         bubbleContainer.appendChild(feedbackDiv);
@@ -1356,30 +1360,28 @@ async function handleFeedback(button, rating, msgIndex) {
             // Reset and update UI
             const allBtns = parent.querySelectorAll('button');
             allBtns.forEach(b => {
-                b.classList.remove('text-green-500', 'text-red-500', 'bg-green-500/10', 'bg-red-500/10');
-                b.classList.add('text-slate-400');
+                b.classList.remove('is-like', 'is-dislike');
                 b.style.opacity = '1';
                 b.style.pointerEvents = 'auto';
             });
 
             // Highlight the active one
-            button.classList.remove('text-slate-400');
             if (rating === 'like') {
-                button.classList.add('text-green-500', 'bg-green-500/10');
+                button.classList.add('is-like');
             } else {
-                button.classList.add('text-red-500', 'bg-red-500/10');
+                button.classList.add('is-dislike');
             }
 
             // Quietly update or show a tiny temporary notice
             let notice = parent.querySelector('.feedback-notice');
             if (!notice) {
                 notice = document.createElement('span');
-                notice.className = 'feedback-notice text-[9px] text-slate-400 opacity-0 transition-opacity ml-1';
+                notice.className = 'feedback-notice';
                 notice.innerText = 'Updated';
                 parent.appendChild(notice);
             }
-            notice.classList.remove('opacity-0');
-            setTimeout(() => notice.classList.add('opacity-0'), 1500);
+            notice.classList.add('is-visible');
+            setTimeout(() => notice.classList.remove('is-visible'), 1500);
         }
     } catch (error) {
         console.error("Error saving feedback:", error);

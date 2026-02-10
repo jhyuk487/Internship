@@ -44,82 +44,70 @@
             cursor: default;
         }
     </style>
-    <link href="/static/css/tailwind.css" rel="stylesheet" />
     <link href="/static/css/style.css" rel="stylesheet" />
 </head>
 
-<body
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen flex overflow-hidden">
+<body class="app-shell">
     <!-- Sidebar -->
-    <aside class="w-80 bg-sidebar-light dark:bg-sidebar-dark flex flex-col p-4 text-white shadow-xl z-20">
-        <div class="mb-8 p-2 flex items-center gap-2">
-            <div class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
-                <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar__header">
+            <div class="sidebar__brand" id="sidebar-logo-area">
+                <div class="sidebar__logo">
+                    <img src="/static/logo.jpg" alt="Logo" class="sidebar__logo-image">
+                </div>
+                <span class="sidebar__title sidebar-text">UCSI Support AI</span>
             </div>
-            <span class="font-bold text-lg tracking-tight">UCSI Support AI</span>
-        </div>
-        <button
-            id="new-chat-btn"
-            class="w-full bg-white text-sidebar-light py-3 px-4 rounded-xl flex items-center gap-2 font-bold mb-6 hover:bg-red-50 transition-all active:scale-95 group shadow-lg"
-            onclick="startNewChat()">
-            <span
-                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_circle</span>
-            Start New Chat
-        </button>
-        <div id="history-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-3">
-            <p
-                class="sticky top-0 z-20 bg-sidebar-light dark:bg-sidebar-dark py-2 mb-2 text-[10px] uppercase font-bold tracking-wider text-white/40 px-2">
-                Chat History</p>
+            <button onclick="toggleSidebar()" class="sidebar__toggle" aria-label="Toggle sidebar">
+                <span class="material-symbols-outlined sidebar__toggle-icon">menu</span>
+            </button>
         </div>
 
-        <div class="mt-auto pt-6 border-t border-white/10">
-            <button onclick="toggleGradeModal()"
-                class="w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all group mb-2">
-                <span class="material-symbols-outlined text-[20px]">school</span>
-                <span class="text-sm font-medium">My GPA</span>
+        <button id="new-chat-btn" class="sidebar__new-chat" onclick="startNewChat()">
+            <span class="material-symbols-outlined sidebar__new-chat-icon">add_circle</span>
+            <span class="sidebar-text sidebar__new-chat-text">Start New Chat</span>
+        </button>
+        <p class="sidebar__history-title">Chat History</p>
+        <div id="history-list" class="sidebar__history custom-scrollbar"></div>
+
+        <div class="sidebar__footer">
+            <button onclick="toggleGradeModal()" class="sidebar__gpa-btn" title="My GPA">
+                <span class="material-symbols-outlined sidebar__gpa-icon">school</span>
+                <span class="sidebar__gpa-text sidebar-text">My GPA</span>
             </button>
-            <div class="bg-white/10 rounded-2xl p-3 flex flex-col gap-3 border border-white/5">
-                <div class="flex items-center gap-3">
-                    <div id="user-avatar"
-                        class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm shadow-sm border border-white/10 transition-colors">
+            <div class="sidebar__profile" id="user-profile-container">
+                <div class="sidebar__user-row" id="user-info-area">
+                    <div id="user-avatar" class="sidebar__avatar">
                         GS
                     </div>
-                    <div class="flex-1 min-w-0 flex items-center justify-between gap-1">
-                        <div class="flex-1 min-w-0">
-                            <h3 id="user-name" class="font-semibold text-sm truncate">Guest Student</h3>
-                            <p id="user-plan" class="text-[10px] text-white/60 uppercase tracking-tighter">Newcomer</p>
+                    <div class="sidebar__user-meta sidebar-text">
+                        <div class="sidebar__user-info">
+                            <h3 id="user-name" class="sidebar__user-name">Guest Student</h3>
+                            <p id="user-plan" class="sidebar__user-plan">Newcomer</p>
                         </div>
-                        <button onclick="handleSettingsClick()"
-                            class="p-1 hover:bg-white/10 rounded-lg text-white/30 hover:text-white transition-all group"
+                        <button onclick="handleSettingsClick()" class="sidebar__settings-btn"
                             title="Account Settings">
-                            <span
-                                class="material-symbols-outlined text-sm group-hover:rotate-90 transition-transform">settings</span>
+                            <span class="material-symbols-outlined sidebar__settings-icon">settings</span>
                         </button>
                     </div>
                 </div>
-                <button id="auth-btn" onclick="toggleLoginModal()"
-                    class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm font-semibold transition-all group">
-                    <span id="auth-icon"
-                        class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">login</span>
-                    <span id="auth-text">Login</span>
+                <button id="auth-btn" onclick="toggleLoginModal()" class="sidebar__auth-btn">
+                    <span id="auth-icon" class="material-symbols-outlined sidebar__auth-icon">login</span>
+                    <span id="auth-text" class="sidebar-text">Login</span>
                 </button>
             </div>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col relative bg-slate-50 dark:bg-slate-900">
-        <header
-            class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-10">
-            <div class="flex items-center gap-2">
-                <h2 id="conversation-title" class="font-semibold text-lg">New Conversation</h2>
-                <span
-                    class="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase">Online</span>
+    <main class="main-content">
+        <header class="main-header">
+            <div class="main-header__title">
+                <h2 id="conversation-title" class="main-header__heading">New Conversation</h2>
+                <span class="status-badge">Online</span>
             </div>
-            <div class="flex gap-4">
-                <button
-                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-primary transition-colors"
-                    onclick="document.documentElement.classList.toggle('dark')">
+            <div class="main-header__actions">
+                <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark')"
+                    aria-label="Toggle theme">
                     <span class="material-symbols-outlined">contrast</span>
                 </button>
             </div>
@@ -127,101 +115,82 @@
 
         <!-- Chat Area -->
         <!-- User Profile Modal -->
-        <div id="profile-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
-            <div
-                class="bg-white dark:bg-zinc-900 w-full max-w-md p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-zinc-800">
-                <div class="flex justify-end mb-2">
-                    <button onclick="toggleProfileModal()"
-                        class="text-slate-400 hover:text-slate-600 transition-colors">
+        <div id="profile-modal" class="modal dimmed-overlay hidden">
+            <div class="modal-card profile-card">
+                <div class="modal-card__close">
+                    <button onclick="toggleProfileModal()" class="modal-close-btn" aria-label="Close profile">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
-                <div class="flex flex-col items-center mb-6">
-                    <div
-                        class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-inner">
-                        <span class="material-icons text-6xl">account_circle</span>
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <span class="material-icons profile-avatar__icon">account_circle</span>
                     </div>
-                    <h2 id="profile-name" class="text-2xl font-bold text-slate-900 dark:text-white">User Profile</h2>
-                    <p id="profile-major" class="text-slate-500 dark:text-slate-400 font-medium">Major</p>
+                    <h2 id="profile-name" class="profile-title">User Profile</h2>
+                    <p id="profile-major" class="profile-subtitle">Major</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student ID</span>
-                        <span id="profile-id" class="text-sm font-semibold">20240001</span>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <span class="profile-item__label">Student ID</span>
+                        <span id="profile-id" class="profile-item__value">20240001</span>
                     </div>
-                    <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
-                        <span id="profile-grade" class="text-sm font-semibold">Year 3</span>
+                    <div class="profile-item">
+                        <span class="profile-item__label">Year</span>
+                        <span id="profile-grade" class="profile-item__value">Year 3</span>
                     </div>
-                    <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span
-                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Email</span>
-                        <span id="profile-email" class="text-sm font-semibold truncate block">gildong@example.com</span>
+                    <div class="profile-item">
+                        <span class="profile-item__label">Email</span>
+                        <span id="profile-email" class="profile-item__value profile-item__value--truncate">gildong@example.com</span>
                     </div>
-                    <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Total
-                            Credits</span>
-                        <span id="profile-credits" class="text-sm font-semibold">85 credits</span>
+                    <div class="profile-item">
+                        <span class="profile-item__label">Total Credits</span>
+                        <span id="profile-credits" class="profile-item__value">85 credits</span>
                     </div>
                 </div>
 
-                <button onclick="toggleProfileModal()"
-                    class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
+                <button onclick="toggleProfileModal()" class="profile-close">
                     Close
                 </button>
             </div>
         </div>
 
         <!-- Login Required Modal -->
-        <div id="login-required-modal"
-            class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
-            <div
-                class="bg-white dark:bg-zinc-900 w-full max-w-sm p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-zinc-800">
-                <div class="flex justify-end mb-2">
-                    <button onclick="toggleLoginRequiredModal()"
-                        class="text-slate-400 hover:text-slate-600 transition-colors">
+        <div id="login-required-modal" class="modal dimmed-overlay hidden">
+            <div class="modal-card notice-card">
+                <div class="modal-card__close">
+                    <button onclick="toggleLoginRequiredModal()" class="modal-close-btn" aria-label="Close notice">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
-                <div class="flex flex-col items-center mb-6">
-                    <div
-                        class="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-4 text-amber-600 dark:text-amber-400 shadow-inner">
-                        <span class="material-icons text-5xl">lock</span>
+                <div class="notice-header">
+                    <div class="notice-icon">
+                        <span class="material-icons notice-icon__symbol">lock</span>
                     </div>
-                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Login Required</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account settings.
-                    </p>
+                    <h2 class="notice-title">Login Required</h2>
+                    <p class="notice-text">Please log in to view account settings.</p>
                 </div>
 
-                <div class="flex flex-col gap-3">
-                    <button onclick="openLoginFromRequired()"
-                        class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <div class="notice-actions">
+                    <button onclick="openLoginFromRequired()" class="notice-primary">
                         Go to Login
-                        <span class="material-icons text-lg">login</span>
+                        <span class="material-icons notice-primary__icon">login</span>
                     </button>
-                    <button onclick="toggleLoginRequiredModal()"
-                        class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
+                    <button onclick="toggleLoginRequiredModal()" class="notice-secondary">
                         Not Now
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="chat-container" class="flex-1 overflow-y-auto p-8 space-y-8 main-scrollbar">
+        <div id="chat-container" class="chat-container main-scrollbar">
             <!-- Initial AI Message -->
-            <div class="flex justify-start items-start gap-4">
-                <div
-                    class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                    <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
+            <div class="chat-message chat-message--ai">
+                <div class="chat-avatar">
+                    <img src="/static/character.jpg" alt="AI Avatar" class="chat-avatar__image">
                 </div>
-                <div
-                    class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <p class="text-slate-700 dark:text-slate-300">
+                <div class="chat-bubble chat-bubble--ai ai-bubble">
+                    <p class="message-content">
                         Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to
                         ask about academic schedules, course registration, graduation requirements, or anything
                         else.
@@ -231,133 +200,102 @@
         </div>
 
         <!-- Input Area -->
-        <div class="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <div class="max-w-4xl mx-auto relative group">
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
                 <input id="chat-input"
-                    class="w-full h-14 pl-6 pr-14 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="chat-input"
                     placeholder="Please login to chat" type="text" disabled />
                 <button id="send-btn"
-                    class="absolute inset-y-2 right-2 px-4 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="chat-send"
                     disabled>
-                    <span class="material-symbols-outlined">send</span>
+                    <span class="material-symbols-outlined chat-send__icon">send</span>
                 </button>
             </div>
-            <p class="text-center text-[10px] text-slate-400 mt-3">
+            <p class="chat-disclaimer">
                 AI can generate inaccurate information. Please verify important details directly with the Academic
                 Affairs office.
             </p>
         </div>
 
         <!-- Grade Entry Modal (Internal Popup) -->
-        <div id="grade-modal"
-            class="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-30 transform translate-y-full transition-transform duration-300 ease-in-out flex flex-col overflow-hidden">
-            <header
-                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
-                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Grade Entry & GPA Calculator</h2>
-                <button onclick="toggleGradeModal()"
-                    class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors">
+        <div id="grade-modal" class="grade-modal grade-modal--closed">
+            <header class="grade-modal__header">
+                <h2 class="grade-modal__title">Grade Entry & GPA Calculator</h2>
+                <button onclick="toggleGradeModal()" class="grade-modal__close" aria-label="Close grade modal">
                     <span class="material-icons-round">close</span>
                 </button>
             </header>
 
-            <div class="flex-1 overflow-y-auto pt-4 px-8 pb-4 custom-scrollbar h-full">
-                <div class="max-w-5xl mx-auto flex flex-col h-full gap-6">
+            <div class="grade-modal__content custom-scrollbar">
+                <div class="grade-modal__inner">
                     <!-- Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div
-                            class="bg-[#A32626] p-6 rounded-2xl shadow-xl shadow-red-900/10 text-white flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-sm font-medium opacity-80">Average GPA (All)</span>
-                            </div>
-                            <div class="mt-4">
-                                <span id="top-gpa-display" class="text-4xl font-bold tracking-tight">3.75</span>
-                                <span class="text-sm opacity-60 ml-2">/ 4.00</span>
+                    <div class="grade-stats">
+                        <div class="grade-stat grade-stat--primary">
+                            <div class="grade-stat__label">Average GPA (All)</div>
+                            <div class="grade-stat__value">
+                                <span id="top-gpa-display" class="grade-stat__number">3.75</span>
+                                <span class="grade-stat__unit">/ 4.00</span>
                             </div>
                         </div>
-                        <div
-                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Major GPA</span>
-                            </div>
-                            <div class="mt-4">
-                                <span id="major-gpa-display"
-                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">4.00</span>
-                                <span class="text-sm text-slate-400 ml-2">/ 4.00</span>
+                        <div class="grade-stat">
+                            <div class="grade-stat__label grade-stat__label--muted">Major GPA</div>
+                            <div class="grade-stat__value">
+                                <span id="major-gpa-display" class="grade-stat__number grade-stat__number--dark">4.00</span>
+                                <span class="grade-stat__unit grade-stat__unit--muted">/ 4.00</span>
                             </div>
                         </div>
-                        <div
-                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Credits
-                                    Earned</span>
-                            </div>
-                            <div class="mt-4">
-                                <span id="total-credits-display"
-                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">0</span>
-                                <span class="text-sm text-slate-400 ml-2">Credits</span>
+                        <div class="grade-stat">
+                            <div class="grade-stat__label grade-stat__label--muted">Total Credits Earned</div>
+                            <div class="grade-stat__value">
+                                <span id="total-credits-display" class="grade-stat__number grade-stat__number--dark">0</span>
+                                <span class="grade-stat__unit grade-stat__unit--muted">Credits</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Records Table -->
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex-1 flex flex-col">
-                        <div
-                            class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
+                    <div class="grade-table">
+                        <div class="grade-table__header">
                             <!-- Semester Tabs moved here -->
-                            <div class="flex-1 overflow-hidden relative">
-                                <div id="semester-tabs"
-                                    class="flex gap-2 overflow-x-auto pb-1 scroll-smooth no-scrollbar">
+                            <div class="grade-tabs">
+                                <div id="semester-tabs" class="grade-tabs__list no-scrollbar">
                                     <!-- Tabs will be injected here -->
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-auto flex-1">
-                            <table class="w-full text-left border-collapse">
+                        <div class="grade-table__body">
+                            <table class="grade-table__table">
                                 <thead>
-                                    <tr
-                                        class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest">
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Major</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
-                                            Credit</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
-                                            Name</th>
-                                        <th
-                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
-                                            Grade
-                                            Point</th>
-                                        <th
-                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
-                                            Grade</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 w-16"></th>
+                                    <tr class="grade-table__head-row">
+                                        <th class="grade-table__th">Major</th>
+                                        <th class="grade-table__th">Course Credit</th>
+                                        <th class="grade-table__th">Course Name</th>
+                                        <th class="grade-table__th grade-table__th--center">Grade Point</th>
+                                        <th class="grade-table__th grade-table__th--center">Grade</th>
+                                        <th class="grade-table__th grade-table__th--spacer"></th>
                                     </tr>
                                 </thead>
-                                <tbody
-                                    class="divide-y divide-slate-100 dark:divide-slate-700 border-b border-slate-100 dark:border-slate-700">
+                                <tbody class="grade-table__rows">
                                     <!-- Rows will be injected by JavaScript -->
                                 </tbody>
                             </table>
                         </div>
-                        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
-                            <div class="flex items-center gap-6">
-                                <div class="flex flex-col">
-                                    <span
-                                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Calculated
-                                        GPA</span>
-                                    <span id="calculated-gpa" class="text-xl font-bold text-primary">4.00</span>
+                        <div class="grade-summary">
+                            <div class="grade-summary__metrics">
+                                <div class="grade-summary__block">
+                                    <span class="grade-summary__label">Calculated GPA</span>
+                                    <span id="calculated-gpa" class="grade-summary__value grade-summary__value--primary">4.00</span>
                                 </div>
-                                <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-700"></div>
-                                <div class="flex flex-col">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Major
-                                        Specific</span>
-                                    <span id="major-gpa-summary"
-                                        class="text-xl font-bold text-slate-800 dark:text-slate-100">4.00</span>
+                                <div class="grade-summary__divider"></div>
+                                <div class="grade-summary__block">
+                                    <span class="grade-summary__label">Major Specific</span>
+                                    <span id="major-gpa-summary" class="grade-summary__value">4.00</span>
                                 </div>
                             </div>
-                            <div class="flex gap-3">
-                                <button id="gpa-edit-toggle-btn" onclick="toggleGpaEditMode()"
-                                    class="px-8 py-2.5 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold text-sm">Edit
-                                    Record</button>
+                            <div class="grade-summary__actions">
+                                <button id="gpa-edit-toggle-btn" onclick="toggleGpaEditMode()" class="grade-summary__edit-btn">
+                                    Edit Record
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -368,138 +306,111 @@
     </main>
 
     <!-- Login Modal -->
-    <div id="login-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
-        <div
-            class="bg-white dark:bg-zinc-900 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300">
-            <div class="flex justify-end">
-                <button onclick="toggleLoginModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+    <div id="login-modal" class="modal dimmed-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-card__close">
+                <button onclick="toggleLoginModal()" class="modal-close-btn" aria-label="Close login">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-            <div class="flex flex-col items-center mb-8">
-                <div class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center mb-4 shadow-lg">
-                    <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+            <div class="auth-modal__header">
+                <div class="auth-modal__logo">
+                    <img src="/static/logo.jpg" alt="Logo" class="auth-modal__logo-image">
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">UCSI Login</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Please log in with your student account to
-                    continue</p>
+                <h2 class="auth-modal__title">UCSI Login</h2>
+                <p class="auth-modal__subtitle">Please log in with your student account to continue</p>
             </div>
-            <form class="space-y-5" onsubmit="handleLogin(event)">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                        for="student-id">Student ID</label>
-                    <div class="relative">
-                        <span
-                            class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
-                        <input
-                            class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                            id="student-id" placeholder="Enter your Student ID" type="text" required />
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="auth-field">
+                    <label class="auth-label" for="student-id">Student ID</label>
+                    <div class="auth-input-wrap">
+                        <span class="material-icons auth-input-icon">badge</span>
+                        <input class="auth-input" id="student-id" placeholder="Enter your Student ID" type="text"
+                            required />
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                        for="password">Password</label>
-                    <div class="relative group/pass">
-                        <span
-                            class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock</span>
-                        <input
-                            class="w-full pl-12 pr-12 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                            id="password" placeholder="••••••••" type="password" required />
-                        <button type="button" onclick="togglePasswordVisibility()"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors">
-                            <span id="password-toggle-icon" class="material-icons text-xl">visibility</span>
+                <div class="auth-field">
+                    <label class="auth-label" for="password">Password</label>
+                    <div class="auth-input-wrap">
+                        <span class="material-icons auth-input-icon">lock</span>
+                        <input class="auth-input auth-input--with-toggle" id="password" placeholder="••••••••"
+                            type="password" required />
+                        <button type="button" onclick="togglePasswordVisibility()" class="auth-input-toggle"
+                            aria-label="Toggle password visibility">
+                            <span id="password-toggle-icon" class="material-icons auth-input-toggle-icon">visibility</span>
                         </button>
                     </div>
-                    <div class="flex justify-end mt-2">
-                        <button type="button" onclick="openFindPasswordModal()"
-                            class="text-sm text-red-600 hover:text-red-700 hover:underline font-bold transition-colors">
+                    <div class="auth-forgot">
+                        <button type="button" onclick="openFindPasswordModal()" class="auth-link">
                             Forgot Password?
                         </button>
                     </div>
                 </div>
-                <button
-                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
-                    type="submit">
+                <button class="auth-submit" type="submit">
                     Login
-                    <span class="material-icons text-lg">login</span>
+                    <span class="material-icons auth-submit-icon">login</span>
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Find Password Modal -->
-    <div id="find-password-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
-        <div
-            class="bg-white dark:bg-zinc-900 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300">
-            <div class="flex justify-end">
-                <button onclick="toggleFindPasswordModal()"
-                    class="text-slate-400 hover:text-slate-600 transition-colors">
+    <div id="find-password-modal" class="modal dimmed-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-card__close">
+                <button onclick="toggleFindPasswordModal()" class="modal-close-btn" aria-label="Close find password">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-            <div class="flex flex-col items-center mb-8">
-                <div class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center mb-4 shadow-lg">
-                    <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+            <div class="auth-modal__header">
+                <div class="auth-modal__logo">
+                    <img src="/static/logo.jpg" alt="Logo" class="auth-modal__logo-image">
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Find Password</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">Please enter your Student ID and
-                    Email to find your password.</p>
+                <h2 class="auth-modal__title">Find Password</h2>
+                <p class="auth-modal__subtitle">Please enter your Student ID and Email to find your password.</p>
             </div>
 
             <!-- Input Form Section -->
             <div id="find-password-form-container">
-                <form class="space-y-5" onsubmit="handleFindPassword(event)">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                            for="find-student-id">Student ID</label>
-                        <div class="relative">
-                            <span
-                                class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
-                            <input
-                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                                id="find-student-id" placeholder="Enter your Student ID" type="text" required />
+                <form class="auth-form" onsubmit="handleFindPassword(event)">
+                    <div class="auth-field">
+                        <label class="auth-label" for="find-student-id">Student ID</label>
+                        <div class="auth-input-wrap">
+                            <span class="material-icons auth-input-icon">badge</span>
+                            <input class="auth-input" id="find-student-id" placeholder="Enter your Student ID"
+                                type="text" required />
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
-                            for="find-email">Email</label>
-                        <div class="relative">
-                            <span
-                                class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">email</span>
-                            <input
-                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
-                                id="find-email" placeholder="Enter your registered Email" type="email" required />
+                    <div class="auth-field">
+                        <label class="auth-label" for="find-email">Email</label>
+                        <div class="auth-input-wrap">
+                            <span class="material-icons auth-input-icon">email</span>
+                            <input class="auth-input" id="find-email" placeholder="Enter your registered Email"
+                                type="email" required />
                         </div>
                     </div>
 
-                    <button
-                        class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
-                        type="submit">
+                    <button class="auth-submit" type="submit">
                         Find Password
-                        <span class="material-icons text-lg">search</span>
+                        <span class="material-icons auth-submit-icon">search</span>
                     </button>
-                    <button type="button" onclick="openLoginModal()"
-                        class="w-full text-sm text-slate-500 hover:text-primary transition-colors font-medium mt-2">
+                    <button type="button" onclick="openLoginModal()" class="auth-secondary">
                         Back to Login
                     </button>
                 </form>
             </div>
 
             <!-- Result Section (hidden by default) -->
-            <div id="find-password-result-container" class="hidden text-center animate-in fade-in zoom-in duration-300">
-                <div
-                    class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="material-icons text-green-500 text-3xl">check_circle</span>
+            <div id="find-password-result-container" class="auth-result hidden">
+                <div class="auth-result__icon">
+                    <span class="material-icons auth-result__icon-symbol">check_circle</span>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Password Recovered</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">Your password is:</p>
-                <div
-                    class="bg-slate-50 dark:bg-zinc-800 p-4 rounded-xl border border-dashed border-slate-200 dark:border-zinc-700 mb-8">
-                    <span id="recovered-password-display"
-                        class="text-xl font-mono font-bold text-primary tracking-wider"></span>
+                <h3 class="auth-result__title">Password Recovered</h3>
+                <p class="auth-result__subtitle">Your password is:</p>
+                <div class="auth-result__box">
+                    <span id="recovered-password-display" class="auth-result__value"></span>
                 </div>
-                <button onclick="openLoginModalFromSuccess()"
-                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all">
+                <button onclick="openLoginModalFromSuccess()" class="auth-submit">
                     Back to Login
                 </button>
             </div>
@@ -507,27 +418,21 @@
     </div>
 
     <!-- Custom Alert/Confirm Modal -->
-    <div id="custom-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-[100] hidden">
-        <div
-            class="relative bg-white dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
-            <button id="modal-close-btn"
-                class="absolute top-6 right-8 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
-                <span class="material-icons text-2xl">close</span>
+    <div id="custom-modal" class="modal dimmed-overlay hidden">
+        <div class="modal-card alert-card">
+            <button id="modal-close-btn" class="alert-close" aria-label="Close dialog">
+                <span class="material-icons alert-close__icon">close</span>
             </button>
-            <div id="modal-icon-container"
-                class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                <span id="modal-icon" class="material-icons text-primary text-3xl">info</span>
+            <div id="modal-icon-container" class="alert-icon">
+                <span id="modal-icon" class="material-icons alert-icon__symbol">info</span>
             </div>
-            <h3 id="modal-title" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Notice</h3>
-            <p id="modal-message" class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">Message goes
-                here.</p>
-            <div id="modal-buttons" class="w-full flex flex-col gap-3">
-                <button id="modal-primary-btn"
-                    class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center">
+            <h3 id="modal-title" class="alert-title">Notice</h3>
+            <p id="modal-message" class="alert-message">Message goes here.</p>
+            <div id="modal-buttons" class="alert-actions">
+                <button id="modal-primary-btn" class="alert-primary">
                     Confirm
                 </button>
-                <button id="modal-secondary-btn"
-                    class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-bold py-3.5 rounded-xl hover:bg-slate-200 transition-all hidden">
+                <button id="modal-secondary-btn" class="alert-secondary hidden">
                     Cancel
                 </button>
             </div>
