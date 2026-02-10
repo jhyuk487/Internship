@@ -8,7 +8,7 @@ tailwind.config = {
                 "user-bubble": "#e9967a",
                 "user-bubble-dark": "#b06d58",
                 "background-light": "#f9fafb",
-                "background-dark": "#0f172a",
+                "background-dark": "#09090b",
                 sidebar: {
                     light: "#811d1d",
                     dark: "#450a0a",

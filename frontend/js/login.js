@@ -28,7 +28,7 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Login Successful!");
+
 
             // Save token
             localStorage.setItem('access_token', data.access_token);
@@ -82,11 +82,21 @@ async function handleLogin(event) {
             }
 
         } else {
-            alert("Login Failed: " + (data.detail || "Check credentials"));
+            console.log("Login failed with status:", response.status);
+            if (typeof showCustomModal === 'function') {
+                await showCustomModal({
+                    title: "Login Failed",
+                    message: data.detail || "Check credentials",
+                    icon: "error",
+                    primaryText: "Try Again"
+                });
+            } else {
+                alert("Login Failed: " + (data.detail || "Check credentials"));
+            }
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert("An error occurred during login.");
+        alert("An error occurred during login: " + error.message);
     }
 }
 

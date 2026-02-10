@@ -44,12 +44,39 @@
             cursor: default;
         }
     </style>
-    <link href="/static/css/tailwind.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#dc2645",
+                        "primary-dark": "#991b1b",
+                        "user-bubble": "#e9967a",
+                        "user-bubble-dark": "#b06d58",
+                        "background-light": "#f9fafb",
+                        "background-dark": "#262626",
+                        sidebar: {
+                            light: "#811d1d",
+                            dark: "#171717",
+                        }
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                    },
+                },
+            },
+        }
+    </script>
     <link href="/static/css/style.css" rel="stylesheet" />
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen flex overflow-hidden">
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-neutral-100 h-screen flex overflow-hidden">
     <!-- Sidebar -->
     <aside class="w-80 bg-sidebar-light dark:bg-sidebar-dark flex flex-col p-4 text-white shadow-xl z-20">
         <div class="mb-8 p-2 flex items-center gap-2">
@@ -58,8 +85,7 @@
             </div>
             <span class="font-bold text-lg tracking-tight">UCSI Support AI</span>
         </div>
-        <button
-            id="new-chat-btn"
+        <button id="new-chat-btn"
             class="w-full bg-white text-sidebar-light py-3 px-4 rounded-xl flex items-center gap-2 font-bold mb-6 hover:bg-red-50 transition-all active:scale-95 group shadow-lg"
             onclick="startNewChat()">
             <span
@@ -110,7 +136,7 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col relative bg-slate-50 dark:bg-slate-900">
         <header
-            class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-10">
+            class="h-16 border-b border-slate-200 dark:border-neutral-600 flex items-center justify-between px-8 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm z-10">
             <div class="flex items-center gap-2">
                 <h2 id="conversation-title" class="font-semibold text-lg">New Conversation</h2>
                 <span
@@ -129,7 +155,7 @@
         <!-- User Profile Modal -->
         <div id="profile-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
             <div
-                class="bg-white dark:bg-zinc-900 w-full max-w-md p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-zinc-800">
+                class="bg-white dark:bg-neutral-800 w-full max-w-md p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-neutral-600">
                 <div class="flex justify-end mb-2">
                     <button onclick="toggleProfileModal()"
                         class="text-slate-400 hover:text-slate-600 transition-colors">
@@ -147,23 +173,25 @@
 
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student ID</span>
+                        class="p-4 bg-slate-50 dark:bg-neutral-700/50 rounded-2xl border border-slate-100 dark:border-neutral-600">
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Student
+                            ID</span>
                         <span id="profile-id" class="text-sm font-semibold">20240001</span>
                     </div>
                     <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
+                        class="p-4 bg-slate-50 dark:bg-neutral-700/50 rounded-2xl border border-slate-100 dark:border-neutral-600">
+                        <span
+                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Year</span>
                         <span id="profile-grade" class="text-sm font-semibold">Year 3</span>
                     </div>
                     <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                        class="p-4 bg-slate-50 dark:bg-neutral-700/50 rounded-2xl border border-slate-100 dark:border-neutral-600">
                         <span
                             class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Email</span>
                         <span id="profile-email" class="text-sm font-semibold truncate block">gildong@example.com</span>
                     </div>
                     <div
-                        class="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-100 dark:border-zinc-800">
+                        class="p-4 bg-slate-50 dark:bg-neutral-700/50 rounded-2xl border border-slate-100 dark:border-neutral-600">
                         <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Total
                             Credits</span>
                         <span id="profile-credits" class="text-sm font-semibold">85 credits</span>
@@ -171,7 +199,7 @@
                 </div>
 
                 <button onclick="toggleProfileModal()"
-                    class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
+                    class="w-full bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-neutral-600 transition-all">
                     Close
                 </button>
             </div>
@@ -181,7 +209,7 @@
         <div id="login-required-modal"
             class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
             <div
-                class="bg-white dark:bg-zinc-900 w-full max-w-sm p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-zinc-800">
+                class="bg-white dark:bg-neutral-800 w-full max-w-sm p-8 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-neutral-600">
                 <div class="flex justify-end mb-2">
                     <button onclick="toggleLoginRequiredModal()"
                         class="text-slate-400 hover:text-slate-600 transition-colors">
@@ -194,7 +222,8 @@
                         <span class="material-icons text-5xl">lock</span>
                     </div>
                     <h2 class="text-xl font-bold text-slate-900 dark:text-white">Login Required</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account settings.
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">Please log in to view account
+                        settings.
                     </p>
                 </div>
 
@@ -205,7 +234,7 @@
                         <span class="material-icons text-lg">login</span>
                     </button>
                     <button onclick="toggleLoginRequiredModal()"
-                        class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all">
+                        class="w-full bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-300 font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-neutral-600 transition-all">
                         Not Now
                     </button>
                 </div>
@@ -216,12 +245,12 @@
             <!-- Initial AI Message -->
             <div class="flex justify-start items-start gap-4">
                 <div
-                    class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                    class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-neutral-600">
                     <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
                 </div>
                 <div
-                    class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <p class="text-slate-700 dark:text-slate-300">
+                    class="ai-bubble bg-white dark:bg-neutral-800 p-6 rounded-2xl border border-slate-200 dark:border-neutral-600 shadow-sm prose dark:prose-invert max-w-none">
+                    <p class="text-slate-700 dark:text-neutral-300">
                         Hello! I am your UCSI University academic assistant. How can I help you today? Feel free to
                         ask about academic schedules, course registration, graduation requirements, or anything
                         else.
@@ -231,10 +260,10 @@
         </div>
 
         <!-- Input Area -->
-        <div class="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <div class="p-6 bg-white dark:bg-neutral-800 border-t border-slate-100 dark:border-neutral-600">
             <div class="max-w-4xl mx-auto relative group">
                 <input id="chat-input"
-                    class="w-full h-14 pl-6 pr-14 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full h-14 pl-6 pr-14 bg-slate-50 dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Please login to chat" type="text" disabled />
                 <button id="send-btn"
                     class="absolute inset-y-2 right-2 px-4 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -250,9 +279,9 @@
 
         <!-- Grade Entry Modal (Internal Popup) -->
         <div id="grade-modal"
-            class="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-30 transform translate-y-full transition-transform duration-300 ease-in-out flex flex-col overflow-hidden">
+            class="absolute inset-0 bg-slate-50 dark:bg-background-dark z-30 transform translate-y-full transition-transform duration-300 ease-in-out flex flex-col overflow-hidden">
             <header
-                class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
+                class="h-16 border-b border-slate-200 dark:border-neutral-600 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
                 <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Grade Entry & GPA Calculator</h2>
                 <button onclick="toggleGradeModal()"
                     class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors">
@@ -275,25 +304,25 @@
                             </div>
                         </div>
                         <div
-                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                            class="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-600 flex flex-col justify-between">
                             <div class="flex justify-between items-start">
-                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Major GPA</span>
+                                <span class="text-sm font-medium text-slate-500 dark:text-neutral-400">Major GPA</span>
                             </div>
                             <div class="mt-4">
                                 <span id="major-gpa-display"
-                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">4.00</span>
+                                    class="text-4xl font-bold text-slate-800 dark:text-neutral-100 tracking-tight">4.00</span>
                                 <span class="text-sm text-slate-400 ml-2">/ 4.00</span>
                             </div>
                         </div>
                         <div
-                            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                            class="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-600 flex flex-col justify-between">
                             <div class="flex justify-between items-start">
-                                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Credits
+                                <span class="text-sm font-medium text-slate-500 dark:text-neutral-400">Total Credits
                                     Earned</span>
                             </div>
                             <div class="mt-4">
                                 <span id="total-credits-display"
-                                    class="text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">0</span>
+                                    class="text-4xl font-bold text-slate-800 dark:text-neutral-100 tracking-tight">0</span>
                                 <span class="text-sm text-slate-400 ml-2">Credits</span>
                             </div>
                         </div>
@@ -301,9 +330,9 @@
 
                     <!-- Records Table -->
                     <div
-                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex-1 flex flex-col">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-600 overflow-hidden flex-1 flex flex-col">
                         <div
-                            class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
+                            class="p-4 border-b border-slate-100 dark:border-neutral-600 flex items-center justify-between gap-4">
                             <!-- Semester Tabs moved here -->
                             <div class="flex-1 overflow-hidden relative">
                                 <div id="semester-tabs"
@@ -316,29 +345,31 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr
-                                        class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest">
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Major</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
+                                        class="bg-slate-50 dark:bg-neutral-800/50 text-slate-500 dark:text-neutral-400 uppercase text-[10px] font-bold tracking-widest">
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600">Major
+                                        </th>
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600">Course
                                             Credit</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">Course
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600">Course
                                             Name</th>
                                         <th
-                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
+                                            class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600 text-center">
                                             Grade
                                             Point</th>
                                         <th
-                                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 text-center">
+                                            class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600 text-center">
                                             Grade</th>
-                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 w-16"></th>
+                                        <th class="px-6 py-4 border-b border-slate-100 dark:border-neutral-600 w-16">
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody
-                                    class="divide-y divide-slate-100 dark:divide-slate-700 border-b border-slate-100 dark:border-slate-700">
+                                    class="divide-y divide-slate-100 dark:divide-neutral-600 border-b border-slate-100 dark:border-neutral-600">
                                     <!-- Rows will be injected by JavaScript -->
                                 </tbody>
                             </table>
                         </div>
-                        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
+                        <div class="p-6 bg-slate-50/50 dark:bg-neutral-800/30 flex justify-between items-center">
                             <div class="flex items-center gap-6">
                                 <div class="flex flex-col">
                                     <span
@@ -346,12 +377,12 @@
                                         GPA</span>
                                     <span id="calculated-gpa" class="text-xl font-bold text-primary">4.00</span>
                                 </div>
-                                <div class="w-[1px] h-8 bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="w-[1px] h-8 bg-slate-200 dark:bg-neutral-600"></div>
                                 <div class="flex flex-col">
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Major
                                         Specific</span>
                                     <span id="major-gpa-summary"
-                                        class="text-xl font-bold text-slate-800 dark:text-slate-100">4.00</span>
+                                        class="text-xl font-bold text-slate-800 dark:text-neutral-100">4.00</span>
                                 </div>
                             </div>
                             <div class="flex gap-3">
@@ -370,7 +401,7 @@
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
         <div
-            class="bg-white dark:bg-zinc-900 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300">
+            class="bg-white dark:bg-neutral-800 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-neutral-600">
             <div class="flex justify-end">
                 <button onclick="toggleLoginModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
                     <span class="material-icons">close</span>
@@ -381,29 +412,29 @@
                     <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
                 </div>
                 <h2 class="text-2xl font-bold text-slate-900 dark:text-white">UCSI Login</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Please log in with your student account to
+                <p class="text-slate-500 dark:text-neutral-400 text-sm mt-1">Please log in with your student account to
                     continue</p>
             </div>
             <form class="space-y-5" onsubmit="handleLogin(event)">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-neutral-300 mb-1.5 ml-1"
                         for="student-id">Student ID</label>
                     <div class="relative">
                         <span
                             class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
                         <input
-                            class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                            class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
                             id="student-id" placeholder="Enter your Student ID" type="text" required />
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-neutral-300 mb-1.5 ml-1"
                         for="password">Password</label>
                     <div class="relative group/pass">
                         <span
                             class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock</span>
                         <input
-                            class="w-full pl-12 pr-12 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                            class="w-full pl-12 pr-12 py-3.5 rounded-xl bg-slate-50 dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
                             id="password" placeholder="••••••••" type="password" required />
                         <button type="button" onclick="togglePasswordVisibility()"
                             class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors">
@@ -430,7 +461,7 @@
     <!-- Find Password Modal -->
     <div id="find-password-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-50 hidden">
         <div
-            class="bg-white dark:bg-zinc-900 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300">
+            class="bg-white dark:bg-neutral-800 w-full max-w-md p-10 rounded-3xl shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-neutral-600">
             <div class="flex justify-end">
                 <button onclick="toggleFindPasswordModal()"
                     class="text-slate-400 hover:text-slate-600 transition-colors">
@@ -442,7 +473,8 @@
                     <img src="/static/logo.jpg" alt="Logo" class="w-full h-full object-cover">
                 </div>
                 <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Find Password</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 text-center">Please enter your Student ID and
+                <p class="text-slate-500 dark:text-neutral-400 text-sm mt-1 text-center">Please enter your Student ID
+                    and
                     Email to find your password.</p>
             </div>
 
@@ -450,24 +482,24 @@
             <div id="find-password-form-container">
                 <form class="space-y-5" onsubmit="handleFindPassword(event)">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-neutral-300 mb-1.5 ml-1"
                             for="find-student-id">Student ID</label>
                         <div class="relative">
                             <span
                                 class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">badge</span>
                             <input
-                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
                                 id="find-student-id" placeholder="Enter your Student ID" type="text" required />
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1"
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-neutral-300 mb-1.5 ml-1"
                             for="find-email">Email</label>
                         <div class="relative">
                             <span
                                 class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">email</span>
                             <input
-                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
+                                class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
                                 id="find-email" placeholder="Enter your registered Email" type="email" required />
                         </div>
                     </div>
@@ -492,9 +524,9 @@
                     <span class="material-icons text-green-500 text-3xl">check_circle</span>
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Password Recovered</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">Your password is:</p>
+                <p class="text-slate-500 dark:text-neutral-400 text-sm mb-6">Your password is:</p>
                 <div
-                    class="bg-slate-50 dark:bg-zinc-800 p-4 rounded-xl border border-dashed border-slate-200 dark:border-zinc-700 mb-8">
+                    class="bg-slate-50 dark:bg-neutral-700 p-4 rounded-xl border border-dashed border-slate-200 dark:border-neutral-600 mb-8">
                     <span id="recovered-password-display"
                         class="text-xl font-mono font-bold text-primary tracking-wider"></span>
                 </div>
@@ -509,7 +541,7 @@
     <!-- Custom Alert/Confirm Modal -->
     <div id="custom-modal" class="fixed inset-0 dimmed-overlay flex items-center justify-center z-[100] hidden">
         <div
-            class="relative bg-white dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
+            class="relative bg-white dark:bg-neutral-800 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl mx-4 transform animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center border border-slate-200 dark:border-neutral-600">
             <button id="modal-close-btn"
                 class="absolute top-6 right-8 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
                 <span class="material-icons text-2xl">close</span>
@@ -519,7 +551,7 @@
                 <span id="modal-icon" class="material-icons text-primary text-3xl">info</span>
             </div>
             <h3 id="modal-title" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Notice</h3>
-            <p id="modal-message" class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">Message goes
+            <p id="modal-message" class="text-slate-500 dark:text-neutral-400 text-sm mb-8 leading-relaxed">Message goes
                 here.</p>
             <div id="modal-buttons" class="w-full flex flex-col gap-3">
                 <button id="modal-primary-btn"
@@ -527,7 +559,7 @@
                     Confirm
                 </button>
                 <button id="modal-secondary-btn"
-                    class="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-bold py-3.5 rounded-xl hover:bg-slate-200 transition-all hidden">
+                    class="w-full bg-slate-100 dark:bg-neutral-700 text-slate-600 dark:text-neutral-400 font-bold py-3.5 rounded-xl hover:bg-slate-200 transition-all hidden">
                     Cancel
                 </button>
             </div>
