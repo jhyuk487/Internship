@@ -30,13 +30,8 @@ backend/
 │   └── main.py          # FastAPI 앱 진입점
 ├── data/                # RAG 문서 및 FAISS 인덱스
 ├── requirements.txt
-<<<<<<< HEAD
-├── .env                 # 환경 변수
-└── migrate_passwords.py # 비밀번호 마이그레이션 스크립트
-=======
 └── .env                 # 환경 변수
 ```
->>>>>>> origin/jun1
 
 ### 3.2 프론트엔드
 ```
