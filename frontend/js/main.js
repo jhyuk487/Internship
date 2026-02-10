@@ -177,7 +177,7 @@ function renderSemesterTable() {
         const addRowTr = document.createElement('tr');
         addRowTr.className = "grade-row";
         addRowTr.innerHTML = `
-            <td colspan="6" class="grade-cell grade-cell--full">
+            <td colspan="6" class="grade-cell grade-cell--full grade-cell--no-padding">
                 <button onclick="addRow()" class="grade-add-btn">
                     <span class="material-symbols-outlined">add_circle</span>
                     Add New Course
@@ -692,15 +692,13 @@ function checkAndUpdateHistoryUI() {
     // Check if user is logged in (not guest)
     if (window.currentUserId === "guest" || !window.currentUserId) {
         // Show login prompt instead of history
-        const header = historyList.querySelector('p');
         historyList.innerHTML = '';
-        if (header) historyList.appendChild(header);
 
         const loginPrompt = document.createElement('div');
         loginPrompt.className = 'history-guest guest-prompt';
         loginPrompt.innerHTML = `
             <span class="material-symbols-outlined history-guest__icon">lock</span>
-            <p class="history-guest__text">Login to save and view<br>your chat history</p>
+            <p class="history-guest__text sidebar-text">Login to save and view<br>your chat history</p>
         `;
         historyList.appendChild(loginPrompt);
         return;
@@ -773,9 +771,7 @@ function updateHistoryUI() {
         checkAndUpdateHistoryUI();
         return;
     }
-    const header = historyList.querySelector('p');
     historyList.innerHTML = '';
-    if (header) historyList.appendChild(header);
 
     if (chatHistory.length === 0) {
         const emptyMsg = document.createElement('div');
@@ -1032,11 +1028,16 @@ async function deleteChat(chatId) {
     if (!token) return;
 
     try {
-        await fetch(`/chat/history/${chatId}`, {
+        const response = await fetch(`/chat/history/${chatId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        await loadChatHistoryFromBackend();
+        if (response.ok) {
+            if (String(chatId) === String(currentLoadedChatId)) {
+                startNewChat({ suppressGuestConfirm: true });
+            }
+            await loadChatHistoryFromBackend();
+        }
     } catch (error) {
         console.error('Error deleting chat:', error);
     }
@@ -1044,7 +1045,7 @@ async function deleteChat(chatId) {
 
 async function startNewChat(options = {}) {
     closeGradeModal();
-    
+
     if (isNewChat) {
         return;
     }
@@ -1088,7 +1089,7 @@ async function startNewChat(options = {}) {
 
 async function loadChat(chatId) {
     closeGradeModal();
-    
+
     const chat = chatHistory.find(c => String(c.id) === String(chatId) || String(c.originalIndex) === String(chatId));
     if (!chat) return;
     currentLoadedChatId = chat.id || null;

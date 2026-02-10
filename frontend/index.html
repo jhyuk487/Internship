@@ -49,7 +49,7 @@
 
 <body class="app-shell">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar">
+    <aside id="sidebar" class="sidebar flex-shrink-0">
         <div class="sidebar__header">
             <div class="sidebar__brand" id="sidebar-logo-area">
                 <div class="sidebar__logo">
@@ -84,8 +84,7 @@
                             <h3 id="user-name" class="sidebar__user-name">Guest Student</h3>
                             <p id="user-plan" class="sidebar__user-plan">Newcomer</p>
                         </div>
-                        <button onclick="handleSettingsClick()" class="sidebar__settings-btn"
-                            title="Account Settings">
+                        <button onclick="handleSettingsClick()" class="sidebar__settings-btn" title="Account Settings">
                             <span class="material-symbols-outlined sidebar__settings-icon">settings</span>
                         </button>
                     </div>
@@ -141,7 +140,8 @@
                     </div>
                     <div class="profile-item">
                         <span class="profile-item__label">Email</span>
-                        <span id="profile-email" class="profile-item__value profile-item__value--truncate">gildong@example.com</span>
+                        <span id="profile-email"
+                            class="profile-item__value profile-item__value--truncate">gildong@example.com</span>
                     </div>
                     <div class="profile-item">
                         <span class="profile-item__label">Total Credits</span>
@@ -202,12 +202,8 @@
         <!-- Input Area -->
         <div class="chat-input-area">
             <div class="chat-input-wrapper">
-                <input id="chat-input"
-                    class="chat-input"
-                    placeholder="Please login to chat" type="text" disabled />
-                <button id="send-btn"
-                    class="chat-send"
-                    disabled>
+                <input id="chat-input" class="chat-input" placeholder="Please login to chat" type="text" disabled />
+                <button id="send-btn" class="chat-send" disabled>
                     <span class="material-symbols-outlined chat-send__icon">send</span>
                 </button>
             </div>
@@ -240,14 +236,16 @@
                         <div class="grade-stat">
                             <div class="grade-stat__label grade-stat__label--muted">Major GPA</div>
                             <div class="grade-stat__value">
-                                <span id="major-gpa-display" class="grade-stat__number grade-stat__number--dark">4.00</span>
+                                <span id="major-gpa-display"
+                                    class="grade-stat__number grade-stat__number--dark">4.00</span>
                                 <span class="grade-stat__unit grade-stat__unit--muted">/ 4.00</span>
                             </div>
                         </div>
                         <div class="grade-stat">
                             <div class="grade-stat__label grade-stat__label--muted">Total Credits Earned</div>
                             <div class="grade-stat__value">
-                                <span id="total-credits-display" class="grade-stat__number grade-stat__number--dark">0</span>
+                                <span id="total-credits-display"
+                                    class="grade-stat__number grade-stat__number--dark">0</span>
                                 <span class="grade-stat__unit grade-stat__unit--muted">Credits</span>
                             </div>
                         </div>
@@ -284,7 +282,8 @@
                             <div class="grade-summary__metrics">
                                 <div class="grade-summary__block">
                                     <span class="grade-summary__label">Calculated GPA</span>
-                                    <span id="calculated-gpa" class="grade-summary__value grade-summary__value--primary">4.00</span>
+                                    <span id="calculated-gpa"
+                                        class="grade-summary__value grade-summary__value--primary">4.00</span>
                                 </div>
                                 <div class="grade-summary__divider"></div>
                                 <div class="grade-summary__block">
@@ -293,7 +292,8 @@
                                 </div>
                             </div>
                             <div class="grade-summary__actions">
-                                <button id="gpa-edit-toggle-btn" onclick="toggleGpaEditMode()" class="grade-summary__edit-btn">
+                                <button id="gpa-edit-toggle-btn" onclick="toggleGpaEditMode()"
+                                    class="grade-summary__edit-btn">
                                     Edit Record
                                 </button>
                             </div>
@@ -337,7 +337,8 @@
                             type="password" required />
                         <button type="button" onclick="togglePasswordVisibility()" class="auth-input-toggle"
                             aria-label="Toggle password visibility">
-                            <span id="password-toggle-icon" class="material-icons auth-input-toggle-icon">visibility</span>
+                            <span id="password-toggle-icon"
+                                class="material-icons auth-input-toggle-icon">visibility</span>
                         </button>
                     </div>
                     <div class="auth-forgot">
