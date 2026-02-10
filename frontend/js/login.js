@@ -28,8 +28,6 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Login Successful!");
-
             // Save token
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('user_id', studentId);
