@@ -1,30 +1,13 @@
-import argparse
 import json
 import asyncio
 import os
 from app.database.database import init_db, MONGODB_URL, DATABASE_NAME
 from app.database.models import User, Course, Major, Account, GradeRecord
-from app.auth.security import get_password_hash
 
 # Path to the data_sets folder (one level up from backend)
 DATA_SETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_sets")
 
-def parse_only_list(value: str | None) -> set[str] | None:
-    if not value:
-        return None
-    parts = [p.strip() for p in value.split(",") if p.strip()]
-    if not parts:
-        return None
-    normalized = set()
-    for part in parts:
-        if part.endswith(".json"):
-            normalized.add(part)
-        else:
-            normalized.add(f"{part}.json")
-    return normalized
-
-
-async def seed_data(only_files: set[str] | None = None):
+async def seed_data():
     # 1. Initialize DB Connection using the app's own logic
     print(f"Connecting to MongoDB at {MONGODB_URL} (DB: {DATABASE_NAME})...")
     await init_db()
@@ -41,8 +24,6 @@ async def seed_data(only_files: set[str] | None = None):
     print("\nStarting database synchronization...")
 
     for filename, model in mappings.items():
-        if only_files and filename not in only_files:
-            continue
         file_path = os.path.join(DATA_SETS_DIR, filename)
         
         if not os.path.exists(file_path):
@@ -76,12 +57,6 @@ async def seed_data(only_files: set[str] | None = None):
                         continue
                 
                 if objects:
-                    # Specific logic for Account: hash passwords if they look like plain text
-                    if model == Account:
-                        for obj in objects:
-                            if not obj.user_password.startswith("$2b$"):
-                                obj.user_password = get_password_hash(obj.user_password)
-                    
                     await model.insert_many(objects)
                     print(f" [OK] Successfully synced {len(objects)} records.")
                 else:
@@ -95,11 +70,4 @@ async def seed_data(only_files: set[str] | None = None):
     print("\nDatabase synchronization complete.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Seed database collections from data_sets.")
-    parser.add_argument(
-        "--only",
-        help="Comma-separated list of dataset files or base names (e.g., login_info or login_info.json).",
-    )
-    args = parser.parse_args()
-    only_files = parse_only_list(args.only)
-    asyncio.run(seed_data(only_files=only_files))
+    asyncio.run(seed_data())

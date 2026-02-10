@@ -195,10 +195,6 @@ function updateRowData(element, field) {
     if (field === 'name') {
         // Course Autocomplete Logic
         // Trigger immediately, backend handles empty query now
-        if (element.dataset.autocompleteSuppress === '1') {
-            delete element.dataset.autocompleteSuppress;
-            return;
-        }
         debouncedSearch(val, element);
     }
 
@@ -438,9 +434,11 @@ checkAndUpdateHistoryUI();
 function updateChatInputState(isLoggedIn) {
     const input = document.getElementById('chat-input');
     const btn = document.getElementById('send-btn');
-    if (!input || !btn) return;
-
-    if (isLoggedIn || ALLOW_GUEST_CHAT) {
+    if (isLoggedIn) {
+        input.disabled = false;
+        input.placeholder = "Type your message...";
+        btn.disabled = false;
+    } else if (ALLOW_GUEST_CHAT) {
         input.disabled = false;
         input.placeholder = "Type your message...";
         btn.disabled = false;
@@ -510,14 +508,12 @@ function showSuggestions(courses, inputElement) {
     // Calculate position
     const rect = inputElement.getBoundingClientRect();
 
+    listDiv.style.top = (rect.bottom + window.scrollY) + "px";
     listDiv.style.left = (rect.left + window.scrollX) + "px";
     listDiv.style.width = (rect.width * 0.9) + "px";
 
     // Append to body to avoid overflow clipping from table/modal
     document.body.appendChild(listDiv);
-
-    // Default to below the input
-    listDiv.style.top = (rect.bottom + window.scrollY) + "px";
 
     courses.forEach(course => {
         const item = document.createElement("div");
@@ -533,7 +529,6 @@ function showSuggestions(courses, inputElement) {
 
             // Update Course Name
             inputElement.value = course.course_name;
-            inputElement.dataset.autocompleteSuppress = '1';
             updateRowData(inputElement, 'name');
 
             // Update Credits (Find the select element in the same row)
@@ -549,13 +544,6 @@ function showSuggestions(courses, inputElement) {
         });
         listDiv.appendChild(item);
     });
-
-    // If dropdown overflows viewport bottom, flip above the input
-    const listRect = listDiv.getBoundingClientRect();
-    if (listRect.bottom > window.innerHeight) {
-        const top = rect.top + window.scrollY - listRect.height - 8;
-        listDiv.style.top = Math.max(8 + window.scrollY, top) + "px";
-    }
 }
 
 function closeAllLists(elmnt) {
@@ -1099,7 +1087,7 @@ async function loadChat(chatId) {
     updateHistoryUI();
 }
 
-function renderMessage(role, content, isStreaming = false) {
+function renderMessage(role, content) {
     const wrapper = document.createElement('div');
     wrapper.className = role === 'user' ? 'flex justify-end items-start gap-3' : 'flex justify-start items-start gap-4';
     if (role === 'user') {
@@ -1109,24 +1097,24 @@ function renderMessage(role, content, isStreaming = false) {
             </div>
         `;
     } else {
+        const safeHtml = window.DOMPurify
+            ? DOMPurify.sanitize(marked.parse(content))
+            : content;
+
+        // Don't show feedback for welcome message or if we are loading
         const isWelcome = content === WELCOME_MESSAGE;
         const msgIndex = currentMessages.length - 1;
-
-        let contentHtml = content;
-        if (!isStreaming) {
-            contentHtml = window.DOMPurify ? DOMPurify.sanitize(marked.parse(content)) : content;
-        }
 
         wrapper.innerHTML = `
             <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
                 <img src="/static/character.jpg" alt="AI Avatar" class="w-full h-full object-cover">
             </div>
-            <div class="flex flex-col gap-2 max-w-[85%] flex-1">
+            <div class="flex flex-col gap-2 max-w-[85%]">
                 <div class="ai-bubble bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm prose dark:prose-invert max-w-none">
-                    <div class="message-content text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${contentHtml}</div>
+                    <div class="text-slate-700 dark:text-slate-300 prose dark:prose-invert max-w-none">${safeHtml}</div>
                 </div>
-                ${(!isWelcome && !isStreaming) ? `
-                <div class="feedback-container flex items-center gap-2 px-2">
+                ${!isWelcome ? `
+                <div class="flex items-center gap-2 px-2">
                     <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-green-500 hover:bg-green-500/10 transition-all hover:scale-110" title="Useful">
                         <span class="material-icons text-base">thumb_up</span>
                     </button>
@@ -1140,14 +1128,11 @@ function renderMessage(role, content, isStreaming = false) {
     }
     chatContainer.appendChild(wrapper);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    return wrapper;
 }
 
-async function appendMessage(role, content, skipRendering = false) {
+async function appendMessage(role, content) {
     currentMessages.push({ role, content });
-    if (!skipRendering) {
-        renderMessage(role, content);
-    }
+    renderMessage(role, content);
 
     if (window.currentUserId === "guest" || !window.currentUserId) {
         ensureGuestWelcomeMessage();
@@ -1211,95 +1196,18 @@ async function sendMessage() {
             .slice(0, -1) // Exclude the message we just added
             .map(m => ({ role: m.role, content: m.content }));
 
-        const token = localStorage.getItem('access_token');
-        const response = await fetch('/chat/stream', {
+        const response = await fetch('/chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 message: message,
                 user_id: window.currentUserId,
                 conversation_history: conversationHistory
             })
         });
-
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        // Prepare streaming bubble (hidden initially)
-        let fullResponse = "";
-        const aiWrapper = renderMessage('ai', "", true);
-        aiWrapper.classList.add('hidden'); // Hide until we actually have text
-        const contentDiv = aiWrapper.querySelector('.message-content');
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        // Character queue for steady typing
-        let charQueue = [];
-        let isTypingFinished = false;
-        let hasStartedStreaming = false;
-
-        // Consumer loop: Draws characters from the queue at a steady pace
-        const typingLoop = async () => {
-            while (true) {
-                if (charQueue.length > 0) {
-                    if (!hasStartedStreaming) {
-                        hasStartedStreaming = true;
-                        removeLoading(); // Keep "..." until we have content!
-                        aiWrapper.classList.remove('hidden');
-                    }
-                    const nextChar = charQueue.shift();
-                    fullResponse += nextChar;
-                    contentDiv.innerText = fullResponse;
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-                    // Faster typing delay (approx 10ms per char)
-                    await new Promise(r => setTimeout(r, 10));
-                } else if (isTypingFinished) {
-                    break;
-                } else {
-                    await new Promise(r => setTimeout(r, 10));
-                }
-            }
-        };
-
-        const typingPromise = typingLoop();
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) {
-                isTypingFinished = true;
-                break;
-            }
-            const chunk = decoder.decode(value, { stream: true });
-            for (let char of chunk) {
-                charQueue.push(char);
-            }
-        }
-
-        await typingPromise;
-
-        // Finalize: Render Markdown and add feedback buttons
-        const finalizedHtml = window.DOMPurify ? DOMPurify.sanitize(marked.parse(fullResponse)) : fullResponse;
-        contentDiv.innerHTML = finalizedHtml;
-
-        // Add feedback buttons
-        const msgIndex = currentMessages.length; // Will be pushed below
-        const bubbleContainer = aiWrapper.querySelector('.flex.flex-col');
-        const feedbackDiv = document.createElement('div');
-        feedbackDiv.className = "feedback-container flex items-center gap-2 px-2";
-        feedbackDiv.innerHTML = `
-            <button onclick="handleFeedback(this, 'like', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-green-500 hover:bg-green-500/10 transition-all hover:scale-110" title="Useful">
-                <span class="material-icons text-base">thumb_up</span>
-            </button>
-            <button onclick="handleFeedback(this, 'dislike', ${msgIndex})" class="feedback-btn p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all hover:scale-110" title="Not Useful">
-                <span class="material-icons text-base">thumb_down</span>
-            </button>
-        `;
-        bubbleContainer.appendChild(feedbackDiv);
-        await appendMessage('ai', fullResponse, true);
+        const data = await response.json();
+        removeLoading();
+        appendMessage('ai', data.response);
     } catch (error) {
         console.error('Error:', error);
         removeLoading();

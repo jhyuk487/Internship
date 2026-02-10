@@ -99,12 +99,6 @@ class ChatFeedback(Document):
     ai_response: str
     rating: str  # "like" or "dislike"
     feedback_text: Optional[str] = None
-    model_name: Optional[str] = None
-    prompt_version: Optional[str] = None
-    context_sources: Optional[List[str]] = None
-    context_snippet: Optional[str] = None
-    response_hash: Optional[str] = None
-    session_id: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:

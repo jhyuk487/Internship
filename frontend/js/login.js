@@ -97,7 +97,18 @@ function navigateAfterLogin() {
 }
 
 function handleLogout() {
-    // 1. UI elements cleanup
+    // Close grade modal BEFORE changing user to guest
+    const gradeModal = document.getElementById('grade-modal');
+    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
+        gradeModal.classList.add('translate-y-full');
+    }
+
+    if (typeof currentUserId !== 'undefined') {
+        window.currentUserId = "guest";
+    } else {
+        window.currentUserId = "guest";
+    }
+
     document.getElementById('user-name').innerText = "Guest Student";
     document.getElementById('user-avatar').innerText = "GS";
     document.getElementById('user-plan').innerText = "Newcomer";
@@ -111,31 +122,21 @@ function handleLogout() {
         };
     }
 
-    // 2. Global state and session cleanup
-    if (typeof currentUserId !== 'undefined') {
-        window.currentUserId = "guest";
-    } else {
-        window.currentUserId = "guest";
-    }
-
+    // Clear token
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
 
-    // 3. UI Modules updates
-    // Close grade modal BEFORE anything else
-    const gradeModal = document.getElementById('grade-modal');
-    if (gradeModal && !gradeModal.classList.contains('translate-y-full')) {
-        gradeModal.classList.add('translate-y-full');
-    }
-
+    // Clear chat history UI
     if (typeof checkAndUpdateHistoryUI === 'function') {
         checkAndUpdateHistoryUI();
     }
 
+    // Clear active chat conversation
     if (typeof startNewChat === 'function') {
         startNewChat({ suppressGuestConfirm: true, clearGuestHistory: true });
     }
 
+    // Update chat input state
     if (typeof updateChatInputState === 'function') {
         updateChatInputState(false);
     }
@@ -144,15 +145,10 @@ function handleLogout() {
 // Initialize session on page load
 async function initSession() {
     const token = localStorage.getItem('access_token');
-    if (!token) {
-        if (typeof updateChatInputState === 'function') {
-            updateChatInputState(false);
-        }
-        return;
-    }
+    if (!token) return;
 
     try {
-        const response = await fetch('/auth/me', {
+        const response = await fetch('http://127.0.0.1:8000/auth/me', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -160,7 +156,6 @@ async function initSession() {
         });
 
         if (response.ok) {
-            // ... (keep existing logic)
             const data = await response.json();
             const studentId = localStorage.getItem('user_id');
 
@@ -187,6 +182,9 @@ async function initSession() {
                     window.currentUserId = studentId;
                 }
 
+                // console.log("Session restored for:", user.name);
+
+
                 // Load chat history from backend
                 if (typeof loadChatHistoryFromBackend === 'function') {
                     loadChatHistoryFromBackend();
@@ -208,10 +206,6 @@ async function initSession() {
         }
     } catch (error) {
         console.error('Session init error:', error);
-        // Ensure guest chat is still enabled on network error if configured
-        if (typeof updateChatInputState === 'function') {
-            updateChatInputState(false);
-        }
     }
 }
 

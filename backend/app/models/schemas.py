@@ -77,9 +77,3 @@ class ChatFeedbackRequest(BaseModel):
     ai_response: str
     rating: str  # "like" or "dislike"
     feedback_text: Optional[str] = None
-    model_name: Optional[str] = None
-    prompt_version: Optional[str] = None
-    context_sources: Optional[List[str]] = None
-    context_snippet: Optional[str] = None
-    response_hash: Optional[str] = None
-    session_id: Optional[str] = None
