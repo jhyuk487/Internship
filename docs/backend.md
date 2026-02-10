@@ -4,8 +4,8 @@
 
 ## 1. 개요
 - 프레임워크: FastAPI
-- 서버 실행: Uvicorn (기본 127.0.0.1:8000)
-- 특징: 비동기 I/O, 자동 OpenAPI 문서, 모듈화 라우터
+- 서버 실행: Uvicorn (Host: `0.0.0.0`, Port: `8000`) - 외부 접근 허용
+- 특징: 비동기 I/O, AI 스트리밍 답변, BCrypt 보안 해싱, 모듈화 라우터
 
 ## 2. 구성
 - `backend/app/main.py`: 앱 생성, CORS, 정적 파일 마운트, 라우터 등록, DB 초기화
@@ -29,7 +29,8 @@
 - `POST /auth/find-password`: 비밀번호 찾기
 
 ### Chat
-- `POST /chat`, `POST /chat/ask`: AI 채팅
+- `POST /chat`, `POST /chat/ask`: AI 채팅 (단발성 응답)
+- `POST /chat/stream`: **실시간 스트리밍** 답변 (typing effect 연동용)
 - `POST /chat/ingest`: 벡터 인덱스 재생성
 - `GET /chat/history`: 내 채팅 목록
 - `POST /chat/history`: 채팅 저장
@@ -50,7 +51,8 @@
 - `DELETE /db/test/{id}`
 
 ## 4. 미들웨어 및 보안
-- CORS: 모든 Origin 허용 (개발 환경)
-- JWT 인증: `Authorization: Bearer <token>`
+- CORS: 모든 Origin 허용 (`*`) - 로컬 및 개발 접근성 확보
+- 보안 해싱: 비밀번호 저장 시 `passlib[bcrypt]`를 사용한 단방향 암호화
+- JWT 인증: `Authorization: Bearer <token>` (HS256)
 - 보호 라우트: `/chat/history*`, `/grades/me`, `/auth/me`
 - 공개 라우트: `/auth/profile/{user_id}` (프론트에서 UI 레벨 제한)
