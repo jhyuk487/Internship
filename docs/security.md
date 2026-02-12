@@ -1,28 +1,30 @@
-# 보안 노트
+# 보안 ?�트
 
-본 프로젝트는 로컬 우선(Local-first) 사용을 전제로 합니다. 배포 전 아래 사항을 검토하세요.
+�??�로?�트??로컬 ?�선(Local-first) ?�용???�제�??�니?? 배포 ???�래 ?�항??검?�하?�요.
 
-## 인증
-- `/auth/login`, `/auth/token`에서 JWT 발급
-- 보호 라우트는 `Authorization: Bearer <token>` 필요
+## ?�증
+- `/auth/login`, `/auth/token`?�서 JWT 발급
+- 보호 ?�우?�는 `Authorization: Bearer <token>` ?�요
 
-## 보호 라우트
+## 보호 ?�우??
 - `/auth/me`
-- `/chat/history` 및 `/chat/history/{chat_id}`
+- `/chat/history` �?`/chat/history/{chat_id}`
 - `/grades/me`
 
-## 공개 라우트
-- `/auth/profile/{user_id}`는 현재 공개 상태
-- `/chat`은 토큰이 선택 사항이며, 잘못된 토큰은 무시됩니다.
+## 공개 ?�우??
+- `/auth/profile/{user_id}`???�재 공개 ?�태
+- `/chat`?� ?�큰???�택 ?�항?�며, ?�못???�큰?� 무시?�니??
 
-## 비밀번호 찾기
-- `/auth/find-password`는 비밀번호를 직접 반환하지 않고 안내 메시지를 제공합니다.
-- 운영 환경에서는 재설정 링크 기반 흐름으로 변경해야 합니다.
+## 비�?번호 찾기
+- `/auth/find-password`??비�?번호�?직접 반환?��? ?�고 ?�내 메시지�??�공?�니??
+- ?�영 ?�경?�서???�설??링크 기반 ?�름?�로 변경해???�니??
 
-## 시크릿 키
-- `SECRET_KEY` 기본값은 개발용이며 운영 환경에서는 반드시 변경해야 합니다.
+## ?�크�???
+- `SECRET_KEY` 기본값�? 개발?�이�??�영 ?�경?�서??반드??변경해???�니??
 
 ## 권장 강화
-- `/auth/profile/{user_id}`에 JWT 검증 적용
-- 비밀번호 재설정 링크/OTP 기반 복구 플로우 도입
-- CORS Origin 제한
+- `/auth/profile/{user_id}`??JWT 검�??�용
+- 비�?번호 ?�설??링크/OTP 기반 복구 ?�로???�입
+- CORS Origin ?�한
+
+

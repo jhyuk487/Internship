@@ -636,7 +636,10 @@ function togglePasswordSuccessModal() {
 function openPasswordSuccessModal(password) {
     // Updated to show result in-place
     document.getElementById('find-password-form-container').classList.add('hidden');
-    document.getElementById('recovered-password-display').innerText = password;
+    const display = document.getElementById('recovered-password-display');
+    if (display) {
+        display.innerText = password || "Verified (hidden)";
+    }
     document.getElementById('find-password-result-container').classList.remove('hidden');
 }
 
@@ -1396,3 +1399,6 @@ async function handleFeedback(button, rating, msgIndex) {
         console.error("Error saving feedback:", error);
     }
 }
+
+
+

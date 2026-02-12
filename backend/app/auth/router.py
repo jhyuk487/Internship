@@ -18,6 +18,11 @@ class FindPasswordRequest(BaseModel):
     user_id: str
     email: str
 
+class ResetPasswordRequest(BaseModel):
+    user_id: str
+    email: str
+    new_password: str
+
 
 @router.post("/login", response_model=Token)
 async def login(request: LoginRequest):
@@ -39,14 +44,25 @@ async def login(request: LoginRequest):
 
 @router.post("/find-password")
 async def find_password(request: FindPasswordRequest):
-    """Endpoint to retrieve password by Student ID and Email"""
-    password = await student_service.find_password(request.user_id, request.email)
-    if not password:
+    """Verify student ID and email for password recovery"""
+    verified = await student_service.find_password(request.user_id, request.email)
+    if not verified:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found or email does not match",
         )
-    return {"password": password}
+    return {"verified": True}
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    """Reset password by Student ID and Email"""
+    success = await student_service.reset_password(request.user_id, request.email, request.new_password)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found or email does not match",
+        )
+    return {"status": "ok"}
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -97,5 +113,9 @@ async def get_profile(user_id: str):
             detail="User profile not found",
         )
     return user_profile
+
+
+
+
 
 

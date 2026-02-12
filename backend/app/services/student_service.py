@@ -32,16 +32,16 @@ class StudentService:
 
 
     async def get_student_info(self, student_id: str):
-        # 1. User 정보 조회
+        # 1. User ?�보 조회
         user = await User.find_one(User.user_id == student_id)
         
         if user:
             user_data = user.dict(exclude={"id"})
             
-            # 2. GradeRecord 정보 조회 및 추가
+            # 2. GradeRecord ?�보 조회 �?추�?
             grades = await GradeRecord.find_one(GradeRecord.user_id == student_id)
             if grades:
-                # "academic_records" 키로 성적 정보 추가 (AI가 명확히 인식하도록)
+                # "academic_records" ?�로 ?�적 ?�보 추�? (AI가 명확???�식?�도�?
                 user_data["academic_records"] = grades.dict(exclude={"id", "user_id"})
                 
             return user_data
@@ -56,11 +56,36 @@ class StudentService:
         # Verify student exists and email matches (case-insensitive)
         user = await User.find_one(User.user_id == student_id)
         if user and user.email.lower() == email:
+            account = await Account.find_one(Account.user_id == student_id)
+            if account:
+                return True
+        return None
+
+    async def reset_password(self, student_id: str, email: str, new_password: str):
+        # Clean input
+        student_id = student_id.strip()
+        email = email.strip().lower()
+        new_password = new_password.strip()
+
+        if not new_password:
+            return None
+
+        # Verify student exists and email matches (case-insensitive)
+        user = await User.find_one(User.user_id == student_id)
+        if user and user.email.lower() == email:
             # Retrieve password from Account
             account = await Account.find_one(Account.user_id == student_id)
             if account:
-                return "[보안] 비밀번호가 암호화되어 있어 직접 조회할 수 없습니다. 관리자에게 문의하세요."
+                account.user_password = get_password_hash(new_password)
+                await account.save()
+                return True
         return None
 
 
 student_service = StudentService()
+
+
+
+
+
+
